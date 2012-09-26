@@ -1,0 +1,3 @@
+[submodule "vim-lucius"]
+	path = vim/colors/vim-lucius
+	url = git://github.com/jonathanfilip/vim-lucius.git
