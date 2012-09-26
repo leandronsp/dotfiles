@@ -9,3 +9,6 @@
 [submodule "vim/colors/vivid-chalk.vim"]
 	path = vim/colors/vivid-chalk.vim
 	url = git://github.com/tpope/vim-vividchalk.git
+[submodule "vim/colors/vivid-chalk"]
+	path = vim/colors/vivid-chalk
+	url = git://github.com/tpope/vim-vividchalk.git
