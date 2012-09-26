@@ -6,9 +6,6 @@
 	path = vim/bundle/ctrlp.vim
 	url = git://github.com/kien/ctrlp.vim.git
 
-[submodule "vim/colors/vivid-chalk.vim"]
-	path = vim/colors/vivid-chalk.vim
-	url = git://github.com/tpope/vim-vividchalk.git
-[submodule "vim/colors/vivid-chalk"]
-	path = vim/colors/vivid-chalk
+[submodule "vim/colors/vim-vividchalk"]
+	path = vim/colors/vim-vividchalk
 	url = git://github.com/tpope/vim-vividchalk.git
