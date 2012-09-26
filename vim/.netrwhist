@@ -1,0 +1,8 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =6
+let g:netrw_dirhist_1='/Users/leandronsp/projects/customer-workbench/app/helpers'
+let g:netrw_dirhist_2='/Users/leandronsp/projects/customer-workbench'
+let g:netrw_dirhist_3='/Users/leandronsp/projects/support-workbench'
+let g:netrw_dirhist_4='/Users/leandronsp/projects/customer-workbench'
+let g:netrw_dirhist_5='/Users/leandronsp/projects/support-workbench'
+let g:netrw_dirhist_6='/Users/leandronsp/projects/customer-workbench'
