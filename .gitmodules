@@ -5,6 +5,7 @@
 [submodule "vim/bundle/ctrlp.vim"]
 	path = vim/bundle/ctrlp.vim
 	url = git://github.com/kien/ctrlp.vim.git
-[submodule "vim/bundle/vivid-chalk.vim"]
-	path = vim/bundle/vivid-chalk.vim
+
+[submodule "vim/colors/vivid-chalk.vim"]
+	path = vim/colors/vivid-chalk.vim
 	url = git://github.com/tpope/vim-vividchalk.git
