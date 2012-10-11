@@ -10,3 +10,6 @@
 [submodule "vim/colors/vim-railscasts-theme"]
 	path = vim/colors/vim-railscasts-theme
 	url = git://github.com/jpo/vim-railscasts-theme.git
+[submodule "vim/bundle/ack.vim"]
+        path = vim/bundle/ack.vim
+        url = git://github.com/mileszs/ack.vim.git
