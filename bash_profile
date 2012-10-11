@@ -28,7 +28,8 @@ export ODBCINI=/Library/ODBC/odbc.ini
 export ODBCSYSINI=/opt
 export FREETDSCONF=/opt/local/etc/freetds/freetds.conf
 export CATALINA_HOME=/Users/leandronsp/programs/tomcat
-export PATH=$CATALINA_HOME:$PATH
+export TMUX_HOME=/opt/bin
+export PATH=$TMUX_HOME:$CATALINA_HOME:$PATH
 PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 export PATH
 
