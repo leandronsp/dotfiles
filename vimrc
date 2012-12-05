@@ -1,5 +1,4 @@
 colorscheme desert
-set number
 filetype plugin indent on
 call pathogen#infect()
 syntax on
@@ -7,6 +6,7 @@ syntax on
 set softtabstop=2
 set expandtab
 set shiftwidth=2
+set number
 
 autocmd BufWritePre * :%s/\s\+$//e
 
