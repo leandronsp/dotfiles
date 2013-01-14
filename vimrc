@@ -3,9 +3,10 @@ filetype plugin indent on
 call pathogen#infect()
 syntax on
 
-set softtabstop=2
+set sw=2 ts=2 sts=2
+autocmd FileType java :setlocal sw=4 ts=4 sts=4
+
 set expandtab
-set shiftwidth=2
 set number
 set ruler
 
