@@ -9,13 +9,7 @@ set shiftwidth=2
 set number
 set ruler
 
+set wildignore+=*.class,*.jar,*/target/*
+
 autocmd BufWritePre * :%s/\s\+$//e
 
-noremap   <Up> ""
-noremap!  <Up> <Esc>
-noremap   <Down> ""
-noremap!   <Down> <Esc>
-noremap   <Right> ""
-noremap!  <Right> <Esc>
-noremap  <Left> ""
-noremap!  <Left> <Esc>
