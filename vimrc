@@ -10,7 +10,7 @@ set expandtab
 set number
 set ruler
 
-set wildignore+=*.class,*.jar,*/target/*
+set wildignore+=*.class,*.jar,*/target/*,*/coverage/*
 
 autocmd BufWritePre * :%s/\s\+$//e
 
