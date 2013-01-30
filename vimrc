@@ -14,4 +14,5 @@ set wildignore+=*.class,*.jar,*/target/*,*/coverage/*
 
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd FileType ruby map <F9> :w<CR>:!ruby -c %<CR>
+au FileType xml setlocal equalprg=xmllint\ --format\ --recover\ -\ 2>/dev/null
 
