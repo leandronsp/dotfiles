@@ -13,4 +13,5 @@ set ruler
 set wildignore+=*.class,*.jar,*/target/*,*/coverage/*
 
 autocmd BufWritePre * :%s/\s\+$//e
+autocmd FileType ruby map <F9> :w<CR>:!ruby -c %<CR>
 
