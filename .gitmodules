@@ -1,15 +1,9 @@
-[submodule "vim-lucius"]
-	path = vim/colors/vim-lucius
-	url = git://github.com/jonathanfilip/vim-lucius.git
 [submodule "vim/bundle/ctrlp.vim"]
 	path = vim/bundle/ctrlp.vim
 	url = git://github.com/kien/ctrlp.vim.git
-[submodule "vim/colors/vim-vividchalk"]
-	path = vim/colors/vim-vividchalk
-	url = git://github.com/tpope/vim-vividchalk.git
-[submodule "vim/colors/vim-railscasts-theme"]
-	path = vim/colors/vim-railscasts-theme
-	url = git://github.com/jpo/vim-railscasts-theme.git
 [submodule "vim/bundle/ack.vim"]
         path = vim/bundle/ack.vim
         url = git://github.com/mileszs/ack.vim.git
+[submodule "vim/bundle/vim-colors-solarized.vim"]
+        path = vim/bundle/vim-colors-solarized
+        url = git://github.com/altercation/vim-colors-solarized.git
