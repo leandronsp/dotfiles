@@ -30,6 +30,7 @@ export ODBCSYSINI=/opt
 export FREETDSCONF=/opt/local/etc/freetds/freetds.conf
 export CATALINA_HOME=/Users/leandronsp/programs/tomcat
 export TMUX_HOME=/opt/bin
+export PGDATA=/usr/local/var/postgres
 
 # configure PATH
 PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
