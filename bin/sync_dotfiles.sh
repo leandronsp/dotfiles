@@ -21,3 +21,6 @@ function install() {
 }
 
 install
+
+echo "Fetching submodules..."
+git pull && git submodule init && git submodule update
