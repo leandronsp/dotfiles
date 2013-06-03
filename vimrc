@@ -1,8 +1,8 @@
 set nocompatible
 syntax on
 filetype plugin indent on
-call pathogen#infect()
 
+call pathogen#infect()
 set sw=2 ts=2 sts=2
 
 set background=light
