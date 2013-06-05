@@ -1,5 +1,6 @@
 [alias]
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --color
 	lga = log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --color
+	changed = show HEAD --pretty=\"format:\" --color
 [core]
 	excludesfile = /Users/leandronsp/.gitignore_global
