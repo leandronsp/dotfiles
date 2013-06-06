@@ -24,6 +24,7 @@ if [ -f ~/.bash/private ]; then
 	. ~/.bash/private
 fi
 
+export EDITOR=vim
 export TERM="screen-256color"
 export ODBCINI=/Library/ODBC/odbc.ini
 export ODBCSYSINI=/opt
