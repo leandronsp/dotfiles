@@ -1,0 +1,7 @@
+*.sql
+*.log
+*.sqlite
+public/assets
+bin
+log
+tmp
