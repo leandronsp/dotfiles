@@ -1,13 +1,14 @@
 set nocompatible
-syntax on
-filetype plugin indent on
-
 call pathogen#infect()
-set sw=2 ts=2 sts=2
 
-set background=light
+syntax enable
+set background=dark
 colorscheme solarized
 call togglebg#map("<F5>")
+
+filetype plugin indent on
+
+set sw=2 ts=2 sts=2
 
 set showmode
 set hidden
@@ -25,10 +26,10 @@ set nobackup
 set noswapfile
 set showmatch
 set ttyfast
-"set cursorline
+set cursorline
 set scrolloff=10
 
-set wildignore+=*.class,*.jar,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*
+set wildignore+=*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*
 
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd filetype java :setlocal sw=4 ts=4 sts=4
