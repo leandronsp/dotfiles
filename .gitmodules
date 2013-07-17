@@ -11,5 +11,5 @@
         path = vim/bundle/vim-colors-solarized
         url = git://github.com/altercation/vim-colors-solarized.git
 [submodule "solarized-terminal"]
-        path = solarized-terminal
+        path = themes/solarized-terminal
         url = git://github.com/tomislav/osx-terminal.app-colors-solarized.git
