@@ -29,7 +29,8 @@ set ttyfast
 set cursorline
 set scrolloff=10
 
-set wildignore+=*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*
+set wildignore+=*.beam,*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*
+let g:netrw_list_hide= '.*\.beam$'
 
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd filetype java :setlocal sw=4 ts=4 sts=4
