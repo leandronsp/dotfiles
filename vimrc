@@ -13,7 +13,7 @@ set sw=2 ts=2 sts=2
 set showmode
 set hidden
 set expandtab
-set number
+"set number
 set ruler
 set nowrap
 set ignorecase
