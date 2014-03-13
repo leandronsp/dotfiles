@@ -6,3 +6,5 @@
 	excludesfile = /Users/leandronsp/.gitignore_global
 [user]
 	name = Leandro Maríngolo
+[color]
+	ui = true
