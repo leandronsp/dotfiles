@@ -1,0 +1,17 @@
+#!/bin/bash
+
+tmux new -s processes -d -n pg-elastic-riak-redis
+
+tmux send-keys 'elasticsearch' C-m
+
+tmux split-window -v
+tmux send-keys 'cd ~/code/cj/clubjudge-admin' C-m
+tmux send-keys './bin/riak_fix' C-m
+
+tmux split-window -h
+tmux send-keys 'redis-server' C-m
+
+tmux split-window -h
+tmux send-keys 'postgres' C-m
+
+tmux attach -t processes
