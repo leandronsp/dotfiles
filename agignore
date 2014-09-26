@@ -5,3 +5,4 @@ public/assets
 bin
 log
 tmp
+coverage
