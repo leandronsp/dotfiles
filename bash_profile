@@ -60,3 +60,7 @@ PATH=/usr/local/bin:/usr/local:/usr/local/sbin:$PATH
 PATH=$TMUX_HOME:$CATALINA_HOME:$PATH
 export PATH
 
+clear_dns() {
+  sudo killall -HUP mDNSResponder
+}
+
