@@ -1,5 +1,5 @@
 source /usr/local/opt/chruby/share/chruby/chruby.sh
-chruby 1.9.3-p392
+chruby 2.1
 
 git_prompt_info() {
   git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\/\(.*\)/ (\1)/' 2> /dev/null
