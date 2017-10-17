@@ -2,7 +2,11 @@
 *.log
 *.sqlite
 public/assets
+profiles/profiles
 bin
 log
 tmp
 coverage
+*.css
+*.css*
+__snapshots__

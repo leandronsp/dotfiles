@@ -1,5 +1,5 @@
-source /usr/local/opt/chruby/share/chruby/chruby.sh
-chruby 2.1
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
 git_prompt_info() {
   git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\/\(.*\)/ (\1)/' 2> /dev/null
@@ -28,10 +28,6 @@ function prompt {
 
 prompt
 
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-. `brew --prefix`/etc/bash_completion
-fi
-
 # load aliases
 if [ -f ~/.bash/aliases ]; then
 . ~/.bash/aliases
@@ -47,16 +43,13 @@ if [ -f ~/.bash/private ]; then
 fi
 
 export EDITOR=vim
-export ODBCINI=/Library/ODBC/odbc.ini
-export ODBCSYSINI=/opt
-export FREETDSCONF=/opt/local/etc/freetds/freetds.conf
-export CATALINA_HOME=/Users/leandronsp/programs/tomcat
 export TMUX_HOME=/opt/bin
 export PGDATA=/usr/local/var/postgres
 
 # configure PATH
-PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+#PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
 PATH=/usr/local/bin:/usr/local:/usr/local/sbin:$PATH
+
 PATH=$TMUX_HOME:$CATALINA_HOME:$PATH
 export PATH
 
@@ -64,3 +57,22 @@ clear_dns() {
   sudo killall -HUP mDNSResponder
 }
 
+copyb() {
+  git branch | grep "*" | awk '{ print $2 }' | pbcopy > /dev/null
+}
+
+backb() {
+  git checkout @{-1}
+}
+
+[ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
+
+export PATH="$PATH:`yarn global bin`"
+
+export ANDROID_HOME=~/Library/Android/sdk
+export PATH=${PATH}:${ANDROID_HOME}/tools
+export PATH=${PATH}:${ANDROID_HOME}/platform-tools
+
+. $HOME/.asdf/asdf.sh
+
+. $HOME/.asdf/completions/asdf.bash

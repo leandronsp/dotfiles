@@ -3,7 +3,7 @@
 # This is a tool to manage dotfiles in home directory
 #
 
-SCRIPT_DIR="${HOME}/code/dotfiles"
+SCRIPT_DIR="${HOME}/Documents/code/dotfiles"
 
 
 function install() {

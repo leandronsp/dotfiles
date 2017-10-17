@@ -2,10 +2,20 @@
 	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --color
 	lga = log --all --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative --color
 	changed = show HEAD --pretty=\"format:\" --color
+	copyb = git copyb branch | grep '*' | awk '{ print  }' | pbcopy
 [core]
-	excludesfile = ~/.gitignore_global
+	excludesfile = /Users/leandro/.gitignore_global
+  commentchar=!
 [user]
 	name = "Leandro Maríngolo"
   email = "leandronsp@gmail.com"
 [color]
   ui = true
+
+[hub]
+protocol = https
+
+[credential]
+helper = /opt/boxen/bin/boxen-git-credential
+[pull]
+	default = current
