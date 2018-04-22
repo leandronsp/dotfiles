@@ -20,7 +20,7 @@ set nowrap
 set paste
 set textwidth=80
 set formatoptions=cro
-set colorcolumn=100
+set colorcolumn=80
 set ignorecase
 set smartcase
 set incsearch
@@ -38,7 +38,7 @@ set laststatus=2
 set autoread
 "set cindent
 
-set wildignore+=*.beam,*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*,*/_site/*,*/node_modules/*,*/dist/*,*/deps/*,*/__snapshots__/*
+set wildignore+=*.beam,*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*,*/_site/*,*/node_modules/*,*/dist/*,*/deps/*,*/__snapshots__/*,*/cypress/data/*
 let g:netrw_liststyle=3
 let g:netrw_list_hide= '.*\.beam$'
 let g:ctrlp_working_path_mode = 0
@@ -46,7 +46,7 @@ let g:ctrlp_working_path_mode = 0
 map <C-n> :NERDTreeToggle<CR>
 map <C-k> :NERDTreeFind<CR>
 let g:NERDTreeHijackNetrw=0
-let NERDTreeIgnore=['\.o$', '\~$', 'node_modules']
+let NERDTreeIgnore=['\.o$', '\~$', 'node_modules', 'cypress/data']
 "let vim_markdown_preview_hotkey='<C-m>'
 
 autocmd BufWritePre * :%s/\s\+$//e
