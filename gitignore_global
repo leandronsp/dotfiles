@@ -39,3 +39,4 @@ Thumbs.db
 *.un~
 .ruby-version
 node_modules
+*.un~
