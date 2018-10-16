@@ -4,7 +4,10 @@ call pathogen#infect()
 
 syntax enable
 set background=dark
-colorscheme solarized
+
+let g:gruvbox_contrast_light=1
+let g:gruvbox_italic=1
+colorscheme gruvbox
 call togglebg#map("<F6>")
 
 filetype plugin indent on
@@ -42,10 +45,12 @@ set wildignore+=*.beam,*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/covera
 let g:netrw_liststyle=3
 let g:netrw_list_hide= '.*\.beam$'
 let g:ctrlp_working_path_mode = 0
+let g:ctrlp_max_files=0
 "let g:NERDTreeWinSize = 50
 map <C-n> :NERDTreeToggle<CR>
 map <C-k> :NERDTreeFind<CR>
 let g:NERDTreeHijackNetrw=0
+let g:NERDTreeWinSize=60
 let NERDTreeIgnore=['\.o$', '\~$', 'node_modules', 'cypress/data']
 "let vim_markdown_preview_hotkey='<C-m>'
 
@@ -58,6 +63,7 @@ autocmd FileType ruby let b:dispatch = 'bundle exec rspec --drb %'
 autocmd FileType gitcommit set colorcolumn=73
 autocmd FileType gitcommit set textwidth=72
 autocmd BufNewFile,BufReadPost *.coffee setl foldmethod=indent nofoldenable
+autocmd VimEnter * NERDTree
 
 nnoremap <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 map   <silent> <F5> mmgg=G'm

@@ -1,3 +1,6 @@
+source /usr/local/share/chruby/chruby.sh
+chruby 2.5
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
 
@@ -67,8 +70,6 @@ backb() {
 
 [ -f /opt/boxen/env.sh ] && source /opt/boxen/env.sh
 
-export PATH="$PATH:`yarn global bin`"
-
 export ANDROID_HOME=~/Library/Android/sdk
 export PATH=${PATH}:${ANDROID_HOME}/tools
 export PATH=${PATH}:${ANDROID_HOME}/platform-tools
@@ -76,3 +77,14 @@ export PATH=${PATH}:${ANDROID_HOME}/platform-tools
 . $HOME/.asdf/asdf.sh
 
 . $HOME/.asdf/completions/asdf.bash
+
+. $HOME/.asdf/asdf.sh
+
+. $HOME/.asdf/completions/asdf.bash
+export PATH="/usr/local/opt/imagemagick@6/bin:$PATH"
+export PATH="/usr/local/opt/libxml2/bin:$PATH"
+export PKG_CONFIG_PATH=:/usr/local/opt/imagemagick@6/lib/pkgconfig
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
