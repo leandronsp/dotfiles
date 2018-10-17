@@ -41,6 +41,7 @@ set laststatus=2
 set autoread
 "set cindent
 
+let g:ackprg = 'ag --vimgrep'
 set wildignore+=*.beam,*.class,*.jar,*.sql,*/vendor/bundle/*,*/target/*,*/coverage/*,*/yacat-repos/*,*/tmp/*,*/log/*,*/_site/*,*/node_modules/*,*/dist/*,*/deps/*,*/__snapshots__/*,*/cypress/data/*
 let g:netrw_liststyle=3
 let g:netrw_list_hide= '.*\.beam$'
