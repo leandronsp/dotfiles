@@ -7,8 +7,8 @@
 	excludesfile = /Users/leandro/.gitignore_global
   commentchar=!
 [user]
-	name = "Leandro Maríngolo"
-  email = "leandronsp@gmail.com"
+	name = Leandro Maríngolo
+	email = leandronsp@gmail.com
 [color]
   ui = true
 
@@ -19,3 +19,8 @@ protocol = https
 helper = /opt/boxen/bin/boxen-git-credential
 [pull]
 	default = current
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

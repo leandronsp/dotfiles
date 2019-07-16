@@ -40,3 +40,10 @@ Thumbs.db
 .ruby-version
 node_modules
 *.un~
+mergeplease
+
+zeus.json
+custom_plan.rb
+
+vendor/bundle/ruby
+vim/backups

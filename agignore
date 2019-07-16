@@ -2,11 +2,11 @@
 *.log
 *.sqlite
 public/assets
+vendor/assets
 profiles/profiles
 bin
 log
 tmp
 coverage
-*.css
-*.css*
 __snapshots__
+dist
