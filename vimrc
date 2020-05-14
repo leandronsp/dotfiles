@@ -63,12 +63,14 @@ call plug#begin('~/.vim/plugged')
 
 " Theme
 Plug 'morhetz/gruvbox'
+Plug 'jacoborus/tender.vim'
 
 " Misc plugins
 Plug 'ryanoasis/vim-devicons'
 Plug 'preservim/nerdtree'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'mhinz/vim-startify'
 "Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 "Plug 'ntpeters/vim-better-whitespace'
 "Plug 'tpope/vim-surround'
@@ -76,7 +78,7 @@ Plug 'junegunn/fzf.vim'
 "Plug 'jiangmiao/auto-pairs'
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'wsdjeg/FlyGrep.vim'
-"Plug 'andymass/vim-matchup'
+Plug 'andymass/vim-matchup'
 "Plug 'preservim/nerdcommenter'
 Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
@@ -105,9 +107,18 @@ call plug#end()
 " Theme
 syntax enable
 set background=dark
+
+" Tender
+"colorscheme tender
+
+" Gruvbox
 let g:gruvbox_contrast_light=1
 let g:gruvbox_italic=1
 colorscheme gruvbox
+
+if (has("termguicolors"))
+ set termguicolors
+endif
 
 if has("gui_running")
 "tell the term has 256 colors
@@ -240,7 +251,9 @@ nnoremap <leader> <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
 nnoremap <leader><space> :FlyGrep<CR>
 nnoremap <leader>r :source %<CR>
 nnoremap <leader>pi :PlugInstall<CR>
-noremap <leader>q :qa!<CR>
+noremap <leader>q :q<CR>
+noremap <leader>w :w<CR>
+noremap <leader>qq :qa!<CR>
 noremap <leader>z :nohl<CR>
 noremap <leader>sp :set paste<CR>
 noremap <leader>snp :set nopaste<CR>
