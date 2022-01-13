@@ -47,3 +47,4 @@ custom_plan.rb
 
 vendor/bundle/ruby
 vim/backups
+.solargraph.yml

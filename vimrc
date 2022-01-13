@@ -8,6 +8,7 @@ set encoding=utf-8
 " ================ General Config ====================
 "
 "
+set foldmethod=manual
 set number                      "Line numbers are good
 set backspace=indent,eol,start  "Allow backspace in insert mode
 set history=1000                "Store lots of :cmdline history
@@ -16,6 +17,7 @@ set showmode                    "Show current mode down the bottom
 set gcr=a:blinkon0              "Disable cursor blink
 set visualbell                  "No sounds
 set autoread                    "Reload files changed outside vim
+"set clipboard=unnamed
 
 " This makes vim act like all other editors, buffers can
 " exist in the background without being in a window.
@@ -27,7 +29,7 @@ syntax on
 
 " The mapleader has to be set before vundle starts loading all
 " the plugins.
-let mapleader = ","
+let mapleader = ";"
 
 " ================ Turn Off Swap Files ==============
 
@@ -71,21 +73,22 @@ Plug 'preservim/nerdtree'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'mhinz/vim-startify'
+Plug 'stephpy/vim-yaml'
+Plug 'tpope/vim-surround'
+Plug 'andymass/vim-matchup'
+Plug 'itchyny/lightline.vim'
+Plug 'mengelbrecht/lightline-bufferline'
+
+"Plug 'preservim/nerdcommenter'
 "Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 "Plug 'ntpeters/vim-better-whitespace'
-"Plug 'tpope/vim-surround'
 "Plug 'tpope/vim-repeat'
 "Plug 'jiangmiao/auto-pairs'
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'wsdjeg/FlyGrep.vim'
-Plug 'andymass/vim-matchup'
-"Plug 'preservim/nerdcommenter'
-Plug 'itchyny/lightline.vim'
-Plug 'mengelbrecht/lightline-bufferline'
 "Plug 'terryma/vim-multiple-cursors'
 
  "HTML
-Plug 'mattn/emmet-vim'
+"Plug 'mattn/emmet-vim'
 
 " Javascript/Typescript
 Plug 'pangloss/vim-javascript'
@@ -96,11 +99,22 @@ Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-rails'
 Plug 'vim-ruby/vim-ruby'
 
+" Elixir
+Plug 'elixir-editors/vim-elixir'
+
+" Haskell
+Plug 'neovimhaskell/haskell-vim'
+
+" Dart
+Plug 'dart-lang/dart-vim-plugin'
+
 " Testing
 Plug 'janko/vim-test'
 Plug 'victormours/vim-rspec'
 Plug 'pgr0ss/vimux-ruby-test'
 Plug 'benmills/vimux'
+
+Plug 'tpope/vim-dispatch'
 
 call plug#end()
 
@@ -127,7 +141,7 @@ end
 
 " Ruler
 set ruler
-set textwidth=80
+set textwidth=200
 set colorcolumn=80
 
 " Better search
@@ -159,6 +173,7 @@ set scrolloff=5 " Keep 5 lines below and above the cursor
 set cursorline
 set laststatus=2
 set showmatch
+set formatoptions-=cro " Disable continuation of comments when pasting text
 
 autocmd VimResized * wincmd = " Automatically resize splits when resizing window
 
@@ -179,7 +194,7 @@ let g:netrw_liststyle = 3
 let g:NERDTreeHijackNetrw = 0
 let g:NERDTreeWinSize=60
 let g:NERDTreeStatusline = '%#NonText#'
-let NERDTreeQuitOnOpen = 1
+"let NERDTreeQuitOnOpen = 1
 let NERDTreeAutoDeleteBuffer = 1
 let NERDTreeIgnore=['\.o$', '\~$', 'node_modules', 'cypress/data', 'dist']
 autocmd StdinReadPre * let s:std_in=1
@@ -211,6 +226,21 @@ nnoremap <silent> <leader>b :exe "tabn ".g:lasttab<cr>
 vnoremap <silent> <leader>b :exe "tabn ".g:lasttab<cr>
 
 " Customize Fzf
+
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+
+let g:fzf_action = {
+  \ 'ctrl-q': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all'
+
 let rgignore = '**/node_modules/*,**/.git/*,**/vendor/assets/*,**/vendor/bundle/*,**/public/assets/*,**/public/packs/*,**/public/fonts/*,*.sql,*.csv,*.log,**/.keep,*.json'
 
 function! RipgrepFzf(query, fullscreen)
@@ -226,14 +256,8 @@ command! -bang -nargs=? -complete=dir Files
 			\ call fzf#run(fzf#wrap({'source': 'rg --files --hidden --follow', 'down': '40%'}))
 
 nnoremap <silent> <C-p> :Files<CR>
+nnoremap <silent> <C-i> :Buffers<CR>
 nnoremap <silent> <C-f> :RG<CR>
-
-" Rspec configuration
-let test#ruby#rspec#executable = 'bundle exec rspec'
-let test#ruby#use_spring_binstub = 1
-map <silent> <leader>tf :TestFile -strategy=vimux<CR>
-map <silent> <leader>tn :TestNearest -strategy=vimux<CR>
-map <silent> <leader>tl :TestLast -strategy=vimux<CR>
 
 " Lightline configuration
 let g:lightline = {
@@ -246,9 +270,21 @@ let g:lightline = {
       \ }
 let g:lightline.component = { 'close': '' }
 
+" Quickfix window bindings
+nnoremap <leader>cn :cnext<CR>
+nnoremap <leader>cp :cprevious<CR>
+nnoremap <leader>cc :ccl<CR>
+
+" Rspec configuration
+let test#ruby#rspec#executable = 'bundle exec rspec'
+let test#ruby#use_spring_binstub = 1
+map <silent> <leader>tf :TestFile -strategy=vimux<CR>
+map <silent> <leader>tn :TestNearest -strategy=vimux<CR>
+map <silent> <leader>tl :TestLast -strategy=vimux<CR>
+map <silent> <leader>ta :TestSuite -strategy=vimux<CR>
+
 " Misc
 nnoremap <leader> <expr> gb '`[' . strpart(getregtype(), 0, 1) . '`]'
-nnoremap <leader><space> :FlyGrep<CR>
 nnoremap <leader>r :source %<CR>
 nnoremap <leader>pi :PlugInstall<CR>
 noremap <leader>q :q<CR>
@@ -258,4 +294,14 @@ noremap <leader>z :nohl<CR>
 noremap <leader>sp :set paste<CR>
 noremap <leader>snp :set nopaste<CR>
 
-"source ~/.vim/coc.vim
+nmap <silent> <C-s> :w<CR>
+imap <silent> <C-s> <Esc>:w<CR>
+
+nmap <leader>pbp :set paste<CR>:r !pbpaste<CR>:set nopaste<CR>
+imap <leader>pbp <Esc>:set paste<CR>:r !pbpaste<CR>:set nopaste<CR>
+nmap <leader>pby :.w !pbcopy<CR><CR>
+vmap <leader>pby :w !pbcopy<CR><CR>
+
+noremap <leader>aa :call VimuxRunCommand("clear; bundle exec rake test")<CR>
+noremap <leader>ai :call VimuxRunCommand("clear; bundle exec ruby -r ./test/test_helper " . bufname("%"))<CR>
+noremap <leader>ae :call VimuxRunCommand("clear; bundle exec rake e2e")<CR>
