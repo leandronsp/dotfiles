@@ -1,0 +1,13 @@
+k9s:
+  views:
+    v1/pods:
+      columns:
+        - AGE
+        - NAMESPACE
+        - NAME
+        - STATUS
+        - READY
+        - CPU
+        - MEM
+        - IP
+        - NODE

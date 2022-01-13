@@ -1,0 +1,83 @@
+k9s:
+  refreshRate: 2
+  maxConnRetry: 5
+  enableMouse: false
+  headless: false
+  crumbsless: false
+  readOnly: false
+  noIcons: false
+  logger:
+    tail: 100
+    buffer: 5000
+    sinceSeconds: 60
+    fullScreenLogs: false
+    textWrap: false
+    showTime: false
+  currentContext: bugle-ireland
+  currentCluster: arn:aws:eks:eu-west-1:513798975542:cluster/bugle-kubernetes-cluster
+  clusters:
+    arn:aws:eks:eu-central-1:513798975542:cluster/bugle-kubernetes-cluster:
+      namespace:
+        active: vwgs
+        favorites:
+        - all
+        - vwgs
+        - default
+      view:
+        active: pod
+      featureGates:
+        nodeShell: false
+      shellPod:
+        image: busybox:1.31
+        namespace: default
+        limits:
+          cpu: 100m
+          memory: 100Mi
+      portForwardAddress: localhost
+    arn:aws:eks:eu-west-1:513798975542:cluster/bugle-kubernetes-cluster:
+      namespace:
+        active: production
+        favorites:
+        - ingress-nginx
+        - default
+        - production
+        - staging
+        - logging
+        - monitoring
+        - all
+      view:
+        active: pods
+      featureGates:
+        nodeShell: false
+      shellPod:
+        image: busybox:1.31
+        namespace: default
+        limits:
+          cpu: 100m
+          memory: 100Mi
+      portForwardAddress: localhost
+    gke_yata-329822_europe-central2-a_yata-kubernetes-a4df0d1:
+      namespace:
+        active: default
+        favorites:
+        - cert-manager
+        - all
+        - default
+      view:
+        active: pod
+      featureGates:
+        nodeShell: false
+      shellPod:
+        image: busybox:1.31
+        namespace: default
+        limits:
+          cpu: 100m
+          memory: 100Mi
+      portForwardAddress: localhost
+  thresholds:
+    cpu:
+      critical: 90
+      warn: 70
+    memory:
+      critical: 90
+      warn: 70
