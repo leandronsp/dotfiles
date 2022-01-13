@@ -5,7 +5,10 @@
 
 
 ### Usage ###
-  1. git clone --recursive (initialize submodules in the clone)
-  2. ./bin/sync_dotfiles.sh
-  3. Import solarized-terminal theme from Terminal
+
+  * git clone --recursive (initialize submodules in the clone)
+  * ./bin/sync_dotfiles.sh
+  * Import gruvbox-theme
+  * vim PlugInstall
+
 
