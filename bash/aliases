@@ -1,5 +1,2 @@
 alias ls='ls -G'
-alias nano=vim
-alias py=python
-alias sb='/Applications/Sublime\ Text\ 2.app/Contents/SharedSupport/bin/subl'
 alias chacina='docker rm -f $(docker ps -q -a)'
