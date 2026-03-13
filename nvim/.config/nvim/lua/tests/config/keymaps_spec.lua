@@ -24,9 +24,9 @@ describe('Basic Keymaps', function()
 
   it('should have window navigation keymaps', function()
     -- Load configuration to ensure keymaps are set
-    require('config.options')
-    require('config.keymaps')
-    
+    require 'config.options'
+    require 'config.keymaps'
+
     local nav_keys = { '<C-h>', '<C-j>', '<C-k>', '<C-l>' }
 
     for _, key in ipairs(nav_keys) do
