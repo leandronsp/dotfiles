@@ -43,6 +43,28 @@ status: ## Show symlink status
 
 ##@ Checks
 
+deps: ## Check required dependencies
+	@ok=true; \
+	for cmd in brew stow git nvim tmux asdf direnv opam jq curl cargo claude elan pipx; do \
+		if command -v $$cmd >/dev/null 2>&1; then \
+			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
+		else \
+			printf "  \e[31mMISS\e[0m  %s\n" "$$cmd"; ok=false; \
+		fi; \
+	done; \
+	printf "\n"; \
+	brew list gd >/dev/null 2>&1 \
+		&& printf "  \e[32mOK\e[0m    %s\n" "brew:gd" \
+		|| (printf "  \e[31mMISS\e[0m  %s\n" "brew:gd"; ok=false); \
+	for dir in ~/.oh-my-zsh ~/.cargo ~/.secrets; do \
+		if [ -d "$$dir" ]; then \
+			printf "  \e[32mOK\e[0m    %s\n" "$$dir"; \
+		else \
+			printf "  \e[31mMISS\e[0m  %s\n" "$$dir"; ok=false; \
+		fi; \
+	done; \
+	$$ok && echo "All dependencies found." || echo "Some dependencies are missing."
+
 check: ## Verify all symlinks are intact
 	@ok=true; \
 	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config; do \
