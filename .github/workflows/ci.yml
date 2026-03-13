@@ -1,12 +1,12 @@
-name: CI
+name: Neovim CI
 
 on:
   push:
-    branches: [ main ]
-    paths: ['nvim/**']
+    branches: [main]
+    paths: ['nvim/**', '.github/workflows/ci.yml']
   pull_request:
-    branches: [ main ]
-    paths: ['nvim/**']
+    branches: [main]
+    paths: ['nvim/**', '.github/workflows/ci.yml']
 
 jobs:
   test:
@@ -20,8 +20,7 @@ jobs:
         with:
           path: /var/cache/apt/archives
           key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-apt-
+          restore-keys: ${{ runner.os }}-apt-
 
       - name: Install dependencies
         run: |
@@ -40,10 +39,9 @@ jobs:
         with:
           path: ~/.cache/stylua
           key: ${{ runner.os }}-stylua-${{ hashFiles('.github/workflows/ci.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-stylua-
+          restore-keys: ${{ runner.os }}-stylua-
 
-      - name: Install stylua
+      - name: Install StyLua
         run: |
           if [ ! -f ~/.cache/stylua/stylua ]; then
             mkdir -p ~/.cache/stylua
@@ -54,32 +52,26 @@ jobs:
           fi
           sudo cp ~/.cache/stylua/stylua /usr/local/bin/stylua
 
-      - name: Cache Neovim data directory
+      - name: Cache Neovim plugins
         uses: actions/cache@v4
         with:
           path: |
             ~/.local/share/nvim
             ~/.local/state/nvim
           key: ${{ runner.os }}-nvim-${{ hashFiles('nvim/.config/nvim/lua/plugins/**/*.lua') }}
-          restore-keys: |
-            ${{ runner.os }}-nvim-
+          restore-keys: ${{ runner.os }}-nvim-
 
-      - name: Setup Neovim config
-        run: |
-          mkdir -p ~/.config/nvim
-          cp -r nvim/.config/nvim/* ~/.config/nvim/
+      - name: Setup config
+        run: cp -r nvim/.config/nvim ~/.config/nvim
 
       - name: Install plugins
-        run: |
-          cd ~/.config/nvim
-          nvim --headless +'lua require("config.lazy")' +'lua require("lazy").install({wait = true})' +qall
+        run: nvim --headless +'lua require("config.lazy")' +'lua require("lazy").install({wait = true})' +qall
 
-      - name: Run health check
-        run: |
-          cd ~/.config/nvim
-          make health
+      - name: Lint
+        run: cd ~/.config/nvim && stylua --check lua/
 
-      - name: Run tests
-        run: |
-          cd ~/.config/nvim
-          make test
+      - name: Health check
+        run: cd ~/.config/nvim && make health
+
+      - name: Tests
+        run: cd ~/.config/nvim && make test

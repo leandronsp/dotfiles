@@ -7,6 +7,7 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 `make help` shows all targets. Key ones:
 
 - `make install` - first time setup (installs stow, creates dirs, stows all)
+- `make deps` - check all required dependencies
 - `make restow` - re-stow all packages after changes
 - `make stow-<pkg>` / `make unstow-<pkg>` - stow/unstow a single package
 - `make check` - verify all symlinks are intact
@@ -22,6 +23,70 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 ## Key decisions
 
 - Secrets live in `~/.secrets/env`, never committed
+- `~/.zshrc.local` for machine-specific shell config, not tracked
 - `.claude/settings.json` is machine-specific, not tracked
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
+
+## Neovim config
+
+Lives in `nvim/.config/nvim/`. Stowed to `~/.config/nvim/`.
+
+### Structure
+
+```
+nvim/.config/nvim/
+  init.lua              Entry point. Loads lua/config/
+  lua/config/
+    init.lua            Module loader (options -> keymaps -> autocmds -> lazy)
+    options.lua         Vim options. Leader is semicolon (;)
+    keymaps.lua         All keymaps + helper functions for LSP/snacks/inlay hints
+    autocmds.lua        Yank highlight, neo-tree auto-quit, LSP attach/detach
+    lazy.lua            Plugin manager bootstrap + plugin imports
+  lua/plugins/
+    ui/                 colorscheme (everforest), lualine, todo-comments, which-key
+    editor/             snacks (fuzzy finder), treesitter, mini.nvim
+    coding/             lsp, completion (nvim-cmp), formatting (conform)
+    tools/              copilot, languages (lean4, coffeescript, JS/TS), markdown (glow), sleuth
+  lua/kickstart/        health check + plugins (debug/DAP, gitsigns, indent, lint, neo-tree, autopairs)
+  lua/tests/            Plenary test specs (config, plugins, utils)
+  tests/run.lua         Test runner
+  Makefile              sync, test, health, format, lint, startup-time
+```
+
+### LSP servers
+
+- `rust_analyzer` - Clippy check on save, all cargo features, proc macros, inlay hints
+- `lua_ls` - Neovim Lua development with LazyDev
+
+### Key keymaps (leader = ;)
+
+- `;sf` / `Ctrl-p` - find files (frecency)
+- `;sg` / `Ctrl-f` - live grep
+- `;n` - toggle neo-tree, `;k` - reveal in tree
+- `;tt` - toggle dark/light theme
+- `gd` / `gr` / `gI` - go to definition/references/implementation
+- `;rn` - rename, `;ca` - code action, `K` - hover
+- `;gb` / `;gc` / `;gs` - git branches/commits/status
+- `;f` - format buffer
+- `;b` - toggle breakpoint, `F5` - start/continue debug
+
+### Formatters (conform)
+
+stylua (Lua), prettier (JS/TS/JSON), black+isort (Python), rustfmt, gofmt, clang-format, shfmt
+
+### CI
+
+`.github/workflows/ci.yml` runs on `nvim/**` changes. Steps: install plugins, stylua lint, health check, tests.
+
+### Local dev commands
+
+```bash
+cd ~/.config/nvim
+make test           # Run test suite
+make health         # Health check
+make format         # Format lua files
+make lint           # Check lua style
+make sync           # Sync plugins + Mason tools
+make startup-time   # Measure startup
+```
