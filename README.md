@@ -98,7 +98,7 @@ API tokens go in `~/.secrets/env`, sourced by `.zshrc`.
 mkdir -p ~/Documents/code
 git clone git@github.com:leandronsp/dotfiles.git ~/Documents/code/dotfiles
 cd ~/Documents/code/dotfiles
-make deps           # Check all dependencies
+make deps           # Verify everything from steps 1-9
 make install        # Stow all packages
 source ~/.zshrc     # Reload shell
 ```
