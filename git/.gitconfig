@@ -1,0 +1,12 @@
+[user]
+	email = leandronsp@gmail.com
+	name = Leandro Proença
+[core]
+	excludesfile = ~/.gitignore_global
+[alias]
+	lg = log --oneline --graph --decorate
+	lga = log --oneline --graph --decorate --all
+[pull]
+	rebase = true
+[init]
+	defaultBranch = main

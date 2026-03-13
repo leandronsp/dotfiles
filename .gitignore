@@ -1,0 +1,7 @@
+.DS_Store
+*.swp
+*.swo
+
+# Override global gitignore for files we track in this repo
+!.tool-versions
+!**/.claude/settings.local.json

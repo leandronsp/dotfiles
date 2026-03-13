@@ -1,0 +1,13 @@
+tags
+test.sh
+.luarc.json
+nvim
+
+spell/
+lazy-lock.json
+
+# Documentation (keep only README.md)
+*.md
+!README.md
+
+.claude/

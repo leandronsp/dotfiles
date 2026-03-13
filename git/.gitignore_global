@@ -1,0 +1,10 @@
+.DS_Store
+._*
+.playwright-mcp
+.env.test
+.env.dev
+.tool-versions
+.worktrees
+.envrc
+**/.claude/settings.local.json
+**/CLAUDE.local.md
