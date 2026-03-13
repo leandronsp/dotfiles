@@ -24,6 +24,19 @@ Provides: git, make, curl, gcc, unzip, clang-format.
 brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespace gd
 ```
 
+| Package | What it does |
+|---------|-------------|
+| `stow` | Symlink manager for dotfiles |
+| `nvim` | Neovim editor |
+| `tmux` | Terminal multiplexer |
+| `asdf` | Version manager for Node, Ruby, OCaml |
+| `direnv` | Per-directory environment variables |
+| `jq` | JSON processor for shell |
+| `ripgrep` | Fast text search (used by nvim telescope) |
+| `pipx` | Install Python CLI tools in isolated envs |
+| `reattach-to-user-namespace` | macOS clipboard integration for tmux |
+| `gd` | Graphics library (needed to build Ruby image gems) |
+
 ### 4. Oh My Zsh
 
 ```bash
@@ -44,6 +57,11 @@ Provides: cargo, rustfmt, rust-analyzer.
 cargo install stylua elan
 ```
 
+| Tool | What it does |
+|------|-------------|
+| `stylua` | Lua code formatter (used by nvim and CI) |
+| `elan` | Lean 4 theorem prover toolchain manager |
+
 ### 7. Language runtimes via asdf
 
 ```bash
@@ -53,6 +71,12 @@ asdf plugin add opam && asdf install opam
 ```
 
 Versions are defined in `.tool-versions`.
+
+| Runtime | What it does |
+|---------|-------------|
+| `nodejs` | JavaScript runtime (provides npm/npx for tools) |
+| `ruby` | Ruby runtime |
+| `opam` | OCaml package manager and compiler |
 
 ### 8. Claude CLI
 
