@@ -160,6 +160,74 @@ GitHub Actions workflow at `.github/workflows/ci.yml`. Runs on `nvim/**` changes
 
 Everforest with medium contrast. Toggle dark/light with `;tt`.
 
+## Customization
+
+### Add a language server
+
+Edit `lua/plugins/coding/lsp.lua`, add to the `servers` table:
+
+```lua
+gopls = {},
+pyright = {},
+ts_ls = {},
+clangd = {},
+```
+
+Mason auto-installs them on next startup.
+
+### Add a formatter
+
+Edit `lua/plugins/coding/formatting.lua`:
+
+```lua
+formatters_by_ft = {
+  -- existing...
+  your_language = { "your_formatter" },
+}
+```
+
+### Add a plugin
+
+Create a file in the appropriate `lua/plugins/` directory:
+
+```lua
+-- lua/plugins/tools/your-plugin.lua
+return {
+  'author/your-plugin',
+  config = function()
+    -- setup here
+  end,
+}
+```
+
+## Commands
+
+```vim
+:Lazy                 " Plugin manager UI
+:Lazy sync            " Update all plugins
+:Mason                " Manage LSP servers and tools
+:LspInfo              " Show active LSP clients
+:LspRestart           " Restart LSP
+:ConformInfo          " Show formatter info
+:FormatToggle         " Toggle format-on-save
+:checkhealth          " System diagnostics
+```
+
+## Troubleshooting
+
+**Plugins not loading**: `:Lazy sync` then restart nvim.
+
+**LSP not working**: `:LspInfo` to check status, `:Mason` to verify server is installed.
+
+**Slow startup**: `make startup-time` to find bottlenecks.
+
+**Nuclear reset** (re-downloads everything):
+
+```bash
+rm -rf ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+nvim
+```
+
 ## Dependencies
 
 - Neovim 0.10+
