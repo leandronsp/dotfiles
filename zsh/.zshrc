@@ -24,6 +24,9 @@ export LD_LIBRARY_PATH="$(brew --prefix gd)/lib"
 # Secrets
 [[ -f ~/.secrets/env ]] && source ~/.secrets/env
 
+# Machine-specific config (not tracked)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
 # direnv
 eval "$(direnv hook zsh 2>/dev/null)"
 export DIRENV_LOG_FORMAT=""
