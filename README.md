@@ -2,20 +2,86 @@
 
 Personal dotfiles managed with [GNU Stow](https://www.gnu.org/software/stow/).
 
-## Dependencies
+## Fresh macOS setup
 
-brew, stow, git, nvim, tmux, asdf, direnv, opam, jq, curl, cargo, claude, elan, pipx, oh-my-zsh, gd (brew).
-
-Run `make deps` to check what's installed.
-
-## Setup
+### 1. Xcode Command Line Tools
 
 ```bash
+xcode-select --install
+```
+
+Provides: git, make, curl, gcc, unzip, clang-format.
+
+### 2. Homebrew
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+### 3. Brew packages
+
+```bash
+brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespace gd
+```
+
+### 4. Oh My Zsh
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+
+### 5. Rust toolchain
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Provides: cargo, rustfmt, rust-analyzer.
+
+### 6. Tools via cargo
+
+```bash
+cargo install stylua elan
+```
+
+### 7. Language runtimes via asdf
+
+```bash
+asdf plugin add nodejs && asdf install nodejs
+asdf plugin add ruby && asdf install ruby
+asdf plugin add opam && asdf install opam
+```
+
+Versions are defined in `.tool-versions`.
+
+### 8. Claude CLI
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+### 9. Secrets directory
+
+```bash
+mkdir -p ~/.secrets
+```
+
+API tokens go in `~/.secrets/env`, sourced by `.zshrc`.
+
+### 10. Clone and install dotfiles
+
+```bash
+mkdir -p ~/Documents/code
 git clone git@github.com:leandronsp/dotfiles.git ~/Documents/code/dotfiles
 cd ~/Documents/code/dotfiles
-make deps           # Check dependencies
+make deps           # Check all dependencies
 make install        # Stow all packages
+source ~/.zshrc     # Reload shell
 ```
+
+### 11. Neovim first run
+
+Open `nvim`. Lazy will auto-install plugins. Mason will auto-install LSP servers (lua_ls, rust_analyzer) and debug adapters (delve).
 
 ## Usage
 

@@ -45,7 +45,7 @@ status: ## Show symlink status
 
 deps: ## Check required dependencies
 	@ok=true; \
-	for cmd in brew stow git nvim tmux asdf direnv opam jq curl cargo claude elan pipx rg gcc unzip node; do \
+	for cmd in brew stow git nvim tmux asdf direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
 		else \
