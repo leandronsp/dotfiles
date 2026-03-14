@@ -40,12 +40,17 @@ Re-index and search the vault for existing material:
 
 ```bash
 qmd update -c vault && qmd embed 2>/dev/null
-cat ~/vault/blog/ideas.md
-ls ~/vault/blog/drafts/
 qmd query -c vault "the topic being brainstormed"
 ```
 
-Use `qmd query` for semantic search. It finds related notes even if they use different words. Complement with `rg` for exact matches.
+**Always start with `qmd query`.** It returns snippets with context and relevance scores. Use those snippets directly. Only read full files when you need the complete outline (e.g. an existing draft you're building on). Only use `rg` if qmd misses something specific.
+
+Also check the ideas backlog and existing drafts:
+
+```bash
+cat ~/vault/blog/ideas.md
+ls ~/vault/blog/drafts/
+```
 
 ### 2. Explore the idea
 

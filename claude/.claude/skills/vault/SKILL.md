@@ -29,9 +29,23 @@ qmd vsearch -c vault "search term"         # Vector semantic only (when you need
 
 Use `--json` or `--files` for structured output. Use `-n 10` to get more results.
 
-### Step 2: complement with rg/find only if needed
+### Step 2: use qmd results directly
 
-Only after qmd results are in hand, use these to fill gaps:
+qmd returns snippets with context, scores, and titles. This is usually enough. **Do NOT read the full file after qmd unless you specifically need more context than the snippet provides.** Avoid duplicating work.
+
+When to read the full file:
+- Consolidate mode (building a briefing, need every detail)
+- The snippet is clearly cut off mid-thought and you need the rest
+- The user asks to see the full note
+
+When NOT to read the full file:
+- Quick list mode (qmd snippets are sufficient)
+- The snippet already answers the user's question
+- You just want to confirm what qmd already told you
+
+### Step 3: complement with rg/find only if needed
+
+Only use these when qmd misses something specific:
 
 ```bash
 rg -l "exact phrase" ~/vault --type md                    # Exact string match
@@ -41,7 +55,7 @@ find ~/vault -name "*slug*" -not -path "*/.obsidian/*"    # By filename
 ls ~/vault/blog/drafts/                                    # By folder
 ```
 
-These are supplements, not replacements for qmd.
+Do NOT run rg to confirm results qmd already found. That's redundant.
 
 ## Output modes
 
