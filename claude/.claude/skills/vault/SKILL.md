@@ -1,6 +1,6 @@
 ---
 name: vault
-description: Search and retrieve notes from the Obsidian vault. Use when the user wants to find notes, recall past ideas, get context on a topic, look up references, browse blog drafts, consolidate notes for writing, or load knowledge from their second brain into the conversation. Trigger on phrases like "check my notes", "what do I have on", "find in vault", "search notes", "load notes about", "bring me everything about", "consolidate", "briefing for".
+description: Search and retrieve notes from the Obsidian vault. Use when the user wants to find notes, recall past ideas, get context on a topic, look up references, browse blog drafts, get live stream ideas, consolidate notes for writing, or load knowledge from their second brain into the conversation. Trigger on phrases like "check my notes", "what do I have on", "find in vault", "search notes", "load notes about", "bring me everything about", "consolidate", "briefing for", "ideia pra live", "what should I stream".
 ---
 
 # Vault
@@ -63,6 +63,16 @@ Do NOT run rg to confirm results qmd already found. That's redundant.
 
 List matching notes with a one-line description each. Ask which ones to dive into.
 
+### Live suggestion (for picking what to stream next)
+
+When the user asks for live ideas, what to stream, or next live topic (e.g. "ideia pra live de hoje", "o que faço na live"):
+
+1. **Read `lives/roadmap.md`** to see what's planned and what's already done (with dates)
+2. **Check `lives/ideas.md`** for loose ideas in the backlog
+3. **Consider sequence**: suggest topics that build on the last live done (check dates)
+4. **Suggest top 3** with brief reasoning for each (why now, what builds on what)
+5. **Don't be rigid**: the roadmap is a guide, not a script. The user may go off-plan
+
 ### Consolidate (for blog prep and deep retrieval)
 
 When the user asks for "everything about", "briefing for", "consolidate", or is clearly preparing to write, do a deep search:
@@ -114,5 +124,6 @@ Follow the user's voice in all output. Informal, direct, no AI-speak, no em dash
   references/         Tools, links, useful info
   sessions/           Session logs
   tasks/              Task management (roadmap, sprint, pomodoro, routines)
+  lives/              Live coding sessions (roadmap, ideas)
   templates/          Note templates
 ```

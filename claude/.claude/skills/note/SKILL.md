@@ -32,6 +32,8 @@ Based on the content, pick the right location:
 | Something learned today | `learning/til/{slug}.md` | til |
 | Project-specific note | `projects/{project}/{slug}.md` | note |
 | Useful link or tool | `references/{slug}.md` | note |
+| Live recap (just did a live) | Update `lives/roadmap.md` + save details | - |
+| Live idea (one-liner) | Append to `lives/ideas.md` under `## Backlog` | - |
 
 If ambiguous, ask the user. Default to `inbox/`.
 
@@ -51,6 +53,15 @@ created: YYYY-MM-DD
 ```
 
 For blog drafts, add `status: draft`. For project notes, add `project: {name}`.
+
+## Live recaps
+
+When the user says they just did a live (e.g. "acabei de fazer live sobre X"), do all of the following:
+
+1. **Update `lives/roadmap.md`**: find the matching checkbox item and mark it `[x]` with the date (e.g. `[x] Live 2: Tokenizer BPE do zero em Rust (2026-03-14)`)
+2. **Save details**: if the user describes what was covered, add a brief summary as a sub-bullet under the checked item
+3. **Check for new ideas**: if the live opened new topics or follow-ups, add them to `lives/ideas.md` under `## Backlog`
+4. **Connect to blog**: if the live maps to a blog draft, update the draft with any new insights or mark sections as covered
 
 ## Links
 
