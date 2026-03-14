@@ -78,13 +78,28 @@ Versions are defined in `.tool-versions`.
 | `ruby` | Ruby runtime |
 | `opam` | OCaml package manager and compiler |
 
-### 8. Claude CLI
+### 8. Claude Code and tools
 
 ```bash
-npm install -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code @tobilu/qmd
 ```
 
-### 9. Secrets directory
+| Tool | What it does |
+|------|-------------|
+| `claude-code` | Claude CLI agent |
+| `qmd` | Semantic search over markdown (used by vault hooks and skills) |
+
+### 9. Obsidian vault
+
+Install [Obsidian](https://obsidian.md/) and enable iCloud sync. Then create the vault symlink:
+
+```bash
+ln -s ~/Library/Mobile\ Documents/iCloud~md~obsidian/Documents ~/vault
+```
+
+The vault is the second brain. Claude Code hooks load context from it on session start, and skills like `/note`, `/vault`, `/recap`, `/brainstorm`, and `/task` read and write to it.
+
+### 11. Secrets directory
 
 ```bash
 mkdir -p ~/.secrets
@@ -92,18 +107,18 @@ mkdir -p ~/.secrets
 
 API tokens go in `~/.secrets/env`, sourced by `.zshrc`.
 
-### 10. Clone and install dotfiles
+### 12. Clone and install dotfiles
 
 ```bash
 mkdir -p ~/Documents/code
 git clone git@github.com:leandronsp/dotfiles.git ~/Documents/code/dotfiles
 cd ~/Documents/code/dotfiles
-make deps           # Verify everything from steps 1-9
+make deps           # Verify everything from steps 1-11
 make install        # Stow all packages
 source ~/.zshrc     # Reload shell
 ```
 
-### 11. Neovim first run
+### 13. Neovim first run
 
 Open `nvim`. Lazy will auto-install plugins. Mason will auto-install LSP servers (lua_ls, rust_analyzer) and debug adapters (delve).
 
@@ -129,9 +144,45 @@ make lint           # Check for hardcoded paths
 | `tmux` | `.tmux.conf` |
 | `tool-versions` | `.tool-versions` (asdf defaults) |
 | `nvim` | `.config/nvim/` (full Neovim config) |
-| `claude` | `.mcp.json`, `.claude/` (settings, skills, memory) |
+| `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
+
+## Claude Code
+
+The `claude` stow package manages hooks, skills, MCP servers, and portable settings.
+
+### Settings split
+
+- `~/.claude/settings.local.json` (tracked) - hooks, plugins, statusline, generic permissions
+- `~/.claude/settings.json` (not tracked) - machine-specific permissions, auto-managed by Claude
+
+### Hooks
+
+| Hook | Trigger | What it does |
+|------|---------|-------------|
+| `vault-session-load.sh` | SessionStart | Loads last session recap + related vault notes (score >= 70%) |
+
+### Skills
+
+| Skill | What it does |
+|-------|-------------|
+| `/vault` | Search and retrieve notes from Obsidian vault |
+| `/note` | Capture ideas, TILs, or drafts to the vault |
+| `/recap` | Save session learnings to the vault |
+| `/brainstorm` | Develop blog post ideas into outlines |
+| `/task` | Manage tasks across roadmap, sprint, pomodoro, routines |
+| `/skill-creator` | Create and test new skills |
+
+### MCP servers
+
+| Server | Source | What it does |
+|--------|--------|-------------|
+| `chrome-devtools` | `~/.mcp.json` | Browser automation for testing and debugging |
+
+### Vault dependency
+
+Skills and hooks depend on `qmd` for semantic search over the Obsidian vault. The vault lives in iCloud and is symlinked to `~/vault`.
 
 ## Neovim cheatsheet
 
@@ -193,6 +244,7 @@ Ctrl-f              Grep for "impl Board" across the entire project
 ## Not tracked
 
 - `~/.secrets/env` - API tokens sourced by `.zshrc`
-- `~/.claude/settings.json` - machine-specific project permissions
+- `~/.claude/settings.json` - machine-specific permissions, auto-managed by Claude
 - `~/.ssh/config.d/*` - host-specific SSH entries
+- `~/vault` - Obsidian vault symlink to iCloud (content not in this repo)
 - `~/bin/*` - project-specific scripts

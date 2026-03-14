@@ -45,7 +45,7 @@ status: ## Show symlink status
 
 deps: ## Check required dependencies
 	@ok=true; \
-	for cmd in brew stow git nvim tmux asdf direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace; do \
+	for cmd in brew stow git nvim tmux asdf direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
 		else \
@@ -56,7 +56,7 @@ deps: ## Check required dependencies
 	brew list gd >/dev/null 2>&1 \
 		&& printf "  \e[32mOK\e[0m    %s\n" "brew:gd" \
 		|| (printf "  \e[31mMISS\e[0m  %s\n" "brew:gd"; ok=false); \
-	for dir in ~/.oh-my-zsh ~/.cargo ~/.secrets; do \
+	for dir in ~/.oh-my-zsh ~/.cargo ~/.secrets ~/vault; do \
 		if [ -d "$$dir" ]; then \
 			printf "  \e[32mOK\e[0m    %s\n" "$$dir"; \
 		else \

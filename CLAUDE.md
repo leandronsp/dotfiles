@@ -24,9 +24,32 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 
 - Secrets live in `~/.secrets/env`, never committed
 - `~/.zshrc.local` for machine-specific shell config, not tracked
-- `.claude/settings.json` is machine-specific, not tracked
+- `~/.claude/settings.json` is machine-specific (permissions), not tracked. Claude writes to it automatically
+- `~/.claude/settings.local.json` is portable (hooks, plugins, statusline), tracked via stow
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
+- `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
+
+## Claude Code config
+
+Lives in `claude/.claude/`. Stowed to `~/.claude/`.
+
+### Hooks
+
+- `hooks/vault-session-load.sh` - SessionStart hook. Loads last session recap + related vault notes (score >= 70% via qmd)
+
+### Skills
+
+- `/vault` - search and retrieve vault notes
+- `/note` - capture ideas, TILs, drafts to vault
+- `/recap` - save session learnings to vault
+- `/brainstorm` - develop blog post ideas into outlines
+- `/task` - manage tasks (roadmap, sprint, pomodoro, routines)
+- `/skill-creator` - create and test new skills
+
+### MCP servers
+
+- `chrome-devtools` - defined in `~/.mcp.json` (stowed from `claude/.mcp.json`)
 
 ## Neovim config
 
