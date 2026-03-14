@@ -15,52 +15,33 @@ Always re-index first so new notes are found:
 qmd update -c vault && qmd embed 2>/dev/null
 ```
 
-## Search strategies
+## Search strategy
 
-### Semantic search (default, recommended)
+**MANDATORY: Always use qmd as the primary search tool. Never skip qmd and go straight to rg or grep.**
 
-Use qmd for topic/meaning searches. Returns relevant snippets, not whole files.
+### Step 1: qmd search (always do this first)
 
 ```bash
-qmd search -c vault "search term"          # BM25 keyword (fast, exact)
-qmd vsearch -c vault "search term"         # Vector semantic (finds related concepts)
-qmd query -c vault "search term"           # Hybrid: BM25 + vector + reranking (best quality)
+qmd query -c vault "search term"           # Hybrid: BM25 + vector + reranking (best quality, use by default)
+qmd search -c vault "search term"          # BM25 keyword only (when you need exact term matches)
+qmd vsearch -c vault "search term"         # Vector semantic only (when you need conceptual/related matches)
 ```
 
 Use `--json` or `--files` for structured output. Use `-n 10` to get more results.
 
-### Exact match (when you know the words)
+### Step 2: complement with rg/find only if needed
+
+Only after qmd results are in hand, use these to fill gaps:
+
 ```bash
-rg -l "exact phrase" ~/vault --type md
+rg -l "exact phrase" ~/vault --type md                    # Exact string match
+rg -l "tags:.*search_tag" ~/vault --type md               # By tag
+rg -l "\[\[slug-or-title\]\]" ~/vault --type md           # By links
+find ~/vault -name "*slug*" -not -path "*/.obsidian/*"    # By filename
+ls ~/vault/blog/drafts/                                    # By folder
 ```
 
-### By filename
-```bash
-find ~/vault -name "*slug*" -not -path "*/.obsidian/*" -not -path "*/templates/*"
-```
-
-### By folder
-```bash
-ls ~/vault/blog/drafts/
-ls ~/vault/inbox/
-ls ~/vault/projects/fullfabric/
-ls ~/vault/learning/til/
-```
-
-### By tag
-```bash
-rg -l "tags:.*search_tag" ~/vault --type md
-```
-
-### By recency
-```bash
-find ~/vault -name "*.md" -not -path "*/.obsidian/*" -not -path "*/templates/*" -mtime -7 | sort
-```
-
-### By links (notes that reference a topic)
-```bash
-rg -l "\[\[slug-or-title\]\]" ~/vault --type md
-```
+These are supplements, not replacements for qmd.
 
 ## Output modes
 
