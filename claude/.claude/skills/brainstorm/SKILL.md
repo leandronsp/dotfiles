@@ -36,16 +36,16 @@ Brainstorm (vault) -> Outline (vault) -> Write in Curupira (localhost:4000) -> E
 
 ### 1. Gather context
 
-Search the vault for existing material:
+Re-index and search the vault for existing material:
 
 ```bash
+qmd update -c vault && qmd embed 2>/dev/null
 cat ~/vault/blog/ideas.md
 ls ~/vault/blog/drafts/
-rg -l "" ~/vault/learning/til/ --type md 2>/dev/null
-rg -l "" ~/vault/references/ --type md 2>/dev/null
+qmd query -c vault "the topic being brainstormed"
 ```
 
-Also search for related TILs or project notes that could feed into the post.
+Use `qmd query` for semantic search. It finds related notes even if they use different words. Complement with `rg` for exact matches.
 
 ### 2. Explore the idea
 

@@ -54,12 +54,13 @@ For blog drafts, add `status: draft`. For project notes, add `project: {name}`.
 
 ## Links
 
-If the note relates to existing notes, add `[[links]]` to connect them. Use `rg` on `~/vault` to find related notes before writing.
+If the note relates to existing notes, add `[[links]]` to connect them. Search with `qmd search -c vault "topic"` to find related notes before writing.
 
 ## Steps
 
 1. Understand what the user wants to capture
 2. Pick the right folder based on content type
-3. Search vault for related notes with `rg`
+3. Search vault for related notes with `qmd search -c vault "topic"`
 4. Write the note with frontmatter, content, and links to related notes
-5. Confirm to the user: what was saved and where
+5. Update the qmd index: `qmd update -c vault && qmd embed 2>/dev/null`
+6. Confirm to the user: what was saved and where

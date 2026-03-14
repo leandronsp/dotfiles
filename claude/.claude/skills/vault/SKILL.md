@@ -7,13 +7,31 @@ description: Search and retrieve notes from the Obsidian vault. Use when the use
 
 Searches and retrieves notes from the Obsidian vault at `~/vault`.
 
+## Before searching
+
+Always re-index first so new notes are found:
+
+```bash
+qmd update -c vault && qmd embed 2>/dev/null
+```
+
 ## Search strategies
 
-Use the right approach based on what the user needs:
+### Semantic search (default, recommended)
 
-### By topic (most common)
+Use qmd for topic/meaning searches. Returns relevant snippets, not whole files.
+
 ```bash
-rg -l "search term" ~/vault --type md
+qmd search -c vault "search term"          # BM25 keyword (fast, exact)
+qmd vsearch -c vault "search term"         # Vector semantic (finds related concepts)
+qmd query -c vault "search term"           # Hybrid: BM25 + vector + reranking (best quality)
+```
+
+Use `--json` or `--files` for structured output. Use `-n 10` to get more results.
+
+### Exact match (when you know the words)
+```bash
+rg -l "exact phrase" ~/vault --type md
 ```
 
 ### By filename
@@ -54,7 +72,7 @@ List matching notes with a one-line description each. Ask which ones to dive int
 
 When the user asks for "everything about", "briefing for", "consolidate", or is clearly preparing to write, do a deep search:
 
-1. **Search everywhere.** Draft in `blog/drafts/`, entries in `blog/ideas.md`, related TILs in `learning/til/`, inbox notes, project notes, references. Cast a wide net
+1. **Search everywhere.** Use `qmd query` first, then complement with `rg` and folder listing. Cast a wide net
 2. **Read all matches.** Don't just list filenames. Read the actual content
 3. **Follow the links.** If notes have `[[links]]`, read those too
 4. **Build a briefing.** Synthesize everything into a single consolidated view:
