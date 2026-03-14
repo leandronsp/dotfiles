@@ -3,7 +3,9 @@
     "chrome-devtools": {
       "command": "npx",
       "args": ["chrome-devtools-mcp"],
-      "env": {}
+      "env": {
+        "ASDF_NODEJS_VERSION": "23.9.0"
+      }
     }
   }
 }

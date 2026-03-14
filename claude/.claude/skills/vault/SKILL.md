@@ -113,5 +113,6 @@ Follow the user's voice in all output. Informal, direct, no AI-speak, no em dash
   projects/           Per-project notes (fullfabric, mendio, etc)
   references/         Tools, links, useful info
   sessions/           Session logs
+  tasks/              Task management (roadmap, sprint, pomodoro, routines)
   templates/          Note templates
 ```
