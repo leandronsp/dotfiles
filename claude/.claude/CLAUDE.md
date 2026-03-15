@@ -39,6 +39,7 @@ Ruthless minimalist. Every line of code must justify its existence. Working soft
 7. **Revert fix, verify RED again.** Confirm the test catches regressions. Ask: "if someone reverts the fix, will this test fail?" If no, the test is wrong.
 8. **Only then move to the next problem.** Hold the anxiety, one thing at a time.
 9. **Changing production code AND tests together is a bad smell.** Change one, verify the other catches it.
+10. **Baby steps. No skipping ahead.** Explore the raw data structure before extracting methods. The failing test dictates the next line of production code, not anticipation. Don't suggest abstractions before a test demands them.
 
 ## Communication
 
