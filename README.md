@@ -172,7 +172,10 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 | `/recap` | Save session learnings to the vault |
 | `/brainstorm` | Develop blog post ideas into outlines |
 | `/task` | Manage tasks across roadmap, sprint, pomodoro, routines |
+| `/tdd` | TDD pair programming with fswatch file watcher |
 | `/skill-creator` | Create and test new skills |
+
+`~/.claude/skills` is a directory-level symlink. New skills added to `claude/.claude/skills/` appear automatically without restow.
 
 ### MCP servers
 
