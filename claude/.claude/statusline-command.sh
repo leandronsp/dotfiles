@@ -16,10 +16,17 @@ else
 fi
 
 branch=$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null)
+dirty=$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null)
 
 parts=()
 [ -n "$dir_label" ] && parts+=("$dir_label")
-[ -n "$branch" ]    && parts+=("git:(${branch})")
+if [ -n "$branch" ]; then
+  if [ -n "$dirty" ]; then
+    parts+=("git:(${branch}) x")
+  else
+    parts+=("git:(${branch})")
+  fi
+fi
 [ -n "$model" ]     && parts+=("$model")
 [ -n "$remaining" ] && parts+=("ctx:${remaining}%")
 
