@@ -21,7 +21,7 @@ Provides: git, make, curl, gcc, unzip, clang-format.
 ### 3. Brew packages
 
 ```bash
-brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespace gd
+brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch
 ```
 
 | Package | What it does |
@@ -36,6 +36,7 @@ brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespa
 | `pipx` | Install Python CLI tools in isolated envs |
 | `reattach-to-user-namespace` | macOS clipboard integration for tmux |
 | `gd` | Graphics library (needed to build Ruby image gems) |
+| `fswatch` | File change monitor (used by `/tdd` skill) |
 
 ### 4. Oh My Zsh
 
