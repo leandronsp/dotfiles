@@ -45,7 +45,10 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 - `/recap` - save session learnings to vault
 - `/brainstorm` - develop blog post ideas into outlines
 - `/task` - manage tasks (roadmap, sprint, pomodoro, routines)
+- `/tdd` - TDD pair programming with fswatch file watcher
 - `/skill-creator` - create and test new skills
+
+`~/.claude/skills` is a directory-level symlink to `claude/.claude/skills/`. New skills added to the dotfiles appear automatically without restow.
 
 ### MCP servers
 
