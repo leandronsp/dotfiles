@@ -12,6 +12,7 @@ install: ## Install dotfiles (first time setup)
 	@command -v stow >/dev/null || (echo "Installing GNU Stow..." && brew install stow)
 	@mkdir -p ~/.config/nvim ~/.config/direnv ~/.ssh/config.d ~/.secrets
 	@for pkg in $(PACKAGES); do echo "Stowing $$pkg..."; stow -t ~ $$pkg; done
+	@$(MAKE) sync-claude
 	@echo "Done. Run 'source ~/.zshrc' to reload."
 
 uninstall: ## Remove all symlinks
@@ -40,6 +41,15 @@ status: ## Show symlink status
 			echo "$$conflicts" | sed 's/^/        /'; \
 		fi; \
 	done
+
+sync-claude: ## Sync portable settings into ~/.claude/settings.json
+	@local=~/.claude/settings.local.json; \
+	settings=~/.claude/settings.json; \
+	if [ ! -f "$$local" ]; then echo "No settings.local.json found."; exit 1; fi; \
+	if [ ! -f "$$settings" ]; then echo "No settings.json found."; exit 1; fi; \
+	jq -n 'input as $$s | input | del(.permissions) | . as $$p | $$s | . + $$p' "$$settings" "$$local" > "$$settings.tmp" \
+		&& mv "$$settings.tmp" "$$settings" \
+		&& echo "Claude settings synced."
 
 ##@ Checks
 

@@ -24,8 +24,8 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 
 - Secrets live in `~/.secrets/env`, never committed
 - `~/.zshrc.local` for machine-specific shell config, not tracked
-- `~/.claude/settings.json` is machine-specific (permissions), not tracked. Claude writes to it automatically
-- `~/.claude/settings.local.json` is portable (hooks, plugins, statusline), tracked via stow
+- `~/.claude/settings.json` is machine-specific (permissions), not tracked. Portable keys synced from local via `make sync-claude`
+- `~/.claude/settings.local.json` is portable (hooks, plugins, statusline), tracked via stow. Source of truth for portable config
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
@@ -37,6 +37,7 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 ### Hooks
 
 - `hooks/vault-session-load.sh` - SessionStart hook. Loads last session recap + related vault notes (score >= 70% via qmd)
+- `hooks/notify-ready.sh` - Stop hook. macOS notification + sound + tmux window highlight when Claude finishes responding in a background window
 
 ### Skills
 
@@ -47,6 +48,7 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 - `/task` - manage tasks (roadmap, sprint, pomodoro, routines)
 - `/tdd` - TDD pair programming with fswatch file watcher
 - `/skill-creator` - create and test new skills
+- `/pair-review` - interactive pair review of a PR
 
 `~/.claude/skills` is a directory-level symlink to `claude/.claude/skills/`. New skills added to the dotfiles appear automatically without restow.
 

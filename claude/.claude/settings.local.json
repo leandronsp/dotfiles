@@ -20,6 +20,18 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/notify-ready.sh",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "permissions": {

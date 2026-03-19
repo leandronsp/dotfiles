@@ -6,5 +6,5 @@
 !.tool-versions
 .claude/settings.json
 .claude/scheduled_tasks.lock
-nano-llm/
+cortex/
 scratch/

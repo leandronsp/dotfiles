@@ -3,7 +3,7 @@ input=$(cat)
 
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
-remaining=$(echo "$input" | jq -r '.context_window.remaining_percentage // empty')
+used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 
 dir=$(basename "$cwd")
 parent=$(basename "$(dirname "$cwd")")
@@ -28,6 +28,6 @@ if [ -n "$branch" ]; then
   fi
 fi
 [ -n "$model" ]     && parts+=("$model")
-[ -n "$remaining" ] && parts+=("ctx:${remaining}%")
+[ -n "$used" ] && parts+=("ctx:${used}%")
 
 printf '%s' "$(IFS=' '; echo "${parts[*]}")"

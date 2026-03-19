@@ -134,6 +134,7 @@ make restow         # Re-stow all packages
 make stow-zsh       # Stow a single package
 make unstow-zsh     # Unstow a single package
 make lint           # Check for hardcoded paths
+make sync-claude    # Sync portable Claude settings into settings.json
 ```
 
 ## Packages
@@ -155,14 +156,15 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 
 ### Settings split
 
-- `~/.claude/settings.local.json` (tracked) - hooks, plugins, statusline, generic permissions
-- `~/.claude/settings.json` (not tracked) - machine-specific permissions, auto-managed by Claude
+- `~/.claude/settings.local.json` (tracked) - hooks, plugins, statusline. Source of truth for portable config
+- `~/.claude/settings.json` (not tracked) - machine-specific permissions. Portable keys synced via `make sync-claude`
 
 ### Hooks
 
 | Hook | Trigger | What it does |
 |------|---------|-------------|
 | `vault-session-load.sh` | SessionStart | Loads last session recap + related vault notes (score >= 70%) |
+| `notify-ready.sh` | Stop | macOS notification + sound + tmux window highlight when Claude finishes in a background window |
 
 ### Skills
 
@@ -175,6 +177,7 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 | `/task` | Manage tasks across roadmap, sprint, pomodoro, routines |
 | `/tdd` | TDD pair programming with fswatch file watcher |
 | `/skill-creator` | Create and test new skills |
+| `/pair-review` | Interactive pair review of a PR |
 
 `~/.claude/skills` is a directory-level symlink. New skills added to `claude/.claude/skills/` appear automatically without restow.
 
