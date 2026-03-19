@@ -8,7 +8,8 @@ if [ -z "$TMUX" ]; then
 fi
 
 # Get window/pane info for Claude's pane (not the active one)
-window=$(tmux display-message -t "$TMUX_PANE" -p '#W')
+window_name=$(tmux display-message -t "$TMUX_PANE" -p '#W')
+window_target=$(tmux display-message -t "$TMUX_PANE" -p '#S:#I')
 pane=$(tmux display-message -t "$TMUX_PANE" -p '#P')
 active=$(tmux display-message -t "$TMUX_PANE" -p '#{window_active}')
 
@@ -21,7 +22,7 @@ if [ "$active" = "1" ]; then
 fi
 
 # macOS notification (via System Events, works on macOS 26+)
-osascript -e "tell application \"System Events\" to display notification \"Window: $window (pane $pane)\" with title \"Claude Code\" sound name \"Funk\"" 2>/dev/null &
+osascript -e "tell application \"System Events\" to display notification \"Window: $window_name (pane $pane)\" with title \"Claude Code\" sound name \"Funk\"" 2>/dev/null &
 
 # Highlight tmux window in status bar (reset happens on window enter via tmux hook)
-tmux set-window-option -t "$window" window-status-style "bg=red,fg=white,bold"
+tmux set-window-option -t "$window_target" window-status-style "bg=red,fg=white,bold"
