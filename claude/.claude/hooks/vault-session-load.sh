@@ -20,7 +20,7 @@ PROJECT=$(basename "$CWD")
 # Find most recent session file for this project
 LATEST_SESSION=$(grep -rl "^project: $PROJECT" "$VAULT/sessions/" 2>/dev/null | while read -r f; do
   echo "$(stat -f %m "$f") $f"
-done | sort -rn | head -1 | cut -d' ' -f2-)
+done | sort -rn | head -1 | cut -d' ' -f2- || true)
 
 # Search vault for related notes (index), filtering by score >= 0.70
 RESULTS=$(qmd query -c vault "$PROJECT" -n 8 --files 2>/dev/null | awk -F, '$2 >= 0.70 { print $3 }' || true)
