@@ -36,7 +36,7 @@ Before any code, set the stage.
 1. **Fetch context**
 
    **GitHub:** `gh issue view <number> --json title,body`
-   **Linear:** Fetch via WebFetch. Extract title, description, acceptance criteria.
+   **Linear:** `lineark issues read <identifier>` (e.g. `TEAM-123`). Falls back to MCP Linear server if lineark is unavailable.
    **Prompt:** Restate the problem back to confirm understanding.
 
 2. **Explore the codebase** — read relevant files. Explain what exists, how things work, where new behavior fits. Walk through data flow, patterns, components.
