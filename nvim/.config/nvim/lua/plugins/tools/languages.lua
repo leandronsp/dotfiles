@@ -38,8 +38,31 @@ return {
       'nvim-lua/plenary.nvim',
     },
     opts = {
+      lsp = { enable = false },
       mappings = true,
     },
+    config = function(_, opts)
+      require('lean').setup(opts)
+      local leanls_config = vim.api.nvim_get_runtime_file('lsp/leanls.lua', true)[1]
+      if leanls_config then
+        local cfg = dofile(leanls_config)
+        vim.api.nvim_create_autocmd('FileType', {
+          pattern = 'lean',
+          callback = function(ev)
+            local root = vim.fs.root(ev.buf, { 'lakefile.lean', 'lakefile.toml', 'lean-toolchain' })
+            vim.lsp.start({
+              name = 'leanls',
+              cmd = { 'lake', 'serve' },
+              root_dir = root or vim.fn.getcwd(),
+              handlers = cfg.handlers,
+              capabilities = cfg.capabilities,
+              init_options = cfg.init_options,
+              on_init = cfg.on_init,
+            })
+          end,
+        })
+      end
+    end,
   },
 
   -- ===================================================================
