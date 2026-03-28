@@ -175,9 +175,11 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 | `/recap` | Save session learnings to the vault |
 | `/brainstorm` | Develop blog post ideas into outlines |
 | `/task` | Manage tasks across roadmap, sprint, pomodoro, routines |
-| `/tdd` | TDD pair programming with fswatch file watcher |
+| `/pair` | TDD pair programming with mode switching (driver/navigator) |
 | `/skill-creator` | Create and test new skills |
 | `/pair-review` | Interactive pair review of a PR |
+| `/qa` | Smoke-test changes in the browser, validate behavior, plan fixes |
+| `/browser` | Browser automation via agent-browser CLI |
 
 `~/.claude/skills` is a directory-level symlink. New skills added to `claude/.claude/skills/` appear automatically without restow.
 
