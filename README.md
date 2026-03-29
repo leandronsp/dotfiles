@@ -204,14 +204,14 @@ Annotation system for reviewing Claude Code output without scroll fatigue. Selec
 |--------|-------------|
 | `claude-comment` | Popup input for annotate binding, reads comment (Esc cancels) |
 | `claude-append` | Appends selection + comment to buffer (`/tmp/claude-buf.md`) |
-| `claude-send` | Sends buffer to Claude Code pane and clears it |
+| `claude-send` | Loads buffer into tmux paste buffer, clears the file |
 
 ### Keybindings
 
 | Key | Context | Action |
 |-----|---------|--------|
 | `a` | copy mode | Annotate selected text (opens comment popup) |
-| `prefix + S` | normal | Send buffer to Claude Code |
+| `prefix + S` | normal | Paste buffer into current pane (you submit when ready) |
 | `prefix + B` | normal | Preview buffer (less, `q` to close) |
 | `prefix + Ctrl-x` | normal | Clear buffer |
 
@@ -219,9 +219,11 @@ Annotation system for reviewing Claude Code output without scroll fatigue. Selec
 
 1. Enter copy mode (`prefix + [`)
 2. Select text with `v` + movement
-3. Press `a`, type comment in popup, Enter
-4. Repeat for more selections
-5. `prefix + S` to send all annotations to Claude Code
+3. Press `a`, type comment in popup, Enter to submit (Esc to cancel)
+4. You stay in copy mode. Repeat for more selections
+5. Exit copy mode when done
+6. Go to the Claude Code pane, press `prefix + S` to paste the buffer
+7. Review the pasted text, submit when ready
 
 ## Neovim cheatsheet
 
