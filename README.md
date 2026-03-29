@@ -202,17 +202,16 @@ Review Claude Code output without scroll fatigue. Select text, add comments, or 
 
 | Script | What it does |
 |--------|-------------|
-| `claude-comment` | Opens vim in a popup for writing comments (`:wq` submits, `:q!` cancels) |
+| `claude-comment` | Opens vim popup for writing comments (`:wq` submits, `:q!` cancels) |
 | `claude-append` | Appends selection + comment to buffer. Works with or without selection |
-| `claude-send` | Loads buffer into tmux paste buffer and clears the file |
 
 ### Keybindings
 
 | Key | Context | Action |
 |-----|---------|--------|
 | `a` | copy mode | Annotate: saves selection (if any) and opens vim popup for comment |
-| `prefix + S` | normal | Paste buffer into current pane (you submit when ready) |
-| `prefix + B` | normal | Preview buffer (`q` to close) |
+| `prefix + B` | normal | Open annotation buffer in vim (edit, delete, organize freely) |
+| `prefix + S` | normal | Paste buffer into current pane (does not clear buffer) |
 | `prefix + Ctrl-x` | normal | Clear buffer (asks for confirmation) |
 
 ### Workflow
@@ -221,7 +220,7 @@ Review Claude Code output without scroll fatigue. Select text, add comments, or 
 2. Optionally select text with `v` + movement
 3. Press `a` to open comment popup (vim). `:wq` to submit, `:q!` to cancel
 4. You stay in copy mode. Repeat for more annotations
-5. Exit copy mode when done
+5. To review or edit the buffer, press `prefix + B` (full vim editing)
 6. Go to the Claude Code pane, press `prefix + S` to paste the buffer
 7. Review the pasted text, submit when ready
 
