@@ -202,8 +202,7 @@ Review Claude Code output without scroll fatigue. Select text, add comments, or 
 
 | Script | What it does |
 |--------|-------------|
-| `claude-comment` | Opens vim popup for writing comments (`:wq` submits, `:q!` cancels) |
-| `claude-append` | Appends selection + comment to buffer. Works with or without selection |
+| `claude-comment` | Opens vim popup, appends selection (if any) + comment to buffer |
 
 ### Keybindings
 
