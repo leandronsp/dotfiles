@@ -202,7 +202,7 @@ Annotation system for reviewing Claude Code output without scroll fatigue. Selec
 
 | Script | What it does |
 |--------|-------------|
-| `claude-annotate` | Receives selection from copy-pipe, opens popup for comment |
+| `claude-comment` | Popup input for annotate binding, reads comment (Esc cancels) |
 | `claude-append` | Appends selection + comment to buffer (`/tmp/claude-buf.md`) |
 | `claude-send` | Sends buffer to Claude Code pane and clears it |
 

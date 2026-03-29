@@ -1,0 +1,8 @@
+#!/bin/bash
+# Popup input for claude annotate binding. Reads a comment, Esc cancels.
+
+printf "> "
+IFS= read -rn1 char
+[[ "$char" == $'\e' ]] && exit 1
+read -r rest
+~/.local/bin/claude-append "${char}${rest}"

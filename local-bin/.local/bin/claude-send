@@ -1,42 +1,10 @@
 #!/bin/bash
-# Sends accumulated annotations to the Claude Code pane and clears the buffer.
-# Finds the pane running claude by process name.
+# Loads annotation buffer into tmux paste buffer and clears the file.
+# Called from tmux binding; paste-buffer runs in the binding itself.
 
 BUFFILE="/tmp/claude-buf.md"
 
-if [ ! -s "$BUFFILE" ]; then
-  tmux display-message "Buffer is empty, nothing to send."
-  exit 0
-fi
+[ ! -s "$BUFFILE" ] && exit 1
 
-CONTENT=$(cat "$BUFFILE")
-
-# Find the pane in current window that is NOT the current pane
-# (assumes Claude Code is in another pane of the same window)
-CURRENT_PANE=$(tmux display-message -p '#{pane_id}')
-TARGET_PANE=""
-
-for pane_id in $(tmux list-panes -F '#{pane_id}'); do
-  if [ "$pane_id" != "$CURRENT_PANE" ]; then
-    # Check if this pane is running claude
-    pane_cmd=$(tmux display-message -t "$pane_id" -p '#{pane_current_command}')
-    if echo "$pane_cmd" | grep -qi "claude\|node"; then
-      TARGET_PANE="$pane_id"
-      break
-    fi
-  fi
-done
-
-if [ -z "$TARGET_PANE" ]; then
-  # Fallback: send to pane 0
-  TARGET_PANE=$(tmux list-panes -F '#{pane_id}' | head -1)
-fi
-
-# Send content line by line using send-keys with literal flag
-# Use bracketed paste to avoid issues with special chars
-tmux send-keys -t "$TARGET_PANE" -l "$CONTENT"
-tmux send-keys -t "$TARGET_PANE" Enter
-
-# Clear buffer
+tmux load-buffer "$BUFFILE"
 > "$BUFFILE"
-tmux display-message "Sent to Claude Code. Buffer cleared."
