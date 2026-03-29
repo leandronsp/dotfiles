@@ -1,8 +1,10 @@
 #!/bin/bash
-# Popup input for claude annotate binding. Reads a comment, Esc cancels.
+# Popup input for claude annotate binding. :wq submits, :q! cancels.
 
-printf "> "
-IFS= read -rn1 char
-[[ "$char" == $'\e' ]] && exit 1
-read -r rest
-~/.local/bin/claude-append "${char}${rest}"
+TMPFILE=$(mktemp /tmp/.claude-comment.XXXXXX)
+vim -u NONE +"setlocal noswapfile" "$TMPFILE"
+
+comment=$(cat "$TMPFILE" 2>/dev/null)
+rm -f "$TMPFILE"
+[ -z "$comment" ] && exit 1
+~/.local/bin/claude-append "$comment"

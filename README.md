@@ -194,33 +194,33 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 
 Skills and hooks depend on `qmd` for semantic search over the Obsidian vault. The vault lives in iCloud and is symlinked to `~/vault`.
 
-## Tmux Claude annotate
+## Annotation Buffer
 
-Annotation system for reviewing Claude Code output without scroll fatigue. Select text in copy mode, add comments, accumulate in a buffer, and send everything at once.
+Review Claude Code output without scroll fatigue. Select text, add comments, or write standalone notes. Everything accumulates in a buffer (`/tmp/claude-buf.md`) that you paste into Claude when ready.
 
 ### Scripts (`local-bin` package)
 
 | Script | What it does |
 |--------|-------------|
-| `claude-comment` | Popup input for annotate binding, reads comment (Esc cancels) |
-| `claude-append` | Appends selection + comment to buffer (`/tmp/claude-buf.md`) |
-| `claude-send` | Loads buffer into tmux paste buffer, clears the file |
+| `claude-comment` | Opens vim in a popup for writing comments (`:wq` submits, `:q!` cancels) |
+| `claude-append` | Appends selection + comment to buffer. Works with or without selection |
+| `claude-send` | Loads buffer into tmux paste buffer and clears the file |
 
 ### Keybindings
 
 | Key | Context | Action |
 |-----|---------|--------|
-| `a` | copy mode | Annotate selected text (opens comment popup) |
+| `a` | copy mode | Annotate: saves selection (if any) and opens vim popup for comment |
 | `prefix + S` | normal | Paste buffer into current pane (you submit when ready) |
-| `prefix + B` | normal | Preview buffer (less, `q` to close) |
-| `prefix + Ctrl-x` | normal | Clear buffer |
+| `prefix + B` | normal | Preview buffer (`q` to close) |
+| `prefix + Ctrl-x` | normal | Clear buffer (asks for confirmation) |
 
 ### Workflow
 
 1. Enter copy mode (`prefix + [`)
-2. Select text with `v` + movement
-3. Press `a`, type comment in popup, Enter to submit (Esc to cancel)
-4. You stay in copy mode. Repeat for more selections
+2. Optionally select text with `v` + movement
+3. Press `a` to open comment popup (vim). `:wq` to submit, `:q!` to cancel
+4. You stay in copy mode. Repeat for more annotations
 5. Exit copy mode when done
 6. Go to the Claude Code pane, press `prefix + S` to paste the buffer
 7. Review the pasted text, submit when ready
