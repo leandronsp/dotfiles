@@ -2,7 +2,9 @@
 # Popup input for claude annotate binding. :wq submits, :q! cancels.
 
 TMPFILE=$(mktemp /tmp/.claude-comment.XXXXXX)
-vim -u NONE +"setlocal noswapfile" "$TMPFILE"
+vim -u NONE \
+  +"set nocompatible noswapfile backspace=indent,eol,start ttimeoutlen=10" \
+  +"startinsert" "$TMPFILE"
 
 comment=$(cat "$TMPFILE" 2>/dev/null)
 rm -f "$TMPFILE"
