@@ -149,6 +149,7 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
+| `local-bin` | `.local/bin/claude-*` (tmux annotation scripts) |
 
 ## Claude Code
 
@@ -192,6 +193,35 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 ### Vault dependency
 
 Skills and hooks depend on `qmd` for semantic search over the Obsidian vault. The vault lives in iCloud and is symlinked to `~/vault`.
+
+## Tmux Claude annotate
+
+Annotation system for reviewing Claude Code output without scroll fatigue. Select text in copy mode, add comments, accumulate in a buffer, and send everything at once.
+
+### Scripts (`local-bin` package)
+
+| Script | What it does |
+|--------|-------------|
+| `claude-annotate` | Receives selection from copy-pipe, opens popup for comment |
+| `claude-append` | Appends selection + comment to buffer (`/tmp/claude-buf.md`) |
+| `claude-send` | Sends buffer to Claude Code pane and clears it |
+
+### Keybindings
+
+| Key | Context | Action |
+|-----|---------|--------|
+| `a` | copy mode | Annotate selected text (opens comment popup) |
+| `prefix + S` | normal | Send buffer to Claude Code |
+| `prefix + B` | normal | Preview buffer (less, `q` to close) |
+| `prefix + Ctrl-x` | normal | Clear buffer |
+
+### Workflow
+
+1. Enter copy mode (`prefix + [`)
+2. Select text with `v` + movement
+3. Press `a`, type comment in popup, Enter
+4. Repeat for more selections
+5. `prefix + S` to send all annotations to Claude Code
 
 ## Neovim cheatsheet
 

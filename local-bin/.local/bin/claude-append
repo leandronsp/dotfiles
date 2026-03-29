@@ -1,0 +1,27 @@
+#!/bin/bash
+# Appends selection + comment to the annotation buffer.
+
+BUFFILE="/tmp/claude-buf.md"
+SELFILE="/tmp/.claude-sel"
+COMMENT="$1"
+
+SEL=$(cat "$SELFILE" 2>/dev/null)
+
+if [ -z "$SEL" ]; then
+  tmux display-message "No selection found."
+  exit 0
+fi
+
+# Indent selection as quote block
+QUOTED=$(echo "$SEL" | sed 's/^/> /')
+
+if [ -n "$COMMENT" ]; then
+  printf '%s\n%s\n\n────────────────────────────────────────\n\n' "$QUOTED" "$COMMENT" >> "$BUFFILE"
+else
+  printf '%s\n(sem comentario)\n\n────────────────────────────────────────\n\n' "$QUOTED" >> "$BUFFILE"
+fi
+
+rm -f "$SELFILE"
+
+LINES=$(wc -l < "$BUFFILE" | tr -d ' ')
+tmux display-message "Annotated. ($LINES lines in buffer)"
