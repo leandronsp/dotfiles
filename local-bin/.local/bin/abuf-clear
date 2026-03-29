@@ -1,0 +1,6 @@
+#!/bin/bash
+# Clears the annotation buffer for the current window.
+
+BUFID=$(tmux display-message -p '#{session_name}-#{window_index}')
+> "/tmp/abuf-${BUFID}.md"
+tmux display-message "Buffer cleared."

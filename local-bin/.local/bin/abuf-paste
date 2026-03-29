@@ -1,0 +1,9 @@
+#!/bin/bash
+# Pastes annotation buffer into the target pane via send-keys.
+
+PANE="$1"
+
+[ ! -s /tmp/.abuf-paste ] && { tmux display-message "Buffer empty."; exit 0; }
+
+tmux send-keys -t "$PANE" -l "$(cat /tmp/.abuf-paste)"
+tmux display-message "Pasted."

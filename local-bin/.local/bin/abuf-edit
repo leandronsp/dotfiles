@@ -1,0 +1,23 @@
+#!/bin/bash
+# Opens the annotation buffer in vim. Appends quoted selection if available.
+# Each tmux window gets its own buffer file.
+
+BUFID=$(tmux display-message -p '#{session_name}-#{window_index}')
+BUFFILE="/tmp/abuf-${BUFID}.md"
+SELFILE="/tmp/.abuf-sel"
+
+# Append quoted selection if present
+SEL=$(cat "$SELFILE" 2>/dev/null)
+rm -f "$SELFILE"
+
+if [ -n "$SEL" ]; then
+  echo "$SEL" | sed 's/^/> /' >> "$BUFFILE"
+  printf '\n' >> "$BUFFILE"
+fi
+
+vim -u NONE \
+  +"set nocompatible noswapfile backspace=indent,eol,start ttimeoutlen=10" \
+  +"normal G" "$BUFFILE"
+
+# Symlink so abuf-paste always finds the current window's buffer
+ln -sf "$BUFFILE" /tmp/.abuf-paste

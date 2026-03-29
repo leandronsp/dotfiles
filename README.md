@@ -196,20 +196,22 @@ Skills and hooks depend on `qmd` for semantic search over the Obsidian vault. Th
 
 ## Annotation Buffer
 
-Review Claude Code output without scroll fatigue. Select text, add comments, or write standalone notes. Everything accumulates in a buffer (`/tmp/claude-buf.md`) that you paste into Claude when ready.
+Review tmux output without scroll fatigue. Each tmux window gets its own buffer (`/tmp/abuf-{session}-{window}.md`). Both `a` (copy mode) and `prefix + B` open the same vim popup on the buffer.
 
-### Scripts (`local-bin` package)
+### Scripts
 
 | Script | What it does |
 |--------|-------------|
-| `claude-comment` | Opens vim popup, appends selection (if any) + comment to buffer |
+| `abuf-edit` | Opens vim popup on the buffer, appends quoted selection if available |
+| `abuf-paste` | Pastes buffer into the current pane via send-keys |
+| `abuf-clear` | Clears the current window's buffer |
 
 ### Keybindings
 
 | Key | Context | Action |
 |-----|---------|--------|
-| `a` | copy mode | Annotate: saves selection (if any) and opens vim popup for comment |
-| `prefix + B` | normal | Open annotation buffer in vim (edit, delete, organize freely) |
+| `a` | copy mode | Appends selection (if any) to buffer, opens vim popup |
+| `prefix + B` | normal | Opens buffer in vim popup (edit, delete, organize) |
 | `prefix + S` | normal | Paste buffer into current pane (does not clear buffer) |
 | `prefix + Ctrl-x` | normal | Clear buffer (asks for confirmation) |
 
@@ -217,11 +219,11 @@ Review Claude Code output without scroll fatigue. Select text, add comments, or 
 
 1. Enter copy mode (`prefix + [`)
 2. Optionally select text with `v` + movement
-3. Press `a` to open comment popup (vim). `:wq` to submit, `:q!` to cancel
-4. You stay in copy mode. Repeat for more annotations
-5. To review or edit the buffer, press `prefix + B` (full vim editing)
-6. Go to the Claude Code pane, press `prefix + S` to paste the buffer
-7. Review the pasted text, submit when ready
+3. Press `a` to open buffer in vim. Selection is appended as a quote block
+4. Edit freely. `:wq` to save, `:q!` to discard changes
+5. You stay in copy mode after the popup closes. Repeat for more annotations
+6. `prefix + B` to reopen the buffer at any time (same content)
+7. Go to the Claude Code pane, `prefix + S` to paste the buffer
 
 ## Neovim cheatsheet
 

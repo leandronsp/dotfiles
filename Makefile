@@ -77,7 +77,7 @@ deps: ## Check required dependencies
 
 check: ## Verify all symlinks are intact
 	@ok=true; \
-	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/claude-comment; do \
+	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/abuf-edit; do \
 		if [ -L "$$f" ]; then \
 			printf "  \e[32mOK\e[0m    %s -> %s\n" "$$f" "$$(readlink $$f)"; \
 		else \
