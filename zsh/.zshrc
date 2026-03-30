@@ -1,8 +1,19 @@
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME=""
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
+
+# Prompt: line 1 = path:branch, line 2 = cursor
+precmd() {
+  local branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+  local git_info=""
+  if [[ -n "$branch" ]]; then
+    git_info=":%F{green}${branch}%f"
+    [[ -n $(git status --porcelain 2>/dev/null) ]] && git_info+=" %F{red}✗%f"
+  fi
+  PROMPT="%F{blue}%~%f${git_info}"$'\n'"%F{yellow}❯%f "
+}
 
 # Editor
 export TERM="xterm-256color"
