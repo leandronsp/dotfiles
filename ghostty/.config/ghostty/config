@@ -1,0 +1,12 @@
+font-family = ZedMono Nerd Font
+font-size = 18
+
+theme = Gruvbox Dark
+
+cursor-style = block
+cursor-style-blink = false
+
+window-padding-x = 4
+window-padding-y = 4
+
+macos-option-as-alt = false
