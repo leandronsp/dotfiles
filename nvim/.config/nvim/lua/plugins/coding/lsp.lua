@@ -113,14 +113,9 @@ return {
         rust_analyzer = {
           settings = {
             ['rust-analyzer'] = {
-              -- Use Clippy for enhanced linting
+              -- Use cargo check on save (run clippy manually via make lint)
               checkOnSave = {
-                command = 'clippy',
-              },
-
-              -- Enable all Cargo features
-              cargo = {
-                allFeatures = true,
+                command = 'check',
               },
 
               -- Enable procedural macros
