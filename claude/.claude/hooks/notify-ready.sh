@@ -25,4 +25,4 @@ fi
 osascript -e "tell application \"System Events\" to display notification \"Window: $window_name (pane $pane)\" with title \"Claude Code\" sound name \"Funk\"" 2>/dev/null &
 
 # Highlight tmux window in status bar (reset happens on window enter via tmux hook)
-tmux set-window-option -t "$window_target" window-status-style "bg=red,fg=white,bold"
+tmux set-window-option -t "$window_target" window-status-format "#[fg=#FFFFFF bg=red bold] #I #W "
