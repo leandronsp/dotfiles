@@ -22,6 +22,16 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- UI and Window Management
 -- ===================================================================
 
+-- Mute neo-tree directory icon color (override pink default)
+vim.api.nvim_create_autocmd('ColorScheme', {
+  desc = 'Override neo-tree directory icon color',
+  group = vim.api.nvim_create_augroup('neotree-colors', { clear = true }),
+  callback = function()
+    vim.api.nvim_set_hl(0, 'NeoTreeDirectoryIcon', { fg = '#C9B99A' })
+    vim.api.nvim_set_hl(0, 'NeoTreeRootName', { fg = '#A7C080', bold = true })
+  end,
+})
+
 -- Auto-quit Neo-tree when it's the last window open
 -- Prevents Neovim from staying open with only Neo-tree visible
 vim.api.nvim_create_autocmd('BufEnter', {

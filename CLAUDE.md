@@ -56,6 +56,20 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 
 - `chrome-devtools` - defined in `~/.mcp.json` (stowed from `claude/.mcp.json`)
 
+## Ghostty config
+
+Lives in `ghostty/.config/ghostty/`. Stowed to `~/.config/ghostty/`.
+
+ZedMono Nerd Font, Gruvbox Dark theme, block cursor, `macos-option-as-alt = false` for accents/cedilla.
+
+## Shell prompt
+
+Custom two-line zsh prompt (no theme). First line shows `path:branch` with dirty indicator (`✗` in red). Cursor on second line with `❯`. Locale set to `en_US.UTF-8` in `.zprofile`.
+
+## Tmux theme
+
+Everforest-inspired dark theme. Session name with subtle background, window separators with `·`, active window highlighted with golden background (`#DBBC7F`). Inactive windows with muted text on slightly raised background.
+
 ## Neovim config
 
 Lives in `nvim/.config/nvim/`. Stowed to `~/.config/nvim/`.
@@ -69,7 +83,7 @@ nvim/.config/nvim/
     init.lua            Module loader (options -> keymaps -> autocmds -> lazy)
     options.lua         Vim options. Leader is semicolon (;)
     keymaps.lua         All keymaps + helper functions for LSP/snacks/inlay hints
-    autocmds.lua        Yank highlight, neo-tree auto-quit, LSP attach/detach
+    autocmds.lua        Yank highlight, neo-tree auto-quit, neo-tree colors, LSP attach/detach
     lazy.lua            Plugin manager bootstrap + plugin imports
   lua/plugins/
     ui/                 colorscheme (everforest), lualine, todo-comments, which-key
@@ -84,7 +98,7 @@ nvim/.config/nvim/
 
 ### LSP servers
 
-- `rust_analyzer` - Clippy check on save, all cargo features, proc macros, inlay hints
+- `rust_analyzer` - cargo check on save, proc macros, inlay hints
 - `lua_ls` - Neovim Lua development with LazyDev
 
 ### Key keymaps (leader = ;)

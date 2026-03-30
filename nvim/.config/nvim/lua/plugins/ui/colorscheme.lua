@@ -39,9 +39,6 @@ return {
 
       -- Highlight overrides
       on_highlights = function(hl, palette)
-        -- Example customizations:
-        -- hl.CursorLine = { bg = palette.bg1 }
-        -- hl.Visual = { bg = palette.bg_visual }
       end,
     }
 

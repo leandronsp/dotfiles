@@ -14,6 +14,13 @@ return {
     { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
   },
   opts = {
+    default_component_configs = {
+      icon = {
+        folder_closed = '›',
+        folder_open = '⌄',
+        folder_empty = '·',
+      },
+    },
     filesystem = {
       window = {
         mappings = {

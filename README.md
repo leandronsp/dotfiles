@@ -149,7 +149,8 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
-| `local-bin` | `.local/bin/claude-*` (tmux annotation scripts) |
+| `local-bin` | `.local/bin/abuf-*` (tmux annotation scripts) |
+| `ghostty` | `.config/ghostty/config` (terminal emulator) |
 
 ## Claude Code
 
