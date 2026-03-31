@@ -26,6 +26,7 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 - `~/.zshrc.local` for machine-specific shell config, not tracked
 - `~/.claude/settings.json` is machine-specific (permissions), not tracked. Portable keys synced from local via `make sync-claude`
 - `~/.claude/settings.local.json` is portable (hooks, plugins, statusline), tracked via stow. Source of truth for portable config
+- mise is the version manager (replacing asdf). Both coexist during migration. `.tool-versions` is the shared config file
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
@@ -46,9 +47,11 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 - `/recap` - save session learnings to vault
 - `/brainstorm` - develop blog post ideas into outlines
 - `/task` - manage tasks (roadmap, sprint, pomodoro, routines)
-- `/tdd` - TDD pair programming with fswatch file watcher
+- `/pair` - TDD pair programming with mode switching (driver/navigator)
 - `/skill-creator` - create and test new skills
 - `/pair-review` - interactive pair review of a PR
+- `/qa` - smoke-test changes in the browser, validate behavior
+- `/browser` - browser automation via agent-browser CLI
 
 `~/.claude/skills` is a directory-level symlink to `claude/.claude/skills/`. New skills added to the dotfiles appear automatically without restow.
 

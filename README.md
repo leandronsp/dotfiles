@@ -21,7 +21,7 @@ Provides: git, make, curl, gcc, unzip, clang-format.
 ### 3. Brew packages
 
 ```bash
-brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch
+brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch
 ```
 
 | Package | What it does |
@@ -29,7 +29,8 @@ brew install stow nvim tmux asdf direnv jq ripgrep pipx reattach-to-user-namespa
 | `stow` | Symlink manager for dotfiles |
 | `nvim` | Neovim editor |
 | `tmux` | Terminal multiplexer |
-| `asdf` | Version manager for Node, Ruby, OCaml |
+| `asdf` | Version manager for Node, Ruby, OCaml (legacy) |
+| `mise` | Version manager replacing asdf. Faster, reads `.tool-versions` natively |
 | `direnv` | Per-directory environment variables |
 | `jq` | JSON processor for shell |
 | `ripgrep` | Fast text search (used by nvim telescope) |
@@ -63,21 +64,51 @@ cargo install stylua elan
 | `stylua` | Lua code formatter (used by nvim and CI) |
 | `elan` | Lean 4 theorem prover toolchain manager |
 
-### 7. Language runtimes via asdf
+### 7. Language runtimes via mise
+
+mise reads `.tool-versions` natively. No plugins to install.
 
 ```bash
-asdf plugin add nodejs && asdf install nodejs
-asdf plugin add ruby && asdf install ruby
-asdf plugin add opam && asdf install opam
+mise install
 ```
 
-Versions are defined in `.tool-versions`.
+That's it. All runtimes defined in `.tool-versions` are installed.
+
+#### mise basics
+
+```bash
+mise install                    # Install all runtimes from .tool-versions
+mise install node@22            # Install a specific version
+mise use node@22                # Set version for current directory (.tool-versions)
+mise use -g node@22             # Set global default
+mise ls                         # List installed versions
+mise ls-remote node             # List available versions
+mise prune                      # Remove unused versions
+mise doctor                     # Check mise health
+mise reshim                     # Rebuild shims after installing global npm/gem packages
+```
 
 | Runtime | What it does |
 |---------|-------------|
 | `nodejs` | JavaScript runtime (provides npm/npx for tools) |
 | `ruby` | Ruby runtime |
+| `golang` | Go runtime |
 | `opam` | OCaml package manager and compiler |
+| `erlang` | Erlang VM |
+| `elixir` | Elixir runtime |
+
+#### Legacy: asdf
+
+If using asdf instead of mise, install plugins manually:
+
+```bash
+asdf plugin add nodejs && asdf install nodejs
+asdf plugin add ruby && asdf install ruby
+asdf plugin add opam && asdf install opam
+asdf plugin add erlang && asdf install erlang
+asdf plugin add elixir && asdf install elixir
+asdf plugin add golang && asdf install golang
+```
 
 ### 8. Claude Code and tools
 
@@ -100,7 +131,7 @@ ln -s ~/Library/Mobile\ Documents/iCloud~md~obsidian/Documents ~/vault
 
 The vault is the second brain. Claude Code hooks load context from it on session start, and skills like `/note`, `/vault`, `/recap`, `/brainstorm`, and `/task` read and write to it.
 
-### 11. Secrets directory
+### 10. Secrets directory
 
 ```bash
 mkdir -p ~/.secrets
@@ -108,18 +139,18 @@ mkdir -p ~/.secrets
 
 API tokens go in `~/.secrets/env`, sourced by `.zshrc`.
 
-### 12. Clone and install dotfiles
+### 11. Clone and install dotfiles
 
 ```bash
 mkdir -p ~/Documents/code
 git clone git@github.com:leandronsp/dotfiles.git ~/Documents/code/dotfiles
 cd ~/Documents/code/dotfiles
-make deps           # Verify everything from steps 1-11
+make deps           # Verify everything from steps 1-10
 make install        # Stow all packages
 source ~/.zshrc     # Reload shell
 ```
 
-### 13. Neovim first run
+### 12. Neovim first run
 
 Open `nvim`. Lazy will auto-install plugins. Mason will auto-install LSP servers (lua_ls, rust_analyzer) and debug adapters (delve).
 
@@ -144,7 +175,7 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `zsh` | `.zshenv`, `.zprofile`, `.zshrc`, `.profile` |
 | `git` | `.gitconfig`, `.gitignore_global` |
 | `tmux` | `.tmux.conf` |
-| `tool-versions` | `.tool-versions` (asdf defaults) |
+| `tool-versions` | `.tool-versions` (mise/asdf runtime versions) |
 | `nvim` | `.config/nvim/` (full Neovim config) |
 | `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
