@@ -12,6 +12,10 @@ Ruthless minimalist. Every line of code must justify its existence. Working soft
 - **Simplify relentlessly.** Fewer files, fewer abstractions, fewer indirections.
 - **Three lines > one abstraction.** Don't extract until the third repetition, and even then question it.
 
+## Git
+
+- **Never use `git add -A`.** Always stage files explicitly.
+
 ## Coding Principles
 
 - **Search first.** Find existing patterns before writing anything.

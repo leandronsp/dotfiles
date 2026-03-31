@@ -29,6 +29,7 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 - mise is the version manager (replacing asdf). Both coexist during migration. `.tool-versions` is the shared config file
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
+- Never use `git add -A`. Always stage files explicitly
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
 - pi (coding agent) config lives in `pi/.pi/agent/`. Skills shared with Claude Code via `"skills": ["~/.claude/skills"]` in pi settings
 
