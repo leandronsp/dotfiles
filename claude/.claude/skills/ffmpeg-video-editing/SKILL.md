@@ -1,3 +1,7 @@
+---
+description: FFmpeg video editing commands. Cut, trim, add audio tracks, loop audio, and combine video with music. Use when the user wants to edit video with ffmpeg, add background music, cut clips, or manipulate audio/video streams.
+---
+
 # FFmpeg Video Editing
 
 Comandos úteis para edição de vídeo com ffmpeg.
