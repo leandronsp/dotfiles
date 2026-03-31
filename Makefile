@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 .DEFAULT_GOAL: help
 
-PACKAGES = zsh git tmux tool-versions nvim claude direnv ssh local-bin ghostty
+PACKAGES = zsh git tmux tool-versions nvim claude direnv ssh local-bin ghostty pi
 
 help: ## Show all available commands
 	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n"} /^[.a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -10,7 +10,7 @@ help: ## Show all available commands
 
 install: ## Install dotfiles (first time setup)
 	@command -v stow >/dev/null || (echo "Installing GNU Stow..." && brew install stow)
-	@mkdir -p ~/.config/nvim ~/.config/direnv ~/.config/ghostty ~/.ssh/config.d ~/.secrets
+	@mkdir -p ~/.config/nvim ~/.config/direnv ~/.config/ghostty ~/.ssh/config.d ~/.secrets ~/.pi/agent
 	@for pkg in $(PACKAGES); do echo "Stowing $$pkg..."; stow -t ~ $$pkg; done
 	@$(MAKE) sync-claude
 	@echo "Done. Run 'source ~/.zshrc' to reload."
@@ -55,7 +55,7 @@ sync-claude: ## Sync portable settings into ~/.claude/settings.json
 
 deps: ## Check required dependencies
 	@ok=true; \
-	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch; do \
+	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch pi; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
 		else \
@@ -77,7 +77,7 @@ deps: ## Check required dependencies
 
 check: ## Verify all symlinks are intact
 	@ok=true; \
-	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/abuf-edit ~/.config/ghostty; do \
+	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/abuf-edit ~/.config/ghostty ~/.pi/agent/settings.json ~/.pi/agent/themes/everforest.json; do \
 		if [ -L "$$f" ]; then \
 			printf "  \e[32mOK\e[0m    %s -> %s\n" "$$f" "$$(readlink $$f)"; \
 		else \

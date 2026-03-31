@@ -30,6 +30,7 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 - SSH host entries live in `~/.ssh/config.d/`, not tracked
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
+- pi (coding agent) config lives in `pi/.pi/agent/`. Skills shared with Claude Code via `"skills": ["~/.claude/skills"]` in pi settings
 
 ## Claude Code config
 
@@ -58,6 +59,34 @@ Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 ### MCP servers
 
 - `chrome-devtools` - defined in `~/.mcp.json` (stowed from `claude/.mcp.json`)
+
+## Pi config
+
+Lives in `pi/.pi/agent/`. Stowed to `~/.pi/agent/`.
+
+pi is an alternative coding agent TUI that shares skills with Claude Code. Install via `npm i -g @mariozechner/pi-coding-agent`.
+
+### Structure
+
+```
+pi/.pi/agent/
+  settings.json           Model, provider, theme, skills path
+  keybindings.json        Custom keybindings
+  themes/
+    everforest.json       Custom Everforest theme matching terminal/nvim/tmux
+```
+
+### Key settings
+
+- `defaultProvider`: `anthropic`
+- `defaultModel`: `claude-opus-4-6` (1M context)
+- `defaultThinkingLevel`: `medium`
+- `theme`: `everforest` (custom, hot-reloads on edit)
+- `skills`: `["~/.claude/skills"]` — reuses Claude Code skills directly
+
+### Skills sharing
+
+pi discovers skills via the `"skills"` array in `settings.json`. Pointing it to `~/.claude/skills` (which is a directory symlink to `claude/.claude/skills/`) means both Claude Code and pi share the same skill set. No duplication.
 
 ## Ghostty config
 
