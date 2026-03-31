@@ -12,7 +12,7 @@ precmd() {
     git_info=":%F{green}${branch}%f"
     [[ -n $(git status --porcelain 2>/dev/null) ]] && git_info+=" %F{red}✗%f"
   fi
-  PROMPT="%F{blue}%~%f${git_info}"$'\n'"%F{yellow}❯%f "
+  PROMPT=$'\n'"%F{blue}%~%f${git_info}"$'\n'"%F{yellow}❯%f "
 }
 
 # Editor
