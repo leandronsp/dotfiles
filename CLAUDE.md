@@ -75,6 +75,17 @@ pi/.pi/agent/
   keybindings.json        Custom keybindings
   themes/
     everforest.json       Custom Everforest theme matching terminal/nvim/tmux
+  agents/                 Subagent definitions for multi-agent workflows
+    scout.md              Fast codebase recon (haiku)
+    security-reviewer.md  Auth, injection, SSRF, race conditions
+    performance-reviewer.md  N+1, allocations, hot loops, blocking I/O
+    quality-reviewer.md   DDD, SOLID, testing, clean code, patterns
+    review-auditor.md     Red team, verifies findings against code and rules
+  skills/                 Pi-only skills (not shared with Claude Code)
+    po/                   Product owner: scout → PRD → docs/GitHub/Linear
+    dev/                  Senior engineer: 5 TDD pairing modes
+    review/               Parallel reviewers + red team audit + judgment
+    commit/               Conventional commits + optional draft PR
 ```
 
 ### Key settings
@@ -85,9 +96,28 @@ pi/.pi/agent/
 - `theme`: `everforest` (custom, hot-reloads on edit)
 - `skills`: `["~/.claude/skills"]` — reuses Claude Code skills directly
 
+### Skills (pi-only)
+
+- `/skill:po` - product owner: scouts codebase, writes PRD, publishes to docs/GitHub/Linear
+- `/skill:dev` - senior engineer: scout → questions → test proposal → 5 TDD pairing modes (agent pairs, solo, user pair)
+- `/skill:review` - multi-agent review: 3 parallel reviewers (security, performance, quality) → red team audit → user judgment
+- `/skill:commit` - conventional commits + `--pr` for draft PRs via `gh` CLI
+
+### Agents (subagent definitions)
+
+Used by the review and dev skills via pi's subagent extension. Each agent is a markdown file with frontmatter (name, description, tools, model).
+
+- `scout` (haiku) - fast codebase recon, compressed context for downstream agents
+- `security-reviewer` (sonnet) - stack-aware security review
+- `performance-reviewer` (sonnet) - stack-aware performance review
+- `quality-reviewer` (sonnet) - DDD, SOLID, testing, clean code, also used as TDD navigator/driver in dev skill
+- `review-auditor` (sonnet) - red team, read-only, verifies findings against code and project rules
+
 ### Skills sharing
 
-pi discovers skills via the `"skills"` array in `settings.json`. Pointing it to `~/.claude/skills` (which is a directory symlink to `claude/.claude/skills/`) means both Claude Code and pi share the same skill set. No duplication.
+pi has two skill sources:
+1. **Shared with Claude Code**: `"skills": ["~/.claude/skills"]` in settings.json points to `~/.claude/skills` (symlink to `claude/.claude/skills/`)
+2. **Pi-only**: `~/.pi/agent/skills/` for skills that use pi-specific features (subagents, extensions)
 
 ## Ghostty config
 
