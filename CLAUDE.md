@@ -33,111 +33,64 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
 - pi (coding agent) config lives in `pi/.pi/agent/`. Skills shared with Claude Code via `"skills": ["~/.claude/skills"]` in pi settings
 
+## Packages
+
+`zsh`, `git`, `tmux`, `tool-versions`, `nvim`, `claude`, `pi`, `direnv`, `ssh`, `local-bin`, `ghostty`, `tig`
+
 ## Claude Code config
 
 Lives in `claude/.claude/`. Stowed to `~/.claude/`.
 
 ### Hooks
 
-- `hooks/vault-session-load.sh` - SessionStart hook. Loads last session recap + related vault notes (score >= 70% via qmd)
-- `hooks/notify-ready.sh` - Stop hook. macOS notification + sound + tmux window highlight when Claude finishes responding in a background window
+- `vault-session-load.sh` — SessionStart. Loads last session recap + related vault notes (score >= 70% via qmd)
+- `notify-ready.sh` — Stop + Notification. Sound + tmux window highlight when Claude finishes in a background window
 
-### Skills
+### Skills (shared with pi)
 
-- `/vault` - search and retrieve vault notes
-- `/note` - capture ideas, TILs, drafts to vault
-- `/recap` - save session learnings to vault
-- `/brainstorm` - develop blog post ideas into outlines
-- `/task` - manage tasks (roadmap, sprint, pomodoro, routines)
-- `/pair` - TDD pair programming with mode switching (driver/navigator)
-- `/skill-creator` - create and test new skills
-- `/pair-review` - interactive pair review of a PR
-- `/qa` - smoke-test changes in the browser, validate behavior
-- `/browser` - browser automation via agent-browser CLI
+`/vault`, `/note`, `/recap`, `/brainstorm`, `/task`, `/pair`, `/skill-creator`, `/pair-review`, `/qa`, `/browser`
 
-`~/.claude/skills` is a directory-level symlink to `claude/.claude/skills/`. New skills added to the dotfiles appear automatically without restow.
+`~/.claude/skills` is a directory-level symlink to `claude/.claude/skills/`. New skills appear automatically without restow.
 
 ### MCP servers
 
-- `chrome-devtools` - defined in `~/.mcp.json` (stowed from `claude/.mcp.json`)
+- `chrome-devtools` — defined in `~/.mcp.json` (stowed from `claude/.mcp.json`)
 
 ## Pi config
 
 Lives in `pi/.pi/agent/`. Stowed to `~/.pi/agent/`.
 
-pi is an alternative coding agent TUI that shares skills with Claude Code. Install via `npm i -g @mariozechner/pi-coding-agent`.
+pi is an alternative coding agent TUI. Install via `npm i -g @mariozechner/pi-coding-agent`.
 
-### Structure
-
-```
-pi/.pi/agent/
-  settings.json           Model, provider, theme, skills path
-  keybindings.json        Custom keybindings
-  themes/
-    everforest.json       Custom Everforest theme matching terminal/nvim/tmux
-  agents/                 Subagent definitions for multi-agent workflows
-    scout.md              Fast codebase recon (haiku)
-    security-reviewer.md  Auth, injection, SSRF, race conditions
-    performance-reviewer.md  N+1, allocations, hot loops, blocking I/O
-    quality-reviewer.md   DDD, SOLID, testing, clean code, patterns
-    review-auditor.md     Red team, verifies findings against code and rules
-  extensions/             TypeScript extensions (pi's equivalent of hooks)
-    tmux-notify.ts        Sound + tmux highlight when pi finishes in background
-    tmux-status.ts        Writes model/tokens/cost to tmux status bar
-    subagent/             Multi-agent orchestration (parallel, chain, single)
-    plan-mode/            Read-only exploration mode with plan tracking
-  skills/                 Pi-only skills (not shared with Claude Code)
-    po/                   Product owner: scout → PRD → docs/GitHub/Linear
-    dev/                  Senior engineer: 5 TDD pairing modes
-    review/               Parallel reviewers + red team audit + judgment
-    commit/               Conventional commits + optional draft PR
-```
-
-### Key settings
-
-- `defaultProvider`: `anthropic`
-- `defaultModel`: `claude-opus-4-6` (1M context)
-- `defaultThinkingLevel`: `medium`
-- `theme`: `everforest` (custom, hot-reloads on edit)
-- `skills`: `["~/.claude/skills"]` — reuses Claude Code skills directly
+**Pi does NOT load Claude Code hooks** (`settings.local.json`). All behavior is driven by extensions.
 
 ### Extensions
 
-pi does **not** load Claude Code hooks (`settings.local.json`). All behavior is driven by **extensions** (TypeScript, using pi's `ExtensionAPI`), registered in `settings.json` under `"extensions"`.
+Registered in `settings.json` under `"extensions"`. Load on startup — restart pi after changes.
 
-- `tmux-notify.ts` — sound + tmux highlight when pi finishes in a background pane (port of Claude Code's `notify-ready.sh`)
+- `tmux-notify.ts` — sound + tmux highlight when pi finishes in background (port of `notify-ready.sh`)
 - `tmux-status.ts` — writes model/tokens/cost to tmux status bar
-- `subagent/` — spawns isolated pi subprocesses for multi-agent workflows. Discovers agents from `~/.pi/agent/agents/*.md`. Required by `/skill:review`, `/skill:dev`, `/skill:po`
-- `plan-mode/` — read-only exploration mode (`/plan`). Restricts tools to read-only, extracts numbered plans, tracks progress
+- `subagent/` — multi-agent orchestration (parallel, chain, single). Discovers agents from `~/.pi/agent/agents/*.md`. Required by `/skill:review`, `/skill:dev`, `/skill:po`
+- `plan-mode/` — read-only exploration mode (`/plan`, `/todos`, `Ctrl+Alt+P`). Restricts tools, tracks plan progress
 
 ### Skills (pi-only)
 
-- `/skill:po` - product owner: scouts codebase, writes PRD, publishes to docs/GitHub/Linear
-- `/skill:dev` - senior engineer: scout → questions → test proposal → 5 TDD pairing modes (agent pairs, solo, user pair)
-- `/skill:review` - multi-agent review: 3 parallel reviewers (security, performance, quality) → red team audit → user judgment
-- `/skill:commit` - conventional commits + `--pr` for draft PRs via `gh` CLI
+`/skill:po`, `/skill:dev`, `/skill:review`, `/skill:commit`
 
-### Agents (subagent definitions)
+### Agents
 
-Used by the review and dev skills via pi's subagent extension. Each agent is a markdown file with frontmatter (name, description, tools, model).
+`scout` (haiku), `security-reviewer` (sonnet), `performance-reviewer` (sonnet), `quality-reviewer` (sonnet), `review-auditor` (sonnet)
 
-- `scout` (haiku) - fast codebase recon, compressed context for downstream agents
-- `security-reviewer` (sonnet) - stack-aware security review
-- `performance-reviewer` (sonnet) - stack-aware performance review
-- `quality-reviewer` (sonnet) - DDD, SOLID, testing, clean code, also used as TDD navigator/driver in dev skill
-- `review-auditor` (sonnet) - red team, read-only, verifies findings against code and project rules
+### Skill sharing
 
-### Skills sharing
-
-pi has two skill sources:
-1. **Shared with Claude Code**: `"skills": ["~/.claude/skills"]` in settings.json points to `~/.claude/skills` (symlink to `claude/.claude/skills/`)
-2. **Pi-only**: `~/.pi/agent/skills/` for skills that use pi-specific features (subagents, extensions)
+1. **Shared with Claude Code**: `"skills": ["~/.claude/skills"]` — all Claude Code skills work in pi
+2. **Pi-only**: `~/.pi/agent/skills/` — skills that use subagents/extensions
 
 ## Ghostty config
 
 Lives in `ghostty/.config/ghostty/`. Stowed to `~/.config/ghostty/`.
 
-ZedMono Nerd Font, Gruvbox Dark theme, block cursor, `macos-option-as-alt = false` for accents/cedilla.
+ZedMono Nerd Font, Gruvbox Dark theme (terminal-level), block cursor, `macos-option-as-alt = false` for accents/cedilla.
 
 ## Shell prompt
 
@@ -149,34 +102,7 @@ Everforest-inspired dark theme. Session name with green accent (`#83C092`), wind
 
 ## Neovim config
 
-Lives in `nvim/.config/nvim/`. Stowed to `~/.config/nvim/`.
-
-### Structure
-
-```
-nvim/.config/nvim/
-  init.lua              Entry point. Loads lua/config/
-  lua/config/
-    init.lua            Module loader (options -> keymaps -> autocmds -> lazy)
-    options.lua         Vim options. Leader is semicolon (;)
-    keymaps.lua         All keymaps + helper functions for LSP/snacks/inlay hints
-    autocmds.lua        Yank highlight, neo-tree auto-quit, neo-tree colors, LSP attach/detach
-    lazy.lua            Plugin manager bootstrap + plugin imports
-  lua/plugins/
-    ui/                 colorscheme (everforest), lualine, todo-comments, which-key
-    editor/             snacks (fuzzy finder), treesitter, mini.nvim
-    coding/             lsp, completion (nvim-cmp), formatting (conform)
-    tools/              copilot, languages (lean4, coffeescript, JS/TS), markdown (glow), sleuth
-  lua/kickstart/        health check + plugins (debug/DAP, gitsigns, indent, lint, neo-tree, autopairs)
-  lua/tests/            Plenary test specs (config, plugins, utils)
-  tests/run.lua         Test runner
-  Makefile              sync, test, health, format, lint, startup-time
-```
-
-### LSP servers
-
-- `rust_analyzer` - cargo check on save, proc macros, inlay hints
-- `lua_ls` - Neovim Lua development with LazyDev
+Lives in `nvim/.config/nvim/`. Stowed to `~/.config/nvim/`. Full reference in [`nvim/.config/nvim/README.md`](nvim/.config/nvim/README.md).
 
 ### Key keymaps (leader = ;)
 
@@ -190,6 +116,11 @@ nvim/.config/nvim/
 - `;f` - format buffer
 - `;b` - toggle breakpoint, `F5` - start/continue debug
 
+### LSP servers
+
+- `rust_analyzer` - cargo check on save, proc macros, inlay hints
+- `lua_ls` - Neovim Lua development with LazyDev
+
 ### Formatters (conform)
 
 stylua (Lua), prettier (JS/TS/JSON), black+isort (Python), rustfmt, gofmt, clang-format, shfmt
@@ -197,15 +128,3 @@ stylua (Lua), prettier (JS/TS/JSON), black+isort (Python), rustfmt, gofmt, clang
 ### CI
 
 `.github/workflows/ci.yml` runs on `nvim/**` changes. Steps: install plugins, stylua lint, health check, tests.
-
-### Local dev commands
-
-```bash
-cd ~/.config/nvim
-make test           # Run test suite
-make health         # Health check
-make format         # Format lua files
-make lint           # Check lua style
-make sync           # Sync plugins + Mason tools
-make startup-time   # Measure startup
-```

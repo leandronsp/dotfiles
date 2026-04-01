@@ -183,10 +183,10 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `tool-versions` | `.tool-versions` (mise/asdf runtime versions) |
 | `nvim` | `.config/nvim/` (full Neovim config) |
 | `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
-| `pi` | `.pi/agent/` (settings, themes, agents, skills) |
+| `pi` | `.pi/agent/` (settings, themes, extensions, agents, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
-| `local-bin` | `.local/bin/` (tmux annotation scripts, pi status script) |
+| `local-bin` | `.local/bin/` (annotation buffer scripts, tmux-pi-status) |
 | `tig` | `.tigrc` (tig git browser config) |
 | `ghostty` | `.config/ghostty/config` (terminal emulator) |
 
@@ -204,7 +204,7 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 | Hook | Trigger | What it does |
 |------|---------|-------------|
 | `vault-session-load.sh` | SessionStart | Loads last session recap + related vault notes (score >= 70%) |
-| `notify-ready.sh` | Stop | macOS notification + sound + tmux window highlight when Claude finishes in a background window |
+| `notify-ready.sh` | Stop, Notification | macOS notification + sound + tmux window highlight when Claude finishes in a background window |
 
 ### Skills
 
@@ -223,6 +223,8 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 
 `~/.claude/skills` is a directory-level symlink. New skills added to `claude/.claude/skills/` appear automatically without restow.
 
+All Claude Code skills also work in pi via shared skill paths (see [Pi > Skill sharing](#skill-sharing)).
+
 ### MCP servers
 
 | Server | Source | What it does |
@@ -233,20 +235,27 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 
 Skills and hooks depend on `qmd` for semantic search over the Obsidian vault. The vault lives in iCloud and is symlinked to `~/vault`.
 
-## Annotation Buffer
+## Local Scripts (`local-bin`)
+
+### Annotation Buffer
 
 Review tmux output without scroll fatigue. Each tmux window gets its own buffer (`/tmp/abuf-{session}-{window}.md`). Both `a` (copy mode) and `prefix + B` open the same vim popup on the buffer.
-
-### Scripts
 
 | Script | What it does |
 |--------|-------------|
 | `abuf-edit` | Opens vim popup on the buffer, appends quoted selection if available |
 | `abuf-paste` | Pastes buffer into the current pane via send-keys |
 | `abuf-clear` | Clears the current window's buffer |
-| `tmux-pi-status.sh` | Reads pi status file for active pane, displayed in tmux status-right |
 
-### Keybindings
+### Pi Tmux Status
+
+| Script | What it does |
+|--------|-------------|
+| `tmux-pi-status.sh` | Reads pi session status for active pane, displayed in tmux status-right |
+
+Written by the `tmux-status.ts` pi extension, read by tmux every second.
+
+### Annotation Buffer Keybindings
 
 | Key | Context | Action |
 |-----|---------|--------|
@@ -255,7 +264,7 @@ Review tmux output without scroll fatigue. Each tmux window gets its own buffer 
 | `prefix + S` | normal | Paste buffer into current pane (does not clear buffer) |
 | `prefix + Ctrl-x` | normal | Clear buffer (asks for confirmation) |
 
-### Workflow
+### Annotation Buffer Workflow
 
 1. Enter copy mode (`prefix + [`)
 2. Optionally select text with `v` + movement
@@ -414,6 +423,7 @@ Pi loads skills from two sources:
 ## Not tracked
 
 - `~/.secrets/env` - API tokens sourced by `.zshrc`
+- `~/.zshrc.local` - machine-specific shell config
 - `~/.claude/settings.json` - machine-specific permissions, auto-managed by Claude
 - `~/.ssh/config.d/*` - host-specific SSH entries
 - `~/vault` - Obsidian vault symlink to iCloud (content not in this repo)
