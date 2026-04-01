@@ -96,6 +96,15 @@ pi/.pi/agent/
 - `theme`: `everforest` (custom, hot-reloads on edit)
 - `skills`: `["~/.claude/skills"]` — reuses Claude Code skills directly
 
+### Hooks vs Extensions
+
+pi does **not** load Claude Code hooks (`settings.local.json`). The equivalent functionality lives in **extensions** (TypeScript, using pi's `ExtensionAPI`):
+
+- `tmux-notify.ts` — port of Claude Code's `notify-ready.sh`. Listens to `agent_end` event, plays sound + highlights tmux window/session when pi finishes in a background pane
+- `tmux-status.ts` — tmux status bar integration
+
+Extensions are registered in `settings.json` under `"extensions"`, not in hooks.
+
 ### Skills (pi-only)
 
 - `/skill:po` - product owner: scouts codebase, writes PRD, publishes to docs/GitHub/Linear
