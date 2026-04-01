@@ -63,13 +63,29 @@ To find the session ID, get the most recent `.jsonl` file in `~/.claude/projects
 
 This makes `/recap` idempotent. Running it twice in the same session overwrites the same file.
 
+## Save Location
+
+Check if a project directory exists under `~/vault/projects/`:
+
+```bash
+ls ~/vault/projects/ 2>/dev/null
+```
+
+If the current project matches one of those directories, save there:
+`~/vault/projects/{project}/{project}-{session_id_short}.md`
+
+Otherwise fall back to:
+`~/vault/sessions/{project}-{session_id_short}.md`
+
+Always check the vault structure before writing. Never assume the save path.
+
 ## Steps
 
 1. Resolve the session ID (see Filename section above)
 2. Review the conversation for learnings, decisions, and surprises
 3. If nothing worth saving, tell the user: "Nothing non-obvious to save from this session."
 4. If there are learnings, show a **preview** of the full note (rendered, not as a code block) and ask the user to confirm before saving. The user may want to edit, add, or remove things.
-5. Only after confirmation, write the session note to `~/vault/sessions/{project}-{session_id_short}.md`
+5. Only after confirmation, write the session note to the correct location (see Save Location below)
 6. Search for related notes: `qmd search -c vault "{topic}"` and add `[[links]]`
 7. Update index: `qmd update -c vault && qmd embed 2>/dev/null`
 8. Confirm what was saved and where
