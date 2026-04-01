@@ -1,6 +1,6 @@
 ---
 name: dev
-description: Senior engineer. Scouts codebase, proposes test cases, implements with strict TDD in 5 pairing modes (agent pairs, solo, user pair). Accepts a prompt, issue URL, PRD file, or no args. Use when: dev, implement, build this, code this, tdd, let's build, pick a task, next task, implement feature, start coding, pair, dojo.
+description: "Senior engineer. Scouts codebase, proposes test cases, implements with strict TDD in 5 pairing modes (agent pairs, solo, user pair). Accepts a prompt, issue URL, PRD file, or no args. Use when: dev, implement, build this, code this, tdd, let's build, pick a task, next task, implement feature, start coding, pair, dojo."
 ---
 
 # Dev

@@ -1,6 +1,6 @@
 ---
 name: po
-description: Product Owner. Scouts the codebase, understands a prompt, writes a comprehensive PRD focused on product requirements for business people. Stack-agnostic, works across Ruby, Elixir, Rust, JS, Bash projects. Use when: PRD, product requirements, feature spec, what should we build, scope this, plan feature, po, write requirements, user story.
+description: "Product Owner. Scouts the codebase, understands a prompt, writes a comprehensive PRD focused on product requirements for business people. Stack-agnostic, works across Ruby, Elixir, Rust, JS, Bash projects. Use when: PRD, product requirements, feature spec, what should we build, scope this, plan feature, po, write requirements, user story."
 ---
 
 # Product Owner

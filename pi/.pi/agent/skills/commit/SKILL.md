@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Git commit with conventional commits, optional draft PR. Small, incremental, human-written messages. Never mentions AI, agents, or Claude. Use when: commit, commit this, save changes, git commit, stage and commit, create PR, open PR, draft PR.
+description: "Git commit with conventional commits, optional draft PR. Small, incremental, human-written messages. Never mentions AI, agents, or Claude. Use when: commit, commit this, save changes, git commit, stage and commit, create PR, open PR, draft PR."
 ---
 
 # Commit

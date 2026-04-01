@@ -1,6 +1,6 @@
 ---
 name: review
-description: Multi-agent code review. Spawns parallel security, performance, and quality reviewers, then a red team auditor, then presents findings for the user to judge. Accepts a prompt, GitHub/Linear issue URL, PRD file path, or no args. Use when: review, code review, review this PR, review my changes, review against spec, check my work, security review, quality check.
+description: "Multi-agent code review. Spawns parallel security, performance, and quality reviewers, then a red team auditor, then presents findings for the user to judge. Accepts a prompt, GitHub/Linear issue URL, PRD file path, or no args. Use when: review, code review, review this PR, review my changes, review against spec, check my work, security review, quality check."
 ---
 
 # Review
