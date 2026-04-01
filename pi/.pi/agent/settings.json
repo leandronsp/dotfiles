@@ -4,5 +4,6 @@
   "defaultModel": "claude-opus-4-6",
   "defaultThinkingLevel": "medium",
   "theme": "everforest",
-  "skills": ["~/.claude/skills"]
+  "skills": ["~/.claude/skills"],
+  "extensions": ["~/.pi/agent/extensions/tmux-status.ts", "~/.pi/agent/extensions/tmux-notify.ts"]
 }
