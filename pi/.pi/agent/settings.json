@@ -2,8 +2,16 @@
   "lastChangelogVersion": "0.64.0",
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-6",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "off",
   "theme": "everforest",
-  "skills": ["~/.claude/skills"],
-  "extensions": ["~/.pi/agent/extensions/tmux-status.ts", "~/.pi/agent/extensions/tmux-notify.ts", "~/.pi/agent/extensions/subagent", "~/.pi/agent/extensions/plan-mode"]
+  "skills": [
+    "~/.claude/skills"
+  ],
+  "extensions": [
+    "~/.pi/agent/extensions/tmux-status.ts",
+    "~/.pi/agent/extensions/tmux-notify.ts",
+    "~/.pi/agent/extensions/subagent",
+    "~/.pi/agent/extensions/plan-mode"
+  ],
+  "hideThinkingBlock": true
 }
