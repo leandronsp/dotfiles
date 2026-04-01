@@ -1,0 +1,56 @@
+# Everforest Dark theme for tig
+# Matches terminal/nvim/tmux palette
+
+# UI chrome
+color title-focus      color223 color237 bold    # #d3c6aa on #3d484d
+color title-blur       color245 color236         # #859289 on #343f44
+color status           color223 color235         # #d3c6aa on #2d353b
+color cursor           color235 color179 bold    # #2d353b on #d7af5f (warm gold)
+color search-result    color235 color142 bold    # #2d353b on #a7c080
+
+# Line number
+color line-number      color245 default          # #859289
+color id               color109 default          # #7fbbb3
+
+# Date & Author
+color date             color245 default          # gray
+color author           color109 default          # #7fbbb3
+
+# Main view
+color main-tracked     color186 default bold     # #dbbc7f
+color main-head        color142 default bold     # #a7c080
+color main-remote      color174 default          # #d699b6
+color main-tag         color208 default bold     # #e69875
+color main-ref         color142 default          # #a7c080
+color graph-commit     color142 default          # #a7c080
+
+# Diff
+color diff-header      color186 default bold     # #dbbc7f
+color diff-index       color109 default          # #7fbbb3
+color diff-chunk       color174 default          # #d699b6
+color diff-add         color142 default          # #a7c080
+color diff-del         color167 default          # #e67e80
+color diff-oldmode     color167 default
+color diff-newmode     color142 default
+color "rename from "   color167 default
+color "rename to "     color142 default
+color diff-stat        color109 default          # #7fbbb3
+color "Signed-off-by"  color142 default
+color "Acked-by"       color142 default
+color "Reviewed-by"    color142 default
+
+# Status view
+color stat-staged      color142 default          # #a7c080
+color stat-unstaged    color167 default          # #e67e80
+color stat-untracked   color174 default          # #d699b6
+color stat-none        color245 default          # gray
+
+# Help & delimiter
+color help-group       color186 default bold     # #dbbc7f
+color delimiter        color245 default          # gray
+color overflow         color167 default          # #e67e80
+
+# Tree view
+color tree.header      color223 default bold     # #d3c6aa
+color tree.directory   color109 default bold     # #7fbbb3
+color tree.file        color223 default          # #d3c6aa
