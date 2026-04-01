@@ -21,7 +21,7 @@ Provides: git, make, curl, gcc, unzip, clang-format.
 ### 3. Brew packages
 
 ```bash
-brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch
+brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch tig gh glow agent-browser
 ```
 
 | Package | What it does |
@@ -38,6 +38,10 @@ brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-na
 | `reattach-to-user-namespace` | macOS clipboard integration for tmux |
 | `gd` | Graphics library (needed to build Ruby image gems) |
 | `fswatch` | File change monitor (used by pair/dev skills) |
+| `tig` | Git browser / log viewer |
+| `gh` | GitHub CLI (used by commit skill for draft PRs) |
+| `glow` | Markdown renderer in terminal (used by nvim glow plugin) |
+| `agent-browser` | Browser automation CLI (used by /browser and /qa skills) |
 
 ### 4. Oh My Zsh
 

@@ -55,7 +55,7 @@ sync-claude: ## Sync portable settings into ~/.claude/settings.json
 
 deps: ## Check required dependencies
 	@ok=true; \
-	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch pi; do \
+	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch pi tig gh glow agent-browser; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
 		else \
@@ -77,7 +77,7 @@ deps: ## Check required dependencies
 
 check: ## Verify all symlinks are intact
 	@ok=true; \
-	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/abuf-edit ~/.config/ghostty ~/.pi/agent/settings.json ~/.pi/agent/themes/everforest.json; do \
+	for f in ~/.zshrc ~/.gitconfig ~/.tmux.conf ~/.tool-versions ~/.mcp.json ~/.config/nvim/init.lua ~/.config/direnv/direnv.toml ~/.ssh/config ~/.local/bin/abuf-edit ~/.local/bin/tmux-pi-status.sh ~/.config/ghostty ~/.pi/agent/settings.json ~/.pi/agent/themes/everforest.json ~/.tigrc ~/.claude/settings.local.json; do \
 		if [ -L "$$f" ]; then \
 			printf "  \e[32mOK\e[0m    %s -> %s\n" "$$f" "$$(readlink $$f)"; \
 		else \
