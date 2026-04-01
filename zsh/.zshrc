@@ -46,3 +46,4 @@ export DIRENV_LOG_FORMAT=""
 yolo() {
   claude --allow-dangerously-skip-permissions "$@"
 }
+alias pi="$HOME/.local/share/mise/installs/node/23.9.0/bin/pi"
