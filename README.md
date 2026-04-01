@@ -37,7 +37,7 @@ brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-na
 | `pipx` | Install Python CLI tools in isolated envs |
 | `reattach-to-user-namespace` | macOS clipboard integration for tmux |
 | `gd` | Graphics library (needed to build Ruby image gems) |
-| `fswatch` | File change monitor (used by `/tdd` skill) |
+| `fswatch` | File change monitor (used by pair/dev skills) |
 
 ### 4. Oh My Zsh
 
@@ -110,15 +110,16 @@ asdf plugin add elixir && asdf install elixir
 asdf plugin add golang && asdf install golang
 ```
 
-### 8. Claude Code and tools
+### 8. Claude Code, pi, and tools
 
 ```bash
-npm install -g @anthropic-ai/claude-code @tobilu/qmd
+npm install -g @anthropic-ai/claude-code @mariozechner/pi-coding-agent @tobilu/qmd
 ```
 
 | Tool | What it does |
 |------|-------------|
 | `claude-code` | Claude CLI agent |
+| `pi-coding-agent` | Pi coding agent TUI (extensible, shares skills with Claude Code) |
 | `qmd` | Semantic search over markdown (used by vault hooks and skills) |
 
 ### 9. Obsidian vault
@@ -178,6 +179,7 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `tool-versions` | `.tool-versions` (mise/asdf runtime versions) |
 | `nvim` | `.config/nvim/` (full Neovim config) |
 | `claude` | `.mcp.json`, `.claude/` (settings, hooks, skills) |
+| `pi` | `.pi/agent/` (settings, themes, agents, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
 | `local-bin` | `.local/bin/abuf-*` (tmux annotation scripts) |
@@ -313,6 +315,45 @@ K                   On a type -> shows full signature + doc comments
 Ctrl-f              Grep for "impl Board" across the entire project
 ;th                 Show inlay type hints inline (e.g. let x: i32 = ...)
 ```
+
+## Pi
+
+The `pi` stow package manages settings, themes, agents, and pi-only skills.
+
+### Settings
+
+- `~/.pi/agent/settings.json` - model, provider, theme, skill paths
+- `~/.pi/agent/keybindings.json` - custom keybindings
+- `~/.pi/agent/themes/everforest.json` - custom theme matching terminal/nvim/tmux
+
+### Agents
+
+Subagent definitions used by the review and dev skills. Each spawns an isolated `pi` subprocess.
+
+| Agent | Model | Role |
+|-------|-------|------|
+| `scout` | haiku | Fast codebase recon, compressed context |
+| `security-reviewer` | sonnet | Auth, injection, SSRF, race conditions |
+| `performance-reviewer` | sonnet | N+1, allocations, hot loops, blocking I/O |
+| `quality-reviewer` | sonnet | DDD, SOLID, testing, clean code, patterns |
+| `review-auditor` | sonnet | Red team, verifies findings against code and rules |
+
+### Skills (pi-only)
+
+These use pi-specific features (subagents) and don't conflict with Claude Code skills.
+
+| Skill | What it does |
+|-------|--------------|
+| `/skill:po` | Product owner: scout codebase, write PRD, publish to docs/GitHub/Linear |
+| `/skill:dev` | Senior engineer: scout → questions → test proposal → 5 TDD pairing modes |
+| `/skill:review` | 3 parallel reviewers → red team audit → user judgment → fix or report |
+| `/skill:commit` | Conventional commits + `--pr` for draft PRs via `gh` CLI |
+
+### Skill sharing
+
+Pi loads skills from two sources:
+1. **Shared**: `"skills": ["~/.claude/skills"]` in settings.json (all Claude Code skills)
+2. **Pi-only**: `~/.pi/agent/skills/` (agents, subagent workflows)
 
 ## Not tracked
 
