@@ -340,12 +340,47 @@ pi does **not** load Claude Code hooks (`settings.local.json`). The equivalent f
 |-----------|-------------|
 | `tmux-notify.ts` | Sound + tmux window/session highlight when pi finishes in a background pane |
 | `tmux-status.ts` | Writes model, thinking level, context %, tokens, cost to tmux status bar |
-| `subagent/` | Multi-agent orchestration. Spawns isolated pi subprocesses. Supports single, parallel (max 8), and chain modes. Discovers agents from `~/.pi/agent/agents/*.md` |
-| `plan-mode/` | Read-only exploration mode (`/plan`). Restricts tools, extracts numbered plans, tracks step completion |
+| `subagent/` | Multi-agent orchestration. Spawns isolated pi subprocesses. Supports single, parallel (max 8), and chain modes |
+| `plan-mode/` | Read-only exploration mode. Restricts tools, extracts numbered plans, tracks step completion |
 
 The tmux status bar reads pi session info via `tmux-pi-status.sh` (in `local-bin` package), refreshed every second.
 
-`subagent` is required by `/skill:review`, `/skill:dev`, and `/skill:po`.
+`subagent` is required by `/skill:review`, `/skill:dev`, and `/skill:po`. Extensions load on pi startup — restart pi after changing `settings.json`.
+
+#### Subagent
+
+Spawns isolated `pi` subprocesses with delegated system prompts. Three modes:
+
+| Mode | Usage | Description |
+|------|-------|-------------|
+| Single | `subagent({ agent, task })` | One agent, one task |
+| Parallel | `subagent({ tasks: [...] })` | Multiple agents run concurrently (max 8, 4 concurrent) |
+| Chain | `subagent({ chain: [...] })` | Sequential, `{previous}` passes output between steps |
+
+Agents are discovered automatically from `~/.pi/agent/agents/*.md` (user-level) and `.pi/agents/*.md` (project-level, opt-in via `agentScope: "both"`). Each agent is a markdown file with YAML frontmatter:
+
+```markdown
+---
+name: scout
+description: Fast codebase recon
+tools: read, grep, find, ls, bash
+model: claude-haiku-4-5
+---
+
+System prompt goes here.
+```
+
+#### Plan Mode
+
+Read-only exploration mode for safe code analysis.
+
+| Command | Action |
+|---------|--------|
+| `/plan` | Toggle plan mode (read-only ↔ full access) |
+| `/todos` | Show current plan progress |
+| `Ctrl+Alt+P` | Toggle plan mode (shortcut) |
+
+In plan mode, only read-only tools are available (read, grep, find, ls) and bash commands are filtered through an allowlist (cat, head, tail, git status, git log, git diff, etc). The agent creates a numbered plan, then on execution full access is restored and progress is tracked with `[DONE:n]` markers.
 
 ### Agents
 
