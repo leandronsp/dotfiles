@@ -182,7 +182,8 @@ make sync-claude    # Sync portable Claude settings into settings.json
 | `pi` | `.pi/agent/` (settings, themes, agents, skills) |
 | `direnv` | `.config/direnv/direnv.toml` |
 | `ssh` | `.ssh/config` (Include directives only) |
-| `local-bin` | `.local/bin/abuf-*` (tmux annotation scripts) |
+| `local-bin` | `.local/bin/` (tmux annotation scripts, pi status script) |
+| `tig` | `.tigrc` (tig git browser config) |
 | `ghostty` | `.config/ghostty/config` (terminal emulator) |
 
 ## Claude Code
@@ -239,6 +240,7 @@ Review tmux output without scroll fatigue. Each tmux window gets its own buffer 
 | `abuf-edit` | Opens vim popup on the buffer, appends quoted selection if available |
 | `abuf-paste` | Pastes buffer into the current pane via send-keys |
 | `abuf-clear` | Clears the current window's buffer |
+| `tmux-pi-status.sh` | Reads pi status file for active pane, displayed in tmux status-right |
 
 ### Keybindings
 
@@ -322,9 +324,20 @@ The `pi` stow package manages settings, themes, agents, and pi-only skills.
 
 ### Settings
 
-- `~/.pi/agent/settings.json` - model, provider, theme, skill paths
+- `~/.pi/agent/settings.json` - model, provider, theme, skill paths, extensions
 - `~/.pi/agent/keybindings.json` - custom keybindings
 - `~/.pi/agent/themes/everforest.json` - custom theme matching terminal/nvim/tmux
+
+### Extensions
+
+pi does **not** load Claude Code hooks (`settings.local.json`). The equivalent functionality lives in TypeScript extensions using pi's `ExtensionAPI`.
+
+| Extension | Event | What it does |
+|-----------|-------|-------------|
+| `tmux-notify.ts` | `agent_end` | Sound + tmux window/session highlight when pi finishes in a background pane |
+| `tmux-status.ts` | `session_start`, `turn_end`, `model_select` | Writes model, thinking level, context %, tokens, cost to `/tmp/pi-tmux-status-{pane}` for tmux status bar |
+
+The tmux status bar reads pi session info via `tmux-pi-status.sh` (in `local-bin` package), refreshed every second.
 
 ### Agents
 
