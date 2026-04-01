@@ -139,7 +139,7 @@ If a Linear ID is available: `TEAM-123 - <type>: <short description>`
 Two sections only. No checklists, no file lists, no templates.
 
 ```markdown
-Closes #<issue_number>
+<issue_url>
 
 ### Background
 
@@ -148,11 +148,11 @@ Write naturally, like explaining to a colleague.
 
 ### Key Decisions
 
-1. Decision title — brief explanation of the choice and why.
-2. Another decision — what constraint or trade-off drove this.
+1. **Decision title**: brief explanation of the choice.
+2. **Another decision**: what was done, stated as a fact.
 ```
 
-Omit `Closes #...` if no source issue. Omit Key Decisions if there are none worth mentioning (small fixes).
+Link the issue URL on its own line (no "Closes" keyword). Omit if no source issue. Omit Key Decisions if there are none worth mentioning (small fixes).
 
 #### 6. Create or update
 
@@ -179,7 +179,11 @@ Report the PR URL to the user.
 ### PR Style
 
 - **Fluid prose** in Background. Natural writing, not robotic
-- **Key Decisions as mini-ADRs.** 2-3 sentences each, focused on *why* not *what*
+- **Key Decisions stated as facts.** Say what you did, one sentence each. No justifying what you avoided or why alternatives were worse. Trust the reviewer to read the code for details
+- **No implementation details in decisions.** Don't explain how the code works, just the architectural choice
+- **No over-justifying.** Don't explain what problems you avoided or what you didn't do
 - **No file lists or changelogs.** GitHub shows that in "Files changed"
 - **No AI mentions.** Never reference agents, Claude, copilot, or AI assistance
+- **No em dashes, en dashes, or double dashes.** Use colons, commas, or periods to separate ideas
+- **No "Closes" keyword.** Just link the issue URL on its own line
 - **Human voice.** Write like a developer wrote it
