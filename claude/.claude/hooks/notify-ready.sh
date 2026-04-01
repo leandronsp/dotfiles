@@ -13,12 +13,11 @@ if [ "$claude_session" != "$active_session" ]; then
   tmux set-option -t "$active_session" status-left "#[fg=#FFFFFF,bg=red,bold] #S #[bg=#2D353B] "
 fi
 
-# Skip sound + window highlight only if looking at Claude's window in Ghostty
+# Skip sound + window highlight if in the same window
 active_window=$(tmux list-clients -F '#{window_index}' | head -1)
 claude_window=$(tmux display-message -t "$TMUX_PANE" -p '#I')
 if [ "$claude_session" = "$active_session" ] && [ "$claude_window" = "$active_window" ]; then
-  frontmost=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null)
-  [[ "${frontmost,,}" = "ghostty" ]] && exit 0
+  exit 0
 fi
 
 # Sound
