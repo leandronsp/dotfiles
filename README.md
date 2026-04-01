@@ -336,12 +336,16 @@ The `pi` stow package manages settings, themes, agents, and pi-only skills.
 
 pi does **not** load Claude Code hooks (`settings.local.json`). The equivalent functionality lives in TypeScript extensions using pi's `ExtensionAPI`.
 
-| Extension | Event | What it does |
-|-----------|-------|-------------|
-| `tmux-notify.ts` | `agent_end` | Sound + tmux window/session highlight when pi finishes in a background pane |
-| `tmux-status.ts` | `session_start`, `turn_end`, `model_select` | Writes model, thinking level, context %, tokens, cost to `/tmp/pi-tmux-status-{pane}` for tmux status bar |
+| Extension | What it does |
+|-----------|-------------|
+| `tmux-notify.ts` | Sound + tmux window/session highlight when pi finishes in a background pane |
+| `tmux-status.ts` | Writes model, thinking level, context %, tokens, cost to tmux status bar |
+| `subagent/` | Multi-agent orchestration. Spawns isolated pi subprocesses. Supports single, parallel (max 8), and chain modes. Discovers agents from `~/.pi/agent/agents/*.md` |
+| `plan-mode/` | Read-only exploration mode (`/plan`). Restricts tools, extracts numbered plans, tracks step completion |
 
 The tmux status bar reads pi session info via `tmux-pi-status.sh` (in `local-bin` package), refreshed every second.
+
+`subagent` is required by `/skill:review`, `/skill:dev`, and `/skill:po`.
 
 ### Agents
 

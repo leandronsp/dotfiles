@@ -84,6 +84,8 @@ pi/.pi/agent/
   extensions/             TypeScript extensions (pi's equivalent of hooks)
     tmux-notify.ts        Sound + tmux highlight when pi finishes in background
     tmux-status.ts        Writes model/tokens/cost to tmux status bar
+    subagent/             Multi-agent orchestration (parallel, chain, single)
+    plan-mode/            Read-only exploration mode with plan tracking
   skills/                 Pi-only skills (not shared with Claude Code)
     po/                   Product owner: scout → PRD → docs/GitHub/Linear
     dev/                  Senior engineer: 5 TDD pairing modes
@@ -99,14 +101,14 @@ pi/.pi/agent/
 - `theme`: `everforest` (custom, hot-reloads on edit)
 - `skills`: `["~/.claude/skills"]` — reuses Claude Code skills directly
 
-### Hooks vs Extensions
+### Extensions
 
-pi does **not** load Claude Code hooks (`settings.local.json`). The equivalent functionality lives in **extensions** (TypeScript, using pi's `ExtensionAPI`):
+pi does **not** load Claude Code hooks (`settings.local.json`). All behavior is driven by **extensions** (TypeScript, using pi's `ExtensionAPI`), registered in `settings.json` under `"extensions"`.
 
-- `tmux-notify.ts` — port of Claude Code's `notify-ready.sh`. Listens to `agent_end` event, plays sound + highlights tmux window/session when pi finishes in a background pane
-- `tmux-status.ts` — tmux status bar integration
-
-Extensions are registered in `settings.json` under `"extensions"`, not in hooks.
+- `tmux-notify.ts` — sound + tmux highlight when pi finishes in a background pane (port of Claude Code's `notify-ready.sh`)
+- `tmux-status.ts` — writes model/tokens/cost to tmux status bar
+- `subagent/` — spawns isolated pi subprocesses for multi-agent workflows. Discovers agents from `~/.pi/agent/agents/*.md`. Required by `/skill:review`, `/skill:dev`, `/skill:po`
+- `plan-mode/` — read-only exploration mode (`/plan`). Restricts tools to read-only, extracts numbered plans, tracks progress
 
 ### Skills (pi-only)
 
