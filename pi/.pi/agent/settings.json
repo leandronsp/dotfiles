@@ -5,5 +5,5 @@
   "defaultThinkingLevel": "medium",
   "theme": "everforest",
   "skills": ["~/.claude/skills"],
-  "extensions": ["~/.pi/agent/extensions/tmux-status.ts", "~/.pi/agent/extensions/tmux-notify.ts"]
+  "extensions": ["~/.pi/agent/extensions/tmux-status.ts", "~/.pi/agent/extensions/tmux-notify.ts", "~/.pi/agent/extensions/subagent", "~/.pi/agent/extensions/plan-mode"]
 }
