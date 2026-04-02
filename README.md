@@ -21,7 +21,7 @@ Provides: git, make, curl, gcc, unzip, clang-format.
 ### 3. Brew packages
 
 ```bash
-brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch tig gh glow agent-browser
+brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-namespace gd fswatch tig gh glow agent-browser ansible doctl awscli
 ```
 
 | Package | What it does |
@@ -42,6 +42,9 @@ brew install stow nvim tmux asdf mise direnv jq ripgrep pipx reattach-to-user-na
 | `gh` | GitHub CLI (used by commit skill for draft PRs) |
 | `glow` | Markdown renderer in terminal (used by nvim glow plugin) |
 | `agent-browser` | Browser automation CLI (used by /browser and /qa skills) |
+| `ansible` | Infrastructure automation (server provisioning, config management) |
+| `doctl` | DigitalOcean CLI (droplet management, DNS, snapshots) |
+| `awscli` | AWS CLI (S3, EC2, IAM — general cloud operations) |
 
 ### 4. Oh My Zsh
 
