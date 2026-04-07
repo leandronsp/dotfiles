@@ -20,6 +20,8 @@ Senior Software Engineer. Scouts the codebase, asks clarifying questions, propos
 
 **No arguments:** Ask the user: "What should we build? Describe it, paste an issue URL, or point me to a spec."
 
+**Wait for the user's response.**
+
 **Prompt:** Use as requirements.
 
 **URL:** Fetch the content:
@@ -104,7 +106,7 @@ Follow existing test conventions discovered by the scout (framework, file organi
 
 ## Mode 1: Agent Driver + Agent Navigator
 
-Two agents working as a pair. The driver writes code, the navigator reviews each step and provides feedback. They loop until all requirements are met.
+Two agents working as a pair. The driver writes code, the navigator reviews each step.
 
 ### Setup
 
@@ -138,7 +140,7 @@ If navigator suggests changes, apply them. Re-run. Confirm still RED.
 ```
 subagent({
   agent: "quality-reviewer",
-  task: "You are a TDD navigator. The test is GREEN. Review the implementation.\n\nTest:\n{test_code}\n\nImplementation:\n{impl_code}\n\nFeedback: Is this the minimum code? Over-engineered? Following project conventions? Refactor suggestions? Clean code, SOLID(S), proper naming, modularity?"
+  task: "You are a TDD navigator. The test is GREEN. Review the implementation.\n\nTest:\n{test_code}\n\nImplementation:\n{impl_code}\n\nFeedback: Is this the minimum code? Over-engineered? Following project conventions? Refactor suggestions?"
 })
 ```
 
@@ -185,11 +187,11 @@ Run the test. Confirm RED.
 ```
 subagent({
   agent: "quality-reviewer",
-  task: "You are a TDD driver. The test is RED. Write the minimum implementation to make it pass.\n\nFailing test:\n{test_code}\n\nTest error:\n{test_output}\n\nExisting code:\n{relevant_code}\n\nWrite ONLY the minimum code. No future-proofing. Follow project conventions, clean code, SOLID(S), proper naming."
+  task: "You are a TDD driver. The test is RED. Write the minimum implementation to make it pass.\n\nFailing test:\n{test_code}\n\nTest error:\n{test_output}\n\nExisting code:\n{relevant_code}\n\nWrite ONLY the minimum code. No future-proofing. Follow project conventions."
 })
 ```
 
-Review. Apply if good. Push back if over-engineered or if it doesn't follow conventions.
+Review. Apply if good. Push back if over-engineered.
 
 Run tests. Confirm GREEN. Refactor if needed. Commit.
 
@@ -206,7 +208,7 @@ You do everything. Same strict TDD process, no subagents.
 For each test case (one at a time):
 
 1. **RED:** Write the failing test. Run it. Confirm it fails for the right reason
-2. **GREEN:** Write minimum code to pass. No more. Follow project conventions, clean code, SOLID(S), DDD naming, modularity, composition over inheritance, pure functions where possible
+2. **GREEN:** Write minimum code to pass. No more. Follow project conventions, clean code, SOLID(S), DDD naming, modularity
 3. **REFACTOR:** Clean up. Run tests. Must stay green
 4. **COMMIT:** `/skill:commit` with a small incremental message
 5. **REPEAT** with next test
@@ -215,13 +217,13 @@ After the initial 2-3 tests, propose more as the implementation reveals needs. A
 
 ### Design Principles (all modes)
 
-- **Clean code:** meaningful names, short functions, one level of abstraction, comments only where code can't speak for itself
+- **Clean code:** meaningful names, short functions, one level of abstraction
 - **SOLID (S):** single responsibility. One reason to change per class/module/function
-- **DDD:** domain language from the project, bounded contexts, value objects over primitives where appropriate
+- **DDD:** domain language from the project, bounded contexts, value objects over primitives
 - **Modularity:** pieces can be tested, replaced, reused independently
 - **OOP:** encapsulation, composition over inheritance, tell-don't-ask
 - **Functional:** pure functions where possible, immutability, explicit data flow
-- **Follow the codebase:** use existing patterns. Don't invent new conventions. Don't over-engineer
+- **Follow the codebase:** use existing patterns. Don't invent new conventions
 - **No BDUF:** don't design the whole thing upfront. Let the tests drive the design
 
 ---

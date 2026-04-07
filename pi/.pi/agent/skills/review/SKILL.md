@@ -20,6 +20,8 @@ Multi-agent code review pipeline with parallel specialized reviewers, red team a
 
 **No arguments:** Ask the user: "What should I review? You can describe it, paste an issue URL, or point me to a spec file."
 
+**Wait for the user's response.**
+
 **Prompt:** Use it as the review context directly.
 
 **URL:** Fetch the issue content:

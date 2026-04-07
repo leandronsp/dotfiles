@@ -36,6 +36,8 @@ git commit -m "feat(auth): add token refresh"
 
 Multi-paragraph for milestone features, non-obvious fixes, architectural changes.
 
+Output the proposed message as plain text for review. **Do NOT run `git commit` until the user approves.**
+
 ```bash
 git commit -m "feat(auth): add token refresh on expiry
 
@@ -125,6 +127,8 @@ gh pr view --json number,title,body 2>/dev/null
 
 #### 5. Write PR description
 
+Show the proposed title and body to the user. **Wait for approval before creating.**
+
 ### PR Title Format
 
 ```
@@ -179,11 +183,10 @@ Report the PR URL to the user.
 ### PR Style
 
 - **Fluid prose** in Background. Natural writing, not robotic
-- **Key Decisions stated as facts.** Say what you did, one sentence each. No justifying what you avoided or why alternatives were worse. Trust the reviewer to read the code for details
+- **Key Decisions stated as facts.** Say what you did, one sentence each. No justifying what you avoided or why alternatives were worse
 - **No implementation details in decisions.** Don't explain how the code works, just the architectural choice
-- **No over-justifying.** Don't explain what problems you avoided or what you didn't do
 - **No file lists or changelogs.** GitHub shows that in "Files changed"
 - **No AI mentions.** Never reference agents, Claude, copilot, or AI assistance
-- **No em dashes, en dashes, or double dashes.** Use colons, commas, or periods to separate ideas
+- **No em dashes, en dashes, or double dashes.** Use colons, commas, or periods
 - **No "Closes" keyword.** Just link the issue URL on its own line
 - **Human voice.** Write like a developer wrote it

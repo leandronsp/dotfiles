@@ -18,6 +18,8 @@ Scout the codebase, understand the user's prompt, write a comprehensive PRD from
 
 If no prompt provided, ask the user: "What do you want to build? Describe it like you'd explain to a stakeholder."
 
+**Wait for the user's response.**
+
 Parse the prompt for:
 - What the user wants (feature, improvement, fix)
 - Who benefits (end user, developer, operator, business)
@@ -95,7 +97,7 @@ Show the full PRD to the user and ask:
 > **b)** Create a GitHub issue (uses `gh` CLI)
 > **c)** Create a Linear issue (uses `lineark` CLI)
 
-Wait for the user to choose.
+**Wait for the user to choose.**
 
 ### Option A: Write to docs/
 
@@ -174,5 +176,4 @@ Report the issue identifier and URL to the user.
 - Domain language from the project, not generic product jargon
 - Short sentences. No filler. Every paragraph must earn its place
 - Concrete over abstract. "User sees a spinner for 3s" not "improve perceived performance"
-- Portuguese is fine for process/opinion sections if the user writes in Portuguese
 - Never use em dashes. Use periods or restructure
