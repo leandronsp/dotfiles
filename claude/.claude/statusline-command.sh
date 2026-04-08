@@ -1,33 +1,21 @@
 #!/usr/bin/env bash
 input=$(cat)
 
-cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 model=$(echo "$input" | jq -r '.model.display_name // ""')
-used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+ctx=$(echo "$input" | jq -r '.context_window.used_percentage // 0 | floor')
+usage_5h=$(echo "$input" | jq -r 'if .rate_limits.five_hour.used_percentage then (.rate_limits.five_hour.used_percentage | floor | tostring) else empty end')
+usage_7d=$(echo "$input" | jq -r 'if .rate_limits.seven_day.used_percentage then (.rate_limits.seven_day.used_percentage | floor | tostring) else empty end')
 
-dir=$(basename "$cwd")
-parent=$(basename "$(dirname "$cwd")")
+# "Opus 4.6 (1M context)" -> "Opus 4.6"
+short_model=$(echo "$model" | sed -E 's/ \(.*//')
 
-if [[ "$parent" == ".worktrees" ]]; then
-  repo=$(basename "$(dirname "$(dirname "$cwd")")")
-  dir_label="$repo/$dir"
-else
-  dir_label="$dir"
+output="$short_model · ctx:${ctx}%"
+[ -n "$usage_5h" ] && output="$output · 5h:${usage_5h}%"
+[ -n "$usage_7d" ] && output="$output · 7d:${usage_7d}%"
+
+# Save per-pane for tmux
+if [ -n "$TMUX_PANE" ]; then
+  echo "$output" > "/tmp/claude-statusline-${TMUX_PANE}"
 fi
 
-branch=$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null)
-dirty=$(git -C "$cwd" --no-optional-locks status --porcelain 2>/dev/null)
-
-parts=()
-[ -n "$dir_label" ] && parts+=("$dir_label")
-if [ -n "$branch" ]; then
-  if [ -n "$dirty" ]; then
-    parts+=("git:(${branch}) x")
-  else
-    parts+=("git:(${branch})")
-  fi
-fi
-[ -n "$model" ]     && parts+=("$model")
-[ -n "$used" ] && parts+=("ctx:${used}%")
-
-printf '%s' "$(IFS=' '; echo "${parts[*]}")"
+# Output nothing to Claude Code (tmux reads from file)
