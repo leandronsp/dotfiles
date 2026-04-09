@@ -54,51 +54,19 @@ Based on the scout output and requirements, identify gaps:
 - Requirements that conflict with current architecture
 - Scope concerns (too big? should we split?)
 
-Present questions to the user:
+Present questions and decisions to the user. **Wait for answers.** Iterate until aligned. Don't rush this.
 
-> Based on my research:
->
-> 1. {question about gap or ambiguity}
-> 2. {question about existing code overlap}
-> 3. {question about scope}
->
-> Also found: {existing code that partially solves this}.
-> Should we build on top of it or take a different approach?
+### Phase 4: Propose Test Cases + Plan
 
-**Wait for answers.** Iterate until aligned. Don't rush this.
+Propose 2-3 initial test cases. Not the full suite. Just enough to start the feedback loop. Follow existing test conventions discovered by the scout (framework, file organization, naming, helpers).
 
-### Phase 4: Propose Test Cases
+Present the test cases alongside the implementation plan to the user for approval. **Wait for plan approval only.**
 
-Propose 2-3 initial test cases. Not the full suite. Just enough to start the feedback loop.
+### Phase 5: Start TDD
 
-Follow existing test conventions discovered by the scout (framework, file organization, naming, helpers).
+**Default mode: Mode 1 (Agent Driver + Agent Navigator).** Do NOT ask the user which mode. Always use Mode 1 unless the user explicitly requests a different mode in their prompt (e.g. "solo", "I drive", "mode 3").
 
-> Here are 3 tests to start with:
->
-> 1. **{behavior}** - `test "{description}"` in `{test_file}`
->    Asserts: {what it proves}
->
-> 2. **{behavior}** - `test "{description}"` in `{test_file}`
->    Asserts: {what it proves}
->
-> 3. **{edge case}** - `test "{description}"` in `{test_file}`
->    Asserts: {what it proves}
->
-> We'll add more as we go. Start with these?
-
-**Wait for feedback.** The user may add, remove, reorder, or suggest different scenarios. Iterate.
-
-### Phase 5: Choose Pairing Mode
-
-> How do you want to work?
->
-> **1)** Agent driver + agent navigator (autonomous dojo, agents pair with each other)
-> **2)** Agent navigator + agent driver (same but roles swapped, different dynamic)
-> **3)** Solo agent (I do everything, strict TDD)
-> **4)** I drive, you navigate (I write code, you guide me)
-> **5)** You drive, I navigate (you write code, I watch and coach)
-
-**Wait for choice.** Then proceed to the selected mode.
+Create feature branch and start the TDD loop immediately.
 
 ---
 
@@ -360,4 +328,5 @@ After each GREEN + refactor, remind the driver:
 6. **Small commits.** After each RED-GREEN-REFACTOR cycle. Use `/commit`
 7. **Escalate, don't spin.** Ask the user when stuck after a few retries
 8. **No BDUF.** Let the tests drive the design. The plan is the next test, not the whole feature
-9. **Feedback loop.** After initial tests, propose more as the code reveals needs. Always check with the user
+9. **Feedback loop.** After initial tests, propose more as the code reveals needs
+10. **Talk, don't ask.** After plan approval, go. Default to Mode 1. Narrate every baby step: what test you're writing, why, design decisions, what's next, your thoughts. But NEVER stop to wait for permission or confirmation. No "Start with these?", "Your take?", "How do you want to work?", "Should I proceed?". The user sees your narration and will interrupt if needed. Only stop if genuinely blocked (test won't pass after 5 attempts, contradictory requirements, missing critical info).
