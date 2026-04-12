@@ -72,7 +72,7 @@ Create feature branch and start the TDD loop immediately.
 
 ## Mode 1: Agent Driver + Agent Navigator
 
-Two agents working as a pair. The driver writes code, the navigator reviews each step.
+Two agents working as a pair. The driver writes code, the navigator reviews each step. **Adversarial collaboration.** Both agents think out loud, question each other, and push back.
 
 ### Setup
 
@@ -86,11 +86,16 @@ git checkout -b feature/{short-name}
 
 For each test case (one at a time):
 
-**Driver turn:** The main agent (you) acts as driver. Write the failing test. Run it. Confirm RED.
+**Driver turn:** The main agent (you) acts as driver. Before writing anything, narrate your thinking:
+- What behavior are you testing?
+- Why this test and not another?
+- What's the simplest assertion that proves the behavior?
+
+Write the failing test. Run it. Confirm RED. Share the output and your interpretation.
 
 **Navigator turn:** Launch the `quality-reviewer` agent as navigator:
 
-> You are a TDD navigator in a pair programming session. Review this step.
+> You are a TDD navigator in an adversarial pair programming session. Your job is to challenge the driver, not rubber-stamp. Review this step critically.
 >
 > Current test (should be RED):
 > {test_code}
@@ -101,15 +106,22 @@ For each test case (one at a time):
 > Requirements:
 > {requirements}
 >
-> Feedback: Is the test correct? Does it test the right behavior? Is it too big? Too small? Any naming issues? Should we adjust before going GREEN?
+> Review checklist (answer each concisely):
+> 1. Does the test fail for the RIGHT reason? Or is it a syntax/import error masquerading as RED?
+> 2. Is the test too big? Can it be split into a smaller baby step?
+> 3. Does it test behavior or implementation details?
+> 4. Naming: does the test name describe the behavior, not the method?
+> 5. Any assumptions the driver is making that should be questioned?
+>
+> Be direct. Ask questions. Push back. "Looks good" is not useful feedback.
 
-If navigator suggests changes, apply them. Re-run. Confirm still RED.
+If navigator raises issues, address them one by one. Re-run. Confirm still RED. Share your reasoning for each change.
 
-**Driver turn:** Write minimum code to pass. Run tests. Confirm GREEN.
+**Driver turn:** Share your thinking on the approach to GREEN. What's the minimum code? Why this approach? Write minimum code to pass. Run tests. Confirm GREEN.
 
 **Navigator turn:** Launch navigator again:
 
-> You are a TDD navigator. The test is GREEN. Review the implementation.
+> You are a TDD navigator. The test is GREEN. Review the implementation critically.
 >
 > Test:
 > {test_code}
@@ -117,9 +129,19 @@ If navigator suggests changes, apply them. Re-run. Confirm still RED.
 > Implementation:
 > {impl_code}
 >
-> Feedback: Is this the minimum code? Over-engineered? Following project conventions? Refactor suggestions?
+> Test output:
+> {test_output}
+>
+> Review checklist (answer each concisely):
+> 1. Is this truly the minimum code? Could you delete anything and still be GREEN?
+> 2. Any duplication that should wait vs. be refactored now?
+> 3. Does it follow project conventions?
+> 4. Any code that was written "just in case"? Flag it for removal.
+> 5. Refactor suggestions? Only if they improve clarity without adding abstraction.
+>
+> Be adversarial. Question every line. The driver must justify additions, not the navigator justify removals.
 
-Apply feedback. Refactor if needed. Confirm still GREEN.
+Apply feedback. Refactor if agreed. Confirm still GREEN.
 
 **Commit:** Use `/commit` for a small incremental commit.
 
@@ -143,7 +165,7 @@ For each test case:
 
 **Driver turn:** Launch the `quality-reviewer` agent as driver:
 
-> You are a TDD driver in a pair programming session. Write a failing test for this behavior.
+> You are a TDD driver in an adversarial pair programming session. Write a failing test for this behavior.
 >
 > Behavior: {test_description}
 >
@@ -153,12 +175,18 @@ For each test case:
 > Project conventions:
 > {conventions}
 >
+> Before writing the test, share your thinking:
+> - What specific behavior are you testing?
+> - What's the simplest assertion?
+> - What edge cases are you deliberately leaving for later?
+>
 > Write ONLY the test. Follow project test conventions. One behavior, one test, baby step.
 
-Review the test the driver proposed. Apply it if good. Push back if not:
-- Too big? "Split this into two tests."
-- Wrong assertion? "That doesn't prove the behavior."
+Review the test the driver proposed critically. Apply it if good. Push back if not:
+- Too big? "Split this. Test only the first behavior."
+- Wrong assertion? "That doesn't prove the behavior. What would?"
 - Wrong file? "Project convention puts these in {correct_file}."
+- Skipped thinking? "You jumped to code. What behavior are you testing and why?"
 
 Run the test. Confirm RED.
 
@@ -175,9 +203,11 @@ Run the test. Confirm RED.
 > Existing code:
 > {relevant_code}
 >
+> Share your thinking: what's the minimum change? Why this approach?
+>
 > Write ONLY the minimum code. No future-proofing. Follow project conventions.
 
-Review. Apply if good. Push back if over-engineered.
+Review. Apply if good. Push back if over-engineered. Question every line that isn't strictly required by the failing test.
 
 Run tests. Confirm GREEN. Refactor if needed. Commit.
 
@@ -187,14 +217,14 @@ Run tests. Confirm GREEN. Refactor if needed. Commit.
 
 ## Mode 3: Solo Agent
 
-You do everything. Same strict TDD process, no subagents.
+You do everything. Same strict TDD process, no subagents. **Self-review after each step.** Before going GREEN, re-read the test and ask yourself: "Is this the smallest possible step?"
 
 ### The Loop
 
 For each test case (one at a time):
 
-1. **RED:** Write the failing test. Run it. Confirm it fails for the right reason
-2. **GREEN:** Write minimum code to pass. No more. Follow project conventions, clean code, SOLID(S), DDD naming, modularity
+1. **RED:** Write the failing test. Run it. Confirm it fails for the right reason. Narrate: what behavior, why this test, what's the expected failure
+2. **GREEN:** Write minimum code to pass. No more. Follow project conventions, clean code, SOLID(S), DDD naming, modularity. Self-check: can you delete any line and still be GREEN? If yes, delete it
 3. **REFACTOR:** Clean up. Run tests. Must stay green
 4. **COMMIT:** `/commit` with a small incremental message
 5. **REPEAT** with next test
@@ -218,48 +248,79 @@ After the initial 2-3 tests, propose more as the implementation reveals needs. A
 
 You write code. The user thinks, questions, directs. Like a dojo where the user is the sensei.
 
+**Core rule: Asking >>> Writing.** Do NOT start writing everything at once. Every test, every implementation starts with a question or explanation. You are a tutor who happens to write code, not a code generator who explains after the fact.
+
 ### The Loop
 
-#### Step 1: Propose test
+#### Step 1: Discuss the problem
 
-Propose the next test. Explain what behavior it captures.
+Before proposing any test, discuss the problem space:
+
+- What problem are we solving? Frame it clearly
+- What existing patterns relate to this? Show concise snippets from the codebase
+- What are the edge cases? Walk through them
+- Why does this problem exist? What constraint or requirement created it?
+
+If the user asks about a topic, teach it. Problems before solutions. Show existing examples from the codebase when possible. Be a tutor.
+
+> The problem: {clear description}
+> This exists because: {why}
+> Related code: {snippet from codebase if relevant}
+> Edge cases I see: {list}
+>
+> What's your read on this? Anything I'm missing?
+
+**Wait.** Do not proceed until aligned on the problem.
+
+#### Step 2: Propose test
+
+Propose the next test. Explain what behavior it captures and WHY this specific test first.
 
 > Next test: `test "{description}"` in `{file}`
 > This proves: {what behavior}
+> I'm starting here because: {reasoning}
 > Write it?
 
 **Wait.** The navigator may redirect, refine, or question.
 
-#### Step 2: RED
+#### Step 3: RED
 
-Write the test. Run it. Show the failure.
+Write the test. Run it. Show the failure. Explain the error output.
 
 > RED. `{error_message}`
 >
-> I'm thinking: {approach for GREEN}. Your take?
+> This fails because: {explanation of the error}
+> The simplest fix I see: {approach}
+> Why this approach: {reasoning, tradeoffs}
+>
+> Your take?
 
-**Wait.** The navigator may suggest a different approach.
+**Wait.** The navigator may suggest a different approach. If they ask questions about the error, the approach, or related concepts, answer thoroughly with examples.
 
-#### Step 3: GREEN
+#### Step 4: GREEN
 
 Write the minimum code agreed on. Run tests. Show GREEN.
 
 > GREEN. All {n} tests passing.
 >
+> What I wrote: {brief explanation of the implementation}
 > Refactor needed? I see: {observation or "looks clean"}.
 
 **Wait.** Refactor only what's approved.
 
-#### Step 4: Commit
+#### Step 5: Commit
 
 `/commit` with a small message. Back to Step 1.
 
-### Driver Rules
+### Driver Rules (Mode 4)
 
-- Never advance without navigator input
-- Explain what you're doing and why
-- One test at a time
-- The navigator can ask for structural work (rename, move, refactor)
+- **Never advance without navigator input**
+- **Ask before writing.** "Should I write this test?" not "Here's the test I wrote"
+- **Explain what you're doing and why.** Problems first, then the solution, then why THIS solution
+- **One test at a time.** No batching. No "let me also add..."
+- **When the user asks "why", teach.** Give context, history, tradeoffs. Show real code examples from the codebase. Be a masterclass, not a manual page
+- **The navigator can ask for structural work** (rename, move, refactor)
+- **Reproduce first.** If fixing a bug, demonstrate the failure before discussing fixes
 
 ---
 
@@ -269,20 +330,7 @@ The user writes code. You watch, question, provoke thinking, coach. You never wr
 
 ### Setup
 
-Identify the test runner and file watcher for the project:
-
-```bash
-# Detect available tools
-which fswatch 2>/dev/null && echo "fswatch available"
-```
-
-If `fswatch` is available and user provides a file/dir, offer to start a watcher:
-
-```bash
-fswatch -1 <file_or_dir>
-```
-
-On trigger: read changed files, run tests, report RED/GREEN, restart watcher.
+Identify the test runner and start the watch loop (see Watch Loop Protocol below).
 
 ### Navigator Behavior
 
@@ -296,11 +344,26 @@ On trigger: read changed files, run tests, report RED/GREEN, restart watcher.
 - Only give code when explicitly asked, or after the driver has exhausted their reasoning
 - When giving code, give the smallest useful snippet, not the full solution
 
+**When the driver asks for help, teach:**
+- Explain the concept behind the problem, not just the fix
+- Show concise existing examples from the codebase when possible
+- Provide masterclass-level depth when asked ("explain how X works", "why does Y exist")
+- Break complex topics into baby steps. Divide and conquer
+- Problems before solutions. Always frame what problem a technique solves and why it exists
+
 ### On Test Results
 
 **GREEN:** `GREEN. {one-line summary of what's proven}`
 
-**RED:** `RED. {what failed}. {question to guide the driver}`
+**RED:**
+
+> RED. `{what failed}`
+>
+> {Read the test file and relevant source files for context}
+>
+> The error: {explain what the error means}
+> Tips: {hints toward the fix, as questions not answers}
+> Example of what a fix might look like: {only if asked, smallest useful snippet}
 
 ### Navigator Rules
 
@@ -309,12 +372,53 @@ On trigger: read changed files, run tests, report RED/GREEN, restart watcher.
 - Don't explain what the code does (the driver wrote it)
 - Don't recap what changed
 - No filler ("great job", "looking good")
+- **When asked for help:** provide answers, clarifications, examples. Be generous with knowledge, stingy with code
+- **When asked for a masterclass:** go deep. Explain the problem space, history, tradeoffs, patterns. Use real examples
 
 ### Commit Reminder
 
 After each GREEN + refactor, remind the driver:
 
 > GREEN and clean. Good time to commit.
+
+---
+
+## Watch Loop Protocol
+
+Used in Mode 5 (always) and available in any mode when watching files.
+
+The watch loop is a strict cycle. Never skip steps. Never break out of the loop without the user asking.
+
+### macOS (fswatch)
+
+```bash
+fswatch -1 <file_or_dir>
+```
+
+### The Cycle
+
+```
+1. SPAWN WATCHER  -> fswatch -1 <target>
+2. WAIT           -> watcher blocks until a file changes
+3. RUN TESTS      -> execute the test command
+4. READ CONTEXT   -> read changed files + test output
+5. DISPLAY OUTPUT -> show test results (RED/GREEN), explain errors
+6. GOTO 1         -> spawn watcher again, wait for next change
+```
+
+**After each cycle:**
+- Show the test output (pass/fail, which test, error message)
+- Read the failing test file and relevant source to provide context
+- Explain the error concisely
+- Provide tips/hints if asked (questions, not answers)
+- If asked, show what the next test or next implementation step could look like
+
+**The watcher always restarts.** After displaying results and any discussion, immediately spawn the watcher again. The loop only ends when the user says stop.
+
+**Do NOT:**
+- Forget to respawn the watcher after showing results
+- Wait for the user to ask you to restart the watcher
+- Break out of the loop to do other work
 
 ---
 
@@ -329,4 +433,8 @@ After each GREEN + refactor, remind the driver:
 7. **Escalate, don't spin.** Ask the user when stuck after a few retries
 8. **No BDUF.** Let the tests drive the design. The plan is the next test, not the whole feature
 9. **Feedback loop.** After initial tests, propose more as the code reveals needs
-10. **Talk, don't ask.** After plan approval, go. Default to Mode 1. Narrate every baby step: what test you're writing, why, design decisions, what's next, your thoughts. But NEVER stop to wait for permission or confirmation. No "Start with these?", "Your take?", "How do you want to work?", "Should I proceed?". The user sees your narration and will interrupt if needed. Only stop if genuinely blocked (test won't pass after 5 attempts, contradictory requirements, missing critical info).
+10. **Talk, don't ask.** After plan approval, go. Default to Mode 1. Narrate every baby step: what test you're writing, why, design decisions, what's next, your thoughts. But NEVER stop to wait for permission or confirmation. No "Start with these?", "Your take?", "How do you want to work?", "Should I proceed?". The user sees your narration and will interrupt if needed. Only stop if genuinely blocked (test won't pass after 5 attempts, contradictory requirements, missing critical info)
+11. **Reproduce first.** Before fixing, demonstrate the failure. See it fail. Understand why it fails. Only then discuss solutions
+12. **Pragmatism is king.** Baby steps does not mean silly steps. One line at a time is fine when learning. Three lines that obviously belong together can go in one step. Read the situation. The goal is confidence in each step, not maximum granularity
+13. **Agents must think out loud.** In agent-agent modes (1, 2), both driver and navigator share reasoning, ask questions, challenge assumptions. No silent work. No rubber-stamping. The ping-pong of questions and pushback IS the value of pairing
+14. **Asking >>> Writing.** In human-agent modes (4, 5), always discuss before coding. Frame the problem, align on approach, then write. The agent that jumps straight to code is doing it wrong
