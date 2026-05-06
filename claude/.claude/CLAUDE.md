@@ -65,3 +65,17 @@ Skip for: typo fixes, doc-only edits, IDE renames, single-line comment changes, 
 - Direct feedback. Working solutions over theory.
 - Use periods to separate ideas. Restructure sentences rather than reach for em dashes.
 - Write like a human. Skip filler, corporate-speak, and hedging.
+
+## Writing prose in my voice
+
+Applies when drafting articles, blog posts, LinkedIn content, or any long-form writing intended to publish under my name (English or Portuguese).
+
+- **No em dashes anywhere.** Use periods, commas, or restructure the sentence. This is non-negotiable.
+- **No catchphrases or slogans** (*frases de efeito*). No snappy clincher at the end of paragraphs. The point earns itself through reasoning, not a punchline.
+- **No short staccato sentences.** Build cadence with longer sentences that breathe through commas, subordinate clauses, and natural pauses. Rhythm matters more than brevity.
+- **Human to human.** Conversational, never corporate. Skip throat-clearing, hedging, and openings like "In this article we'll explore" or "Let's dive into". Speak as if to a colleague over coffee.
+- **Vocabulary range without performed erudition.** Reach for less common words when they fit naturally. Mix register freely: colloquial Portuguese expressions like *saca da manga*, *fechar o ticket*, *novela das oito*, *à moda antiga* land well next to technical terms.
+- **Italics for emphasis on terms and concepts.** **Bold for thesis statements you want to anchor.** Blockquotes for asides, qualifiers, and "yes, I know what you're thinking" moments.
+- **Open with empathy hooks**, not grandiose claims. Patterns I use: *Muito se fala em X...*, *Quem nunca, né?*, *Se você se encontra neste cenário, então o que vou trazer aqui é pra você.*
+- **Sign personal essays and longer posts with `Love to you all`.**
+- **Pragmatism over radicalism.** Acknowledge both sides of an argument, then take a measured position. Avoid the radicals on either end.
