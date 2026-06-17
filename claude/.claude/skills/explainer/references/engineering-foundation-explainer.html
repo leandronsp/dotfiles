@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineering Foundation — Peaky explainer</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#06060a;--surface:#0e0e14;--surface-hover:#14141c;--border:#1e1e2e;--border-strong:#2a2a40;
+  --text:#e8e8f0;--text-dim:#7a7a8c;--text-faint:#62627a;
+  --accent:#00d9ff;--accent-dim:#00d9ff33;--success:#00e676;--success-dim:#00e67622;
+  --error:#ff5252;--error-dim:#ff525222;--warning:#ffd740;--warning-dim:#ffd74022;--violet:#b388ff;--violet-dim:#b388ff22;
+  --mono:"SF Mono","Fira Code",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --ease-out-expo:cubic-bezier(0.16,1,0.3,1);--ease-in-out:cubic-bezier(0.65,0,0.35,1);
+}
+[data-theme="light"]{
+  color-scheme:light;
+  --bg:#faf9f7;--surface:#ffffff;--surface-hover:#f5f4f2;--border:#e8e6e3;--border-strong:#d4d0ca;
+  --text:#0a0a0f;--text-dim:#6b6b7b;--text-faint:#8e8e9a;
+  --accent:#0066ff;--accent-dim:#0066ff18;--success:#00c853;--success-dim:#00c85318;
+  --error:#d50000;--error-dim:#d5000018;--warning:#ffab00;--warning-dim:#ffab0018;--violet:#6200ea;--violet-dim:#6200ea18;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;overflow-x:hidden}
+.shell{max-width:1100px;margin:0 auto;padding:0 clamp(24px,5vw,80px);position:relative;z-index:1}
+section{padding:clamp(72px,10vh,130px) 0;position:relative}
+section+section::before{content:'';position:absolute;top:0;left:clamp(24px,5vw,80px);right:clamp(24px,5vw,80px);height:1px;background:linear-gradient(90deg,transparent,var(--border-strong) 20%,var(--border-strong) 80%,transparent)}
+.orb{position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,var(--accent-dim),transparent 70%);pointer-events:none;z-index:0;opacity:0.25;animation:orbFloat 22s ease-in-out infinite}
+.orb-1{top:-180px;right:-180px}.orb-2{bottom:-280px;left:-180px;animation-delay:-11s;background:radial-gradient(circle,var(--violet-dim),transparent 70%)}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-20px,20px) scale(1.08)}}
+.theme-toggle{position:fixed;top:24px;right:24px;z-index:100;width:44px;height:44px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text-dim);cursor:pointer;display:grid;place-items:center;transition:all .4s var(--ease-out-expo);font-size:18px}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.1) rotate(15deg)}
+
+/* Hero */
+.hero{min-height:86vh;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:clamp(40px,8vh,90px)}
+.hero-kicker{display:inline-flex;align-items:center;gap:12px;margin-bottom:28px;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim)}
+.hero-kicker::before{content:'';width:40px;height:1px;background:var(--accent)}
+.hero-grid{display:grid;grid-template-columns:1fr minmax(280px,0.44fr);gap:48px;align-items:end}
+.display{font-size:clamp(3rem,8.5vw,7.5rem);font-weight:800;letter-spacing:-0.04em;line-height:0.92}
+.display em{font-style:normal;color:var(--accent)}
+.lede{font-size:clamp(1rem,1.8vw,1.2rem);color:var(--text-dim);max-width:58ch;margin-top:24px;line-height:1.65}
+.gloss-hint{margin-top:18px;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;color:var(--text-faint)}
+.hero-note{border-left:1px solid var(--border-strong);padding-left:24px;margin-top:16px}
+.hero-note p{font-size:.93rem;line-height:1.7;color:var(--text-dim)}
+.hero-note p+p{margin-top:12px}
+
+/* Section typography */
+.section-number{font-size:clamp(2.5rem,7vw,5.5rem);font-weight:800;line-height:1;color:var(--border-strong);opacity:.3;margin-bottom:10px;pointer-events:none;user-select:none}
+.section-head{font-size:clamp(1.7rem,3.5vw,3rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;overflow-wrap:break-word}
+.section-head code{font-family:var(--mono);font-size:.85em;color:var(--accent)}
+.section-sub{color:var(--text-dim);max-width:60ch;margin-bottom:40px;line-height:1.7}
+.eyebrow{font-family:var(--mono);font-size:.68rem;text-transform:uppercase;letter-spacing:.15em;color:var(--text-dim)}
+a.issue-ref{color:var(--accent)}
+td a.issue-ref{font-family:var(--mono);font-size:.82rem}
+
+/* Status flags — dot + mono microtext, the only status grammar on the page */
+.flag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.flag i{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.flag.done{color:var(--success)}.flag.done i{background:var(--success)}
+.flag.progress{color:var(--warning)}.flag.progress i{background:var(--warning)}
+.flag.next{color:var(--accent)}.flag.next i{background:var(--accent)}
+.flag.gap{color:var(--error)}.flag.gap i{background:var(--error)}
+
+/* Glossary terms */
+.term{appearance:none;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,transparent);text-underline-offset:3px;text-decoration-thickness:1px}
+.term:hover,.term:focus-visible,.term[aria-expanded="true"]{color:var(--accent);text-decoration-style:solid;outline:none}
+.gloss-pop{position:absolute;z-index:240;width:min(330px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--border-strong);border-radius:12px;padding:16px 18px;box-shadow:0 12px 40px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;transform:translateY(4px)}
+.gloss-pop.open{opacity:1;pointer-events:auto;transform:none}
+.gloss-pop-term{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.gloss-pop-body{font-size:.84rem;color:var(--text-dim);line-height:1.6}
+.gloss-pop-body a{color:var(--accent)}
+
+/* What's in place — grouped scan list + sticky inspect panel */
+.filter-rail{display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:24px;font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase}
+.filter-rail-icon{color:var(--text-faint);flex-shrink:0;margin-bottom:5px}
+.filter-rail button{appearance:none;background:none;border:0;padding:0 0 5px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--text-dim);cursor:pointer;border-bottom:1px solid transparent;transition:all .25s ease}
+.filter-rail button:hover{color:var(--text)}
+.filter-rail button.active{color:var(--accent);border-bottom-color:var(--accent)}
+.filter-rail button span{opacity:.5;margin-left:3px}
+.inspect-legend{display:inline-flex;gap:22px;margin-left:auto;margin-bottom:5px;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);flex-wrap:wrap}
+.inspect-legend span{display:inline-flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.dot.active{background:var(--success)}
+.dot.partial{background:linear-gradient(90deg,var(--warning) 50%,transparent 50%);border:1px solid var(--warning)}
+.dot.upcoming{border:1px solid var(--accent);background:transparent}
+.inspect-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:56px;align-items:start}
+.inspect-list{min-width:0}
+.inspect-group{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);padding:28px 0 10px;border-bottom:1px solid var(--border)}
+.inspect-list .inspect-group:first-child{padding-top:0}
+.inspect-row{display:flex;align-items:center;gap:14px;padding:11px 2px;border-bottom:1px solid var(--border);cursor:pointer;outline:none}
+.inspect-row-name{font-size:.92rem;color:var(--text);font-weight:400;line-height:1.4;transition:color .25s ease}
+.inspect-row.flagship .inspect-row-name{font-weight:600}
+.inspect-row-flag{margin-left:auto;padding-left:12px;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.inspect-row-flag.partial{color:var(--warning)}
+.inspect-row-flag.upcoming{color:var(--accent)}
+.inspect-row:hover .inspect-row-name,.inspect-row:focus-visible .inspect-row-name,.inspect-row.sel .inspect-row-name{color:var(--accent)}
+.inspect-side{position:sticky;top:48px}
+.inspect-detail{border-left:1px solid var(--border-strong);padding-left:28px}
+.inspect-eyebrow{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.inspect-eyebrow.active{color:var(--success)}
+.inspect-eyebrow.partial{color:var(--warning)}
+.inspect-eyebrow.upcoming{color:var(--accent)}
+.inspect-title{font-size:1.15rem;font-weight:700;margin-bottom:10px;color:var(--text);line-height:1.4}
+.inspect-body{font-size:.88rem;color:var(--text-dim);line-height:1.7}
+.inspect-body code{font-family:var(--mono);font-size:.85em;color:var(--accent)}
+.inspect-pills{margin-top:18px;display:flex;gap:16px;flex-wrap:wrap}
+.inspect-detail.swap>*{animation:pyrIn .3s var(--ease-out-expo)}
+
+/* Workflow maturity — dot plot on a single qualitative spectrum */
+.maturity-grid{display:grid;grid-template-columns:minmax(0,.9fr) 1fr;gap:4px 32px;align-items:center;margin-top:8px}
+.maturity-ends{grid-column:2;display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px}
+.mat-label{font-size:.9rem;color:var(--text);padding:9px 0;line-height:1.45}
+.mat-label code{font-size:.82em;font-family:var(--mono)}
+.mat-track{position:relative;height:24px}
+.mat-track::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--border)}
+.mat-track::after{content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);width:1px;height:9px;background:var(--border-strong)}
+.mat-tick{position:absolute;left:0;top:50%;transform:translateY(-50%);width:1px;height:9px;background:var(--border-strong)}
+.mat-dot{position:absolute;top:50%;left:0;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;transition:left 1.1s var(--ease-out-expo)}
+.mat-dot.full{background:var(--success)}
+.mat-dot.high{background:var(--accent)}
+.mat-dot.low{background:var(--error)}
+
+/* De-boxed ledger grids (gaps, bigger picture) */
+.ledger-head{display:grid;gap:24px;padding:0 2px 10px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)}
+.ledger-row{display:grid;gap:6px 24px;padding:13px 2px;border-bottom:1px solid var(--border);align-items:baseline}
+.gaps-cols{grid-template-columns:minmax(0,1.5fr) minmax(0,.55fr) minmax(0,.62fr) 64px}
+.compare-cols{grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.15fr)}
+.ledger-title{font-size:.92rem;font-weight:600;color:var(--text)}
+.ledger-sub{font-size:.82rem;color:var(--text-dim);line-height:1.5;margin-top:2px}
+.ledger-sub code{font-size:.85em;font-family:var(--mono);color:var(--accent)}
+.ledger-dim{font-size:.85rem;color:var(--text-dim)}
+.ledger-flags{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.ledger-flags .flag{white-space:normal;text-align:left}
+
+/* What's next — grouped ledger of epic links */
+.rm-group{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);padding:28px 0 10px;border-bottom:1px solid var(--border)}
+.rm-list .rm-group:first-child{padding-top:0}
+.rm-group i{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rm-group.now i{background:var(--warning)}
+.rm-group.beta i{background:var(--accent)}
+.rm-group.ga i{background:var(--violet)}
+.rm-row{display:flex;align-items:baseline;gap:16px;padding:12px 2px;border-bottom:1px solid var(--border);text-decoration:none}
+.rm-row-title{font-size:.92rem;font-weight:600;color:var(--text);white-space:nowrap;transition:color .25s ease}
+.rm-row-desc{font-size:.82rem;color:var(--text-dim);line-height:1.5;min-width:0}
+.rm-row-ref{margin-left:auto;padding-left:12px;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--text-faint);white-space:nowrap;transition:color .25s ease}
+.rm-row:hover .rm-row-title,.rm-row:hover .rm-row-ref{color:var(--accent)}
+
+/* Why the gaps exist — warning-ruled columns */
+.gap-why{display:grid;grid-template-columns:1fr 1fr;gap:44px}
+.gap-why>div{border-left:2px solid color-mix(in srgb,var(--warning) 55%,transparent);padding-left:22px;min-width:0}
+.gap-why h3{font-size:.95rem;font-weight:700;color:var(--warning);margin-bottom:8px}
+.gap-why p{font-size:.9rem;color:var(--text-dim);line-height:1.7}
+
+/* Loop diagram — numbered nodes on a circuit, detail panel below */
+.loop-track{position:relative;display:flex;justify-content:space-between;margin:18px 0 0}
+.loop-track::before{content:'';position:absolute;left:8.3%;right:8.3%;top:18px;height:1px;background:var(--border-strong)}
+.loop-node{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:11px;cursor:pointer;outline:none}
+.loop-node i{width:37px;height:37px;border-radius:50%;border:1px solid var(--border-strong);background:var(--bg);display:grid;place-items:center;font-family:var(--mono);font-style:normal;font-size:.62rem;letter-spacing:.06em;color:var(--text-dim);transition:all .25s ease}
+.loop-node:hover i,.loop-node:focus-visible i{border-color:var(--text-dim);color:var(--text)}
+.loop-node.sel i{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-dim)}
+.loop-node.future i{border-style:dashed}
+.loop-node-label{font-size:.8rem;font-weight:600;color:var(--text);text-align:center;line-height:1.35;max-width:124px;transition:color .25s ease}
+.loop-node.future .loop-node-label{color:var(--text-dim)}
+.loop-node.sel .loop-node-label{color:var(--accent)}
+.loop-detail{border-left:1px solid var(--border-strong);padding-left:28px;margin-top:40px;min-height:96px}
+.loop-detail-eyebrow{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;color:var(--success)}
+.loop-detail-eyebrow.future{color:var(--warning)}
+.loop-detail-title{font-size:1.05rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.loop-detail-body{font-size:.88rem;color:var(--text-dim);line-height:1.7;max-width:64ch}
+.loop-detail-body code{font-family:var(--mono);font-size:.85em;color:var(--accent)}
+.loop-detail.swap>*{animation:pyrIn .3s var(--ease-out-expo)}
+.loop-return{position:relative;height:24px;margin:14px 8.3% 0;border:1px dashed var(--border-strong);border-top:none;border-radius:0 0 14px 14px}
+.loop-return-arrow{position:absolute;left:-5.5px;top:-10px;color:var(--text-faint);font-size:.8rem;line-height:1}
+.loop-return-label{position:absolute;left:50%;bottom:0;transform:translate(-50%,50%);background:var(--bg);padding:0 14px;font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint);white-space:nowrap}
+
+/* Editorial aside columns — hairline rule instead of boxes */
+.pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start}
+.pair-grid>*{min-width:0}
+.aside-col{border-left:1px solid var(--border-strong);padding-left:24px}
+.aside-col .eyebrow{display:block;margin-bottom:14px}
+.aside-col p{font-size:.9rem;color:var(--text-dim);line-height:1.65}
+.aside-col p em{color:var(--text)}
+.check-list{list-style:none;display:grid;gap:10px}
+.check-list li{display:flex;gap:10px;font-size:.9rem;color:var(--text-dim)}
+.check-list li>span{flex-shrink:0}
+.check-list .yes{color:var(--success)}
+.check-list .meh{color:var(--text-faint)}
+
+/* Test pyramid — annotated geometry left, detail panel right */
+.pyr-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(250px,.9fr);gap:44px;align-items:center}
+.pyr-grid svg{width:100%;max-width:560px;display:block}
+.pyr-row{cursor:pointer;outline:none}
+.pyr-shape{fill:var(--text);fill-opacity:.04;stroke:var(--border-strong);stroke-width:1;transition:all .25s ease}
+.pyr-row:hover .pyr-shape,.pyr-row:focus-visible .pyr-shape{stroke:var(--text-dim)}
+.pyr-row.sel .pyr-shape{stroke:var(--accent);fill:var(--accent);fill-opacity:.07}
+.pyr-name{font-family:var(--sans);font-size:12.5px;font-weight:600;fill:var(--text);transition:fill .25s ease}
+.pyr-row.sel .pyr-name{fill:var(--accent)}
+.pyr-count{font-family:var(--mono);font-size:9.5px;fill:var(--text-dim)}
+.pyr-leader{stroke:var(--border-strong);stroke-width:1}
+.pyr-flag{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em}
+.pyr-detail{border-left:1px solid var(--border-strong);padding-left:28px}
+.pyr-detail-eyebrow{font-family:var(--mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px}
+.pyr-detail-eyebrow.ci{color:var(--success)}
+.pyr-detail-eyebrow.local{color:var(--warning)}
+.pyr-detail-title{font-size:1.15rem;font-weight:700;margin-bottom:6px;color:var(--text)}
+.pyr-detail-meta{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);margin-bottom:14px}
+.pyr-detail-body{font-size:.88rem;color:var(--text-dim);line-height:1.7}
+.pyr-detail-body a{color:var(--accent)}
+.pyr-detail.swap>*{animation:pyrIn .3s var(--ease-out-expo)}
+@keyframes pyrIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.muted-note{margin-top:10px;font-size:.82rem;color:var(--text-dim)}
+.artifact{margin-top:72px}
+.block-head{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.data-stamp{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+
+/* Gate flow — a change's path from working tree to main, through four gates */
+.gate-flow svg{width:100%;max-width:960px;display:block}
+.gf-line{stroke:var(--border-strong)}
+.gf-station{font-family:var(--sans);font-size:12.5px;font-weight:600;fill:var(--text)}
+.gf-dot{fill:var(--text-faint)}
+.gf-name{font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em}
+.gf-detail{font-family:var(--mono);font-size:9px;fill:var(--text-dim)}
+
+/* make mr — numbered gate ledger; order reads top-to-bottom */
+.gate-list{margin-top:8px}
+.gate-row{display:grid;grid-template-columns:36px 176px minmax(0,1fr) auto;gap:6px 16px;align-items:baseline;padding:10px 2px;border-bottom:1px solid var(--border)}
+.gate-num{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--text-faint)}
+.gate-name{font-family:var(--mono);font-size:.78rem;font-weight:700;color:var(--text)}
+.gate-desc{font-size:.85rem;color:var(--text-dim);line-height:1.5}
+
+/* Linter coverage map — concerns on a center spine, oxlint left, golangci right */
+.lint-map{margin-top:72px}
+.lm-intro{font-size:.9rem;color:var(--text-dim);line-height:1.7;max-width:60ch;margin-bottom:36px}
+.lm-head,.lm-row{display:grid;grid-template-columns:1fr 210px 1fr;gap:0 18px;align-items:center}
+.lm-head{align-items:baseline;margin-bottom:22px}
+.lm-h{display:flex;flex-direction:column;gap:4px}
+.lm-h code{font-family:var(--mono);font-size:.95rem;font-weight:700;color:var(--accent)}
+.lm-h.right{align-items:flex-end;text-align:right}
+.linter-scope{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint)}
+.lm-mid-label{text-align:center;font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-faint)}
+.lm-row{min-height:46px}
+.lm-cell{display:flex;align-items:center;gap:14px;font-size:.8rem;color:var(--text-dim);line-height:1.45}
+.lm-cell code{font-family:var(--mono);font-size:.92em;color:var(--accent)}
+.lm-left{justify-content:flex-end;text-align:right}
+.lead{flex:1 0 26px;height:1px;background:var(--border)}
+.lm-concern{text-align:center;font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);line-height:1.5}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(50px);transition:opacity .9s var(--ease-out-expo),transform .9s var(--ease-out-expo)}
+.reveal.is-visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.06s}.reveal-delay-2{transition-delay:.12s}.reveal-delay-3{transition-delay:.18s}.reveal-delay-4{transition-delay:.24s}.reveal-delay-5{transition-delay:.30s}.reveal-delay-6{transition-delay:.36s}
+
+@media(max-width:900px){
+  .pair-grid{grid-template-columns:1fr}
+  .lm-head{grid-template-columns:1fr 1fr}
+  .lm-mid-label{display:none}
+  .lm-row{grid-template-columns:1fr;gap:7px;min-height:0;padding:12px 0;border-bottom:1px solid var(--border)}
+  .lm-concern{text-align:left;order:-1}
+  .lead{display:none}
+  .lm-left{justify-content:flex-start;text-align:left}
+  .lm-cell:empty{display:none}
+  .lm-left::before{content:'ts';font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+  .lm-right::before{content:'go';font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+  .loop-track{flex-direction:column;align-items:stretch;gap:18px}
+  .loop-track::before{left:18px;right:auto;top:18px;bottom:18px;width:1px;height:auto}
+  .loop-node{flex-direction:row;gap:14px}
+  .loop-node-label{text-align:left;max-width:none}
+  .loop-return{display:none}
+  .gate-row{grid-template-columns:36px minmax(0,1fr) auto}
+  .gate-num{grid-row:1;grid-column:1}
+  .gate-name{grid-row:1;grid-column:2}
+  .gate-row .flag{grid-row:1;grid-column:3}
+  .gate-desc{grid-row:2;grid-column:2/4}
+  .pyr-grid{grid-template-columns:1fr;gap:28px}
+  .pyr-detail{padding-left:20px}
+  .inspect-grid{grid-template-columns:1fr}
+  .inspect-side{position:static}
+  .inspect-detail{margin:14px 0 22px;padding-left:20px}
+  .gap-why{grid-template-columns:1fr}
+  .compare-cols{grid-template-columns:1fr}
+  #pictureTable .ledger-head{display:none}
+  .compare-cols .ledger-dim::before{content:'typical: ';font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+  .maturity-grid{grid-template-columns:1fr;gap:2px}
+  .maturity-ends{grid-column:1}
+  .mat-label{padding:12px 0 0}
+}
+@media(max-width:720px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-note{display:none}
+  .rm-row{flex-direction:column;gap:3px}
+  .rm-row-title{white-space:normal}
+  .rm-row-ref{margin-left:0;padding-left:0}
+  .ledger-head{display:none}
+  .ledger-row{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+
+/* ── Present mode ── */
+.present-toggle{position:fixed;top:24px;right:80px;z-index:100;width:44px;height:44px;border:1px solid var(--border);border-radius:50%;background:var(--surface);color:var(--text-dim);cursor:pointer;display:grid;place-items:center;transition:all .4s var(--ease-out-expo);font-size:14px}
+.present-toggle:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.1)}
+body.presenting{overflow:hidden}
+body.presenting .theme-toggle,body.presenting .present-toggle{z-index:300}
+.pr-deck{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;outline:none}
+.pr-deck::before{content:'';position:absolute;top:-220px;right:-220px;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,var(--accent-dim),transparent 70%);opacity:.25;pointer-events:none}
+body.presenting .pr-deck{display:block}
+.pr-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:56px 48px 96px;opacity:0;visibility:hidden;transition:opacity .45s var(--ease-out-expo),visibility 0s linear .45s}
+.pr-slide.active{opacity:1;visibility:visible;transition:opacity .45s var(--ease-out-expo) .05s,visibility 0s}
+.pr-stage{width:min(1100px,94vw);transform-origin:center center}
+.pr-slide.pr-scroll{align-items:flex-start;overflow-y:auto}
+.pr-stage>*+*{margin-top:28px!important}
+.pr-stage>:first-child{margin-top:0!important}
+.pr-stage>.pr-title{margin-top:14px!important}
+.pr-stage section{padding:0!important}
+.pr-stage section::before{display:none!important}
+.pr-stage .hero{min-height:0!important;padding-bottom:0!important}
+.pr-kicker{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:12px}
+.pr-kicker::before{content:'';width:40px;height:1px;background:var(--accent)}
+.pr-title{font-size:clamp(1.6rem,3vw,2.6rem);font-weight:700;letter-spacing:-0.02em}
+.pr-hud{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:300;display:none;align-items:center;gap:4px;padding:6px;border:1px solid var(--border);border-radius:100px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(12px);transition:opacity .4s ease}
+body.presenting .pr-hud{display:flex}
+.pr-hud.idle{opacity:0;pointer-events:none}
+.pr-hud button{appearance:none;border:0;background:transparent;color:var(--text-dim);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:.95rem;display:grid;place-items:center;transition:all .3s var(--ease-out-expo)}
+.pr-hud button:hover:not(:disabled){background:var(--accent-dim);color:var(--accent)}
+.pr-hud button:disabled{opacity:.3;cursor:default}
+.pr-count{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);padding:0 10px;min-width:64px;text-align:center}
+.pr-progress{position:fixed;left:0;bottom:0;height:2px;width:100%;z-index:300;display:none;background:color-mix(in srgb,var(--border) 60%,transparent)}
+body.presenting .pr-progress{display:block}
+.pr-progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent-dim),var(--accent));transition:width .45s var(--ease-out-expo)}
+.pr-deck .pr-frag{opacity:0;transform:translateY(14px);transition:opacity .5s var(--ease-out-expo),transform .5s var(--ease-out-expo)}
+.pr-deck .pr-frag.pr-on{opacity:1;transform:none}
+@media(max-width:900px){.present-toggle{display:none}}
+.pr-stage .hero-grid{grid-template-columns:1fr minmax(300px,0.46fr)}
+.pr-stage .pair-grid{grid-template-columns:1fr 1fr}
+.pr-stage .lm-head{grid-template-columns:1fr 210px 1fr}
+.pr-stage .lm-row{grid-template-columns:1fr 210px 1fr;border-bottom:0;padding:0;min-height:46px}
+.pr-stage .lm-mid-label{display:block}
+.pr-stage .lm-concern{text-align:center;order:0}
+.pr-stage .lead{display:block}
+.pr-stage .lm-left{justify-content:flex-end;text-align:right}
+.pr-stage .lm-cell::before{content:none}
+.pr-stage .lm-cell:empty{display:flex}
+.pr-stage .loop-track{flex-direction:row;align-items:flex-start;gap:0}
+.pr-stage .loop-track::before{left:8.3%;right:8.3%;top:18px;bottom:auto;width:auto;height:1px}
+.pr-stage .loop-node{flex-direction:column;gap:11px}
+.pr-stage .loop-node-label{text-align:center;max-width:124px}
+.pr-stage .loop-return{display:block}
+.pr-stage .gate-row{grid-template-columns:36px 176px minmax(0,1fr) auto}
+.pr-stage .gate-row .gate-desc{grid-column:auto}
+.pr-stage .ledger-head{display:grid}
+.pr-stage .gaps-cols{grid-template-columns:minmax(0,1.5fr) minmax(0,.55fr) minmax(0,.62fr) 64px}
+.pr-stage .compare-cols{grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,1.15fr)}
+.pr-stage .compare-cols .ledger-dim::before{content:none}
+/* The slide's synthesized title already names these blocks — drop the in-block eyebrow to avoid echo. */
+.pr-stage #pyramidBlock .block-head .eyebrow,.pr-stage #maturityBlock .block-head .eyebrow{display:none}
+.pr-stage .artifact{margin-top:28px!important}
+.pr-stage .inspect-grid{grid-template-columns:minmax(0,1fr) minmax(280px,.8fr)}
+.pr-stage .inspect-row{padding:6px 2px}
+.pr-stage .inspect-group{padding:16px 0 8px}
+.pr-stage .gap-why{grid-template-columns:1fr 1fr}
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">◐</button>
+<button class="present-toggle" id="presentToggle" type="button" aria-label="Present (P)" title="Present (P)">▶</button>
+
+<!-- HERO -->
+<section id="top">
+<div class="shell">
+  <div class="hero">
+    <div class="hero-kicker">Peaky · Engineering Foundation</div>
+    <div class="hero-grid">
+      <div>
+        <h1 class="display">Further along<br>than it <em>feels</em></h1>
+        <p class="lede">A clear-eyed picture of the engineering foundation — what's in place, where the gaps are, and what's next — so we keep charging forward without the weight of an incomplete picture.</p>
+        <p class="gloss-hint">New to the stack? <button class="term" data-term="gloss">Dotted terms</button> open a plain-English definition.</p>
+      </div>
+      <div class="hero-note">
+        <p>The foundation was built with intent, not accumulated under pressure. <button class="term" data-term="droids">11 adversarial reviewers</button>, a <button class="term" data-term="openspec">structured change workflow</button>, and <button class="term" data-term="fizzbee">formal verification</button> specs for select critical domains are things most teams retrofit years later — if at all.</p>
+        <p>The gaps are real but narrower than they feel. All are tracked — most live in code we shipped during the <button class="term" data-term="preworkflow">pre-workflow era</button>, and we're closing them deliberately.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 1: What's in place -->
+<section id="inplace">
+<div class="shell">
+  <div class="reveal" id="inplaceHead">
+    <div class="section-number">01</div>
+    <h2 class="section-head">What's already in place</h2>
+    <p class="section-sub">Everything below is in place today unless flagged. Hover or tap a row to inspect it — bold rows are the ones most teams retrofit years later.</p>
+  </div>
+
+  <div class="reveal reveal-delay-1" id="inspectBlock">
+    <div class="filter-rail" id="inspectFilters">
+      <svg class="filter-rail-icon" width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 2.5h13L10 8.6V13l-4 1.8V8.6L1.5 2.5z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+      <button class="active" data-key="all">All <span>22</span></button>
+      <button data-key="quality">Code Quality <span>6</span></button>
+      <button data-key="arch">Architecture <span>4</span></button>
+      <button data-key="process">Process <span>6</span></button>
+      <button data-key="docs">Documentation <span>4</span></button>
+      <button data-key="upcoming">Upcoming <span>2</span></button>
+      <span class="inspect-legend">
+        <span><i class="dot partial"></i>partially in place</span>
+        <span><i class="dot upcoming"></i>upcoming</span>
+      </span>
+    </div>
+    <div class="inspect-grid">
+      <div class="inspect-list" id="inspectList"></div>
+      <div class="inspect-side" id="inspectSide">
+        <div class="inspect-detail" id="inspectDetail" aria-live="polite">
+          <div class="inspect-eyebrow"></div>
+          <h4 class="inspect-title"></h4>
+          <p class="inspect-body"></p>
+          <div class="inspect-pills"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 2: AI development loop -->
+<section id="loop">
+<div class="shell">
+  <div class="reveal" id="loopHead">
+    <div class="section-number">02</div>
+    <h2 class="section-head">The AI development loop</h2>
+    <p class="section-sub">Cheap, deterministic feedback first. Non-deterministic agents run last on already-clean code.</p>
+  </div>
+
+  <div class="reveal reveal-delay-1" id="loopDiagram">
+    <div class="loop-track" id="loopTrack"></div>
+    <div class="loop-return" aria-hidden="true">
+      <span class="loop-return-arrow">↑</span>
+      <span class="loop-return-label">retro feeds the next cycle</span>
+    </div>
+    <div class="loop-detail" id="loopDetail" aria-live="polite">
+      <div class="loop-detail-eyebrow"></div>
+      <h4 class="loop-detail-title"></h4>
+      <p class="loop-detail-body"></p>
+    </div>
+  </div>
+
+  <div class="reveal reveal-delay-2 artifact" id="loopPanels">
+    <div class="pair-grid">
+      <div class="aside-col">
+        <span class="eyebrow">When to use OpenSpec</span>
+        <ul class="check-list">
+          <li><span class="yes">✓</span>Major new feature or crosses domain boundaries</li>
+          <li><span class="yes">✓</span>Changes product behaviour or specifications</li>
+          <li><span class="yes">✓</span>You'd want to reference this decision in 6 months</li>
+          <li><span class="meh">—</span>Isolated, well-scoped change → ad hoc prompt is fine</li>
+        </ul>
+      </div>
+      <div class="aside-col">
+        <span class="eyebrow">Non-deterministic → deterministic</span>
+        <p>When a droid catches a real class of bug, ask: <em>can this be a linter rule?</em> If yes — add it to <code>.golangci.yml</code> or <code>eslint.config.mjs</code>, remove it from the droid prompt. Over time, droids shrink and sharpen. The deterministic floor rises.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 3: Honest gaps -->
+<section id="gaps">
+<div class="shell">
+  <div class="reveal" id="gapsHead">
+    <div class="section-number">03</div>
+    <h2 class="section-head">The honest gaps</h2>
+    <p class="section-sub">All tracked. All actionable.</p>
+  </div>
+
+  <div class="reveal reveal-delay-1" id="gapsCallout">
+    <div class="eyebrow" style="margin-bottom:18px">Why the gaps exist</div>
+    <div class="gap-why">
+      <div>
+        <h3>The <button class="term" data-term="preworkflow">pre-workflow era</button></h3>
+        <p>Several key features were built ad-hoc or with vanilla OpenSpec 0.x — no DDD, no custom workflows, no decision log. Drifts and inconsistencies were deferred, waiting for the workflow to stabilize. Now we have OpenSpec with DDD and custom workflows, a decision log for ad-hoc prompts, linear walkthroughs, DESIGN.md as a structured agent-readable design spec, NuxtUI v4 as the accessibility foundation, and a much higher quality gate. The Bug Bash closes what was left behind.</p>
+      </div>
+      <div>
+        <h3>Retrofitting our company&#8217;s constraints</h3>
+        <p>Peaky has been learning platform limits in real time. Not being able to call Applications or Products APIs directly forced scope trims mid-build — and those trims left inconsistencies across the codebase. Some are fixable now. Others need the broader team. All are tracked.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="reveal reveal-delay-2 artifact" id="gapsTable">
+    <div class="eyebrow" style="margin-bottom:18px">The gap ledger · 6 open</div>
+    <div class="ledger-head gaps-cols"><span>Gap</span><span>Category</span><span>Status</span><span>Tracked</span></div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">Most CI quality gates commented out</div><div class="ledger-sub">typecheck, integration tests, Go tests not running on MRs</div></div>
+        <span class="ledger-dim">CI/CD</span>
+        <span class="flag progress"><i></i>In progress</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>
+      </div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">FizzBee not running in CI</div><div class="ledger-sub"><button class="term" data-term="harbour">Harbour</button> registry import required &#8212; platform team ticket needed</div></div>
+        <span class="ledger-dim">Formal Verification</span>
+        <span class="flag progress"><i></i>Blocked</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/29" target="_blank">#29</a>
+      </div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">No <button class="term" data-term="semantic">semantic MR title</button> enforcement</div><div class="ledger-sub">Changelog and release notes depend on this convention</div></div>
+        <span class="ledger-dim">Process</span>
+        <span class="flag next"><i></i>Upcoming</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/34" target="_blank">#34</a>
+      </div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">Pre-workflow era code</div><div class="ledger-sub">Bugs, drifts, and inconsistencies from before the reviewer suite &#8212; addressed in Bug Bash</div></div>
+        <span class="ledger-dim">Code Health</span>
+        <span class="flag progress"><i></i>Bug Bash</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/47" target="_blank">#47</a>
+      </div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">Spec-vs-code drift detection</div><div class="ledger-sub">No automated mechanism to catch when code diverges from openspec decisions</div></div>
+        <span class="ledger-dim">Process</span>
+        <span class="flag next"><i></i>Upcoming</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/28" target="_blank">#28</a>
+      </div>
+      <div class="ledger-row gaps-cols">
+        <div><div class="ledger-title">No MR approval requirement</div><div class="ledger-sub">Merges to main don&#8217;t require a second pair of eyes</div></div>
+        <span class="ledger-dim">Process</span>
+        <span class="flag next"><i></i>Upcoming</span>
+        <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/44" target="_blank">#44</a>
+      </div>
+  </div>
+
+  <!-- Test pyramid -->
+  <div class="reveal reveal-delay-2 artifact" id="pyramidBlock">
+    <div class="block-head"><span class="eyebrow">Test pyramid — coverage today</span><span class="data-stamp">counts as of 11 Jun 2026</span></div>
+    <div class="pyr-grid">
+      <svg id="testPyramid" viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Test pyramid with four layers — names on the left, CI status on the right">
+        <!-- Layer 4 (top): Fuzz · Property-based -->
+        <g class="pyr-row" data-layer="4" tabindex="0" role="button" aria-label="Fuzz and property-based tests, 2 Go files, local only">
+          <polygon class="pyr-shape" points="300,20 340,20 372,84 268,84"/>
+          <text x="142" y="49" text-anchor="end" class="pyr-name">Fuzz · Property-based</text>
+          <text x="142" y="64" text-anchor="end" class="pyr-count">2 Go files</text>
+          <line class="pyr-leader" x1="150" y1="52" x2="274" y2="52"/>
+          <line class="pyr-leader" x1="366" y1="52" x2="500" y2="52"/>
+          <circle cx="508" cy="52" r="2.5" fill="var(--warning)"/>
+          <text x="516" y="55" class="pyr-flag" fill="var(--warning)">LOCAL ONLY</text>
+        </g>
+        <!-- Layer 3: E2E + A11y -->
+        <g class="pyr-row" data-layer="3" tabindex="0" role="button" aria-label="End-to-end and accessibility tests, 26 specs, local only">
+          <polygon class="pyr-shape" points="264,92 376,92 408,156 232,156"/>
+          <text x="142" y="121" text-anchor="end" class="pyr-name">E2E + A11y</text>
+          <text x="142" y="136" text-anchor="end" class="pyr-count">26 specs</text>
+          <line class="pyr-leader" x1="150" y1="124" x2="238" y2="124"/>
+          <line class="pyr-leader" x1="402" y1="124" x2="500" y2="124"/>
+          <circle cx="508" cy="124" r="2.5" fill="var(--warning)"/>
+          <text x="516" y="127" class="pyr-flag" fill="var(--warning)">LOCAL ONLY</text>
+        </g>
+        <!-- Layer 2: Integration -->
+        <g class="pyr-row" data-layer="2" tabindex="0" role="button" aria-label="Integration tests, 11 files, local only">
+          <polygon class="pyr-shape" points="228,164 412,164 444,228 196,228"/>
+          <text x="142" y="193" text-anchor="end" class="pyr-name">Integration</text>
+          <text x="142" y="208" text-anchor="end" class="pyr-count">11 files</text>
+          <line class="pyr-leader" x1="150" y1="196" x2="202" y2="196"/>
+          <line class="pyr-leader" x1="438" y1="196" x2="500" y2="196"/>
+          <circle cx="508" cy="196" r="2.5" fill="var(--warning)"/>
+          <text x="516" y="199" class="pyr-flag" fill="var(--warning)">LOCAL ONLY</text>
+        </g>
+        <!-- Layer 1 (base): Unit -->
+        <g class="pyr-row" data-layer="1" tabindex="0" role="button" aria-label="Unit tests, 117 files, running in CI">
+          <polygon class="pyr-shape" points="192,236 448,236 480,300 160,300"/>
+          <text x="142" y="265" text-anchor="end" class="pyr-name">Unit tests</text>
+          <text x="142" y="280" text-anchor="end" class="pyr-count">117 files</text>
+          <line class="pyr-leader" x1="150" y1="268" x2="166" y2="268"/>
+          <line class="pyr-leader" x1="474" y1="268" x2="500" y2="268"/>
+          <circle cx="508" cy="268" r="2.5" fill="var(--success)"/>
+          <text x="516" y="271" class="pyr-flag" fill="var(--success)">IN CI</text>
+        </g>
+      </svg>
+      <div class="pyr-detail" id="pyrDetail" aria-live="polite">
+        <div class="pyr-detail-eyebrow"></div>
+        <h4 class="pyr-detail-title"></h4>
+        <div class="pyr-detail-meta"></div>
+        <p class="pyr-detail-body"></p>
+      </div>
+    </div>
+    <p class="muted-note">Hover, tap, or tab through the layers. Only the base runs in CI today — the rest is tracked in <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>. <button class="term" data-term="e2e">E2E</button> runs in <button class="term" data-term="playwright">Playwright</button>; <button class="term" data-term="a11y">a11y</button> is accessibility.</p>
+  </div>
+
+  <!-- Progress summary -->
+  <div class="reveal reveal-delay-4 artifact" id="maturityBlock">
+    <div class="block-head"><span class="eyebrow">Workflow maturity — current state</span><span class="data-stamp">assessed 11 Jun 2026</span></div>
+    <div class="maturity-grid" id="progressRows">
+      <div></div>
+      <div class="maturity-ends"><span>not started</span><span>strong</span></div>
+      <div class="mat-label">Code review (adversarial reviewers + pre-commit)</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot full" data-width="92"></i></div>
+      <div class="mat-label">Architecture quality (local-first, HLC, formal verification)</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot full" data-width="88"></i></div>
+      <div class="mat-label">Change process (OpenSpec, issue templates, roadmap)</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot high" data-width="80"></i></div>
+      <div class="mat-label">Local quality gate (<code>make mr</code>) — comprehensive but manual</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot high" data-width="85"></i></div>
+      <div class="mat-label">CI pipeline (gates running automatically on every MR)</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot low" data-width="22"></i></div>
+      <div class="mat-label">Release automation (versioning, changelog, semantic titles)</div>
+      <div class="mat-track"><span class="mat-tick"></span><i class="mat-dot low" data-width="8"></i></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 4: The quality gate -->
+<section id="gate">
+<div class="shell">
+  <div class="reveal" id="gateHead">
+    <div class="section-number">04</div>
+    <h2 class="section-head"><code>make mr</code> — the quality gate</h2>
+    <p class="section-sub">One command, every gate in sequence — run it before opening any MR.</p>
+  </div>
+
+  <!-- Pipeline -->
+  <!-- Gate flow diagram -->
+  <div class="reveal reveal-delay-1 gate-flow" id="gateFlow" style="margin-top:24px">
+    <svg viewBox="0 0 960 158" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A change travels from working tree to main through four gates: pre-commit, pre-push, make mr, and CI">
+      <!-- the path -->
+      <line class="gf-line" x1="30" y1="58" x2="926" y2="58" stroke-width="1"/>
+      <polyline points="918,53 928,58 918,63" fill="none" stroke="var(--border-strong)" stroke-width="1"/>
+      <!-- stations -->
+      <circle class="gf-dot" cx="60" cy="58" r="3.5"/>
+      <text x="60" y="36" text-anchor="middle" class="gf-station">working tree</text>
+      <circle class="gf-dot" cx="255" cy="58" r="3.5"/>
+      <text x="255" y="36" text-anchor="middle" class="gf-station">commit</text>
+      <circle class="gf-dot" cx="450" cy="58" r="3.5"/>
+      <text x="450" y="36" text-anchor="middle" class="gf-station">push</text>
+      <circle class="gf-dot" cx="645" cy="58" r="3.5"/>
+      <text x="645" y="36" text-anchor="middle" class="gf-station">MR opened</text>
+      <circle class="gf-dot" cx="885" cy="58" r="3.5"/>
+      <text x="885" y="36" text-anchor="middle" class="gf-station">main</text>
+      <!-- gate 1: pre-commit -->
+      <line x1="157" y1="40" x2="157" y2="76" stroke="var(--success)" stroke-width="2"/>
+      <text x="157" y="100" text-anchor="middle" class="gf-name" fill="var(--success)">pre-commit</text>
+      <text x="157" y="117" text-anchor="middle" class="gf-detail">oxlint · oxfmt · rumdl</text>
+      <text x="157" y="131" text-anchor="middle" class="gf-detail">staged files only</text>
+      <!-- gate 2: pre-push -->
+      <line x1="352" y1="40" x2="352" y2="76" stroke="var(--success)" stroke-width="2"/>
+      <text x="352" y="100" text-anchor="middle" class="gf-name" fill="var(--success)">pre-push</text>
+      <text x="352" y="117" text-anchor="middle" class="gf-detail">unit tests + typecheck</text>
+      <!-- gate 3: make mr (the subject) -->
+      <line x1="547" y1="34" x2="547" y2="82" stroke="var(--accent)" stroke-width="2.5"/>
+      <text x="547" y="100" text-anchor="middle" class="gf-name" fill="var(--accent)">make mr</text>
+      <text x="547" y="117" text-anchor="middle" class="gf-detail">all nine steps below</text>
+      <text x="547" y="131" text-anchor="middle" class="gf-detail">manual, before the MR</text>
+      <!-- gate 4: CI (partial today) -->
+      <line x1="765" y1="40" x2="765" y2="76" stroke="var(--warning)" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="765" y="100" text-anchor="middle" class="gf-name" fill="var(--warning)">CI today</text>
+      <text x="765" y="117" text-anchor="middle" class="gf-detail">lint · lint-docs · unit</text>
+      <text x="765" y="131" text-anchor="middle" class="gf-detail">full suite pending</text>
+    </svg>
+  </div>
+
+  <div class="reveal reveal-delay-1 artifact" id="mrPipe">
+    <div class="eyebrow" style="margin-bottom:10px">What <code>make mr</code> runs — nine steps in sequence</div>
+    <div class="gate-list">
+      <div class="gate-row">
+        <span class="gate-num">01</span>
+        <span class="gate-name">lint</span>
+        <span class="gate-desc">oxlint → ESLint + security plugin</span>
+        <span class="flag done"><i></i>also in CI</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">02</span>
+        <span class="gate-name">lint-docs</span>
+        <span class="gate-desc">rumdl on every markdown file</span>
+        <span class="flag done"><i></i>also in CI</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">03</span>
+        <span class="gate-name">typecheck</span>
+        <span class="gate-desc">Nuxt TypeScript strict mode</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">04</span>
+        <span class="gate-name">audit</span>
+        <span class="gate-desc">pnpm audit --prod only</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">05</span>
+        <span class="gate-name">test</span>
+        <span class="gate-desc">Vitest unit ~16s</span>
+        <span class="flag done"><i></i>also in CI</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">06</span>
+        <span class="gate-name">go fmt + vet</span>
+        <span class="gate-desc">format + correctness</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">07</span>
+        <span class="gate-name">golangci-lint</span>
+        <span class="gate-desc">20 linters, all Go packages</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">08</span>
+        <span class="gate-name">test:go</span>
+        <span class="gate-desc">unit + in-memory integration</span>
+      </div>
+      <div class="gate-row">
+        <span class="gate-num">09</span>
+        <span class="gate-name">test:integration</span>
+        <span class="gate-desc">Nuxt integration ~25s</span>
+      </div>
+    </div>
+    <p class="muted-note">Every step runs locally before an MR is opened. Green-flagged steps also run in CI today — wiring up the rest is tracked in <a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>.</p>
+  </div>
+
+  <!-- Linter coverage map -->
+  <div class="reveal reveal-delay-2 lint-map" id="linterCards">
+    <div class="eyebrow" style="margin-bottom:10px">Steps 01 and 07, expanded</div>
+    <p class="lm-intro">Two linters, one per language, guarding the same concerns. Read each concern outward to the rules that enforce it on either side.</p>
+    <div class="lm-head">
+      <div class="lm-h">
+        <code><button class="term" data-term="oxlint">oxlint</button> + ESLint</code>
+        <span class="linter-scope">TS · Vue — thousands of rules, five plugins</span>
+      </div>
+      <div class="lm-mid-label">concern</div>
+      <div class="lm-h right">
+        <code><button class="term" data-term="golangci">golangci-lint</button></code>
+        <span class="linter-scope">Go — 20 linters, all packages</span>
+      </div>
+    </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span>logic errors · invalid API use — build-failing</span><i class="lead"></i></div>
+        <div class="lm-concern">Correctness</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span>govet · staticcheck · errcheck</span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span>likely-wrong code flagged</span><i class="lead"></i></div>
+        <div class="lm-concern">Suspicious patterns</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span>ineffassign · unused</span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span><code>no-accumulating-spread</code> — O(n&#178;) in loops</span><i class="lead"></i></div>
+        <div class="lm-concern">Performance &amp; memory</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span><code>prealloc</code> — slices sized up front</span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span>ESLint security plugin — second pass</span><i class="lead"></i></div>
+        <div class="lm-concern">Security</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span><code>gosec</code> — SQL injection · credentials</span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"></div>
+        <div class="lm-concern">Resource &amp; context safety</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span><code>bodyclose</code> · <code>sqlclosecheck</code> · <code>rowserrcheck</code> · <code>noctx</code></span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span><code>max-depth 3</code> · <code>max-params 4</code> · <code>max-lines 400</code></span><i class="lead"></i></div>
+        <div class="lm-concern">Complexity budgets</div>
+        <div class="lm-cell lm-right"></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"></div>
+        <div class="lm-concern">Architecture guards</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span><code>depguard</code> — domain packages stay Fuego-free</span></div>
+      </div>
+      <div class="lm-row">
+        <div class="lm-cell lm-left"><span><code>prefer-nullish-coalescing</code> · <code>prefer-optional-chain</code></span><i class="lead"></i></div>
+        <div class="lm-concern">Idiom &amp; error discipline</div>
+        <div class="lm-cell lm-right"><i class="lead"></i><span><code>wrapcheck</code> · <code>errorlint</code> · <code>thelper</code></span></div>
+      </div>
+    <p class="muted-note">Empty wings are honest — TypeScript doesn&#8217;t manage resources by hand, and Go has no complexity ceiling configured yet.</p>
+  </div>
+</div>
+</section>
+
+<!-- SECTION 5: What's next -->
+<section id="next">
+<div class="shell">
+  <div class="reveal" id="nextHead">
+    <div class="section-number">05</div>
+    <h2 class="section-head">What's next</h2>
+    <p class="section-sub">Active workstreams in priority order — each row links to its GitLab <button class="term" data-term="epic">Epic</button>.</p>
+  </div>
+
+  <div class="rm-list reveal reveal-delay-1" id="roadmapLinks">
+
+    <div class="rm-group now"><i></i>Now · 2</div>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/25" target="_blank">
+      <span class="rm-row-title">Team Workflows &amp; Developer Experience</span>
+      <span class="rm-row-desc">Slash commands, FizzBee CI, quality gates, drift detection</span>
+      <span class="rm-row-ref">Epic #25 ↗</span>
+    </a>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/26" target="_blank">
+      <span class="rm-row-title">AWS POC Environment</span>
+      <span class="rm-row-desc">Single-env deploy, pipeline validation, initial security review</span>
+      <span class="rm-row-ref">Epic #26 ↗</span>
+    </a>
+
+    <div class="rm-group beta"><i></i>Beta · 4</div>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/1" target="_blank">
+      <span class="rm-row-title">Okta Authentication</span>
+      <span class="rm-row-desc">SSO, JWT identity, prerequisite for Beta Environment</span>
+      <span class="rm-row-ref">Epic #1 ↗</span>
+    </a>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/3" target="_blank">
+      <span class="rm-row-title">Sync Engine</span>
+      <span class="rm-row-desc">Sync Templates, Sync Products, CloudEvents, Nitro Deprecation</span>
+      <span class="rm-row-ref">Epic #3 ↗</span>
+    </a>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/2" target="_blank">
+      <span class="rm-row-title">Maturity Score</span>
+      <span class="rm-row-desc">Score builder, aggregate calculus, Rules Manager deprecation</span>
+      <span class="rm-row-ref">Epic #2 ↗</span>
+    </a>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/8" target="_blank">
+      <span class="rm-row-title">CI Test Automation</span>
+      <span class="rm-row-desc">Integration + E2E tests in GitLab CI on every MR</span>
+      <span class="rm-row-ref">Epic #8 ↗</span>
+    </a>
+
+    <div class="rm-group ga"><i></i>GA · 3</div>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/11" target="_blank">
+      <span class="rm-row-title">Authorization Engine</span>
+      <span class="rm-row-desc">Cedar ReBAC + ABAC, policy UI, entitlement sync</span>
+      <span class="rm-row-ref">Epic #11 ↗</span>
+    </a>
+    <a class="rm-row" href="https://gitlab.is.adyen.com/groups/containers/rtf/-/epics/14" target="_blank">
+      <span class="rm-row-title">Formal Verification in CI</span>
+      <span class="rm-row-desc">FizzBee specs running on every push, build fails on drift</span>
+      <span class="rm-row-ref">Epic #14 ↗</span>
+    </a>
+    <div class="rm-row">
+      <span class="rm-row-title">Full CI/CD — staged environments + canary</span>
+      <span class="rm-row-desc">Multi-stage pipeline, canary testing, progressive rollout</span>
+      <span class="rm-row-ref"><span class="flag next"><i></i>Epic TBD</span></span>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- SECTION 6: The bigger picture -->
+<section id="picture">
+<div class="shell">
+  <div class="reveal" id="pictureHead">
+    <div class="section-number">06</div>
+    <h2 class="section-head">The bigger picture</h2>
+    <p class="section-sub">How Peaky compares to established open-source projects at an equivalent stage — and where it genuinely leads.</p>
+  </div>
+
+  <div class="reveal reveal-delay-1" id="pictureTable">
+    <div class="ledger-head compare-cols"><span>Capability</span><span>Typical at this stage</span><span>Peaky today</span></div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Automated code review</span>
+        <span class="ledger-dim">Human-only, best-effort</span>
+        <div class="ledger-flags"><span class="flag done"><i></i>11 adversarial reviewers</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Distributed system invariants</span>
+        <span class="ledger-dim">Unit tests, hope</span>
+        <div class="ledger-flags"><span class="flag done"><i></i>FizzBee &#8212; core domains covered</span><span class="flag next"><i></i>growing</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Change control</span>
+        <span class="ledger-dim">PR description, memory</span>
+        <div class="ledger-flags"><span class="flag done"><i></i>OpenSpec propose&#8594;verify&#8594;archive</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Schema migration safety</span>
+        <span class="ledger-dim">Manual review, discovered in prod</span>
+        <div class="ledger-flags"><span class="flag done"><i></i>Integration test + sqlite-reviewer</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Security posture</span>
+        <span class="ledger-dim">Post-launch audit</span>
+        <div class="ledger-flags"><span class="flag done"><i></i>STRIDE model documented</span><span class="flag done"><i></i>CodeRabbit in CI</span><span class="flag next"><i></i>security-reviewer: local</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">CI pipeline coverage</span>
+        <span class="ledger-dim">Lint + unit tests</span>
+        <div class="ledger-flags"><span class="flag progress"><i></i>Lint + unit; integration/typecheck coming</span></div>
+      </div>
+      <div class="ledger-row compare-cols">
+        <span class="ledger-title">Release automation</span>
+        <span class="ledger-dim">Manual tags, hand-written notes</span>
+        <div class="ledger-flags"><span class="flag next"><i></i>CHANGELOG seeded; automation tracked</span></div>
+      </div>
+    <p class="muted-note" style="margin-top:28px">That&#8217;s the picture &#8212; further along than it feels, with every gap numbered.</p>
+  </div>
+</div>
+</section>
+
+<script>
+// Theme toggle
+function toggleTheme(){const h=document.documentElement;h.dataset.theme=h.dataset.theme==='light'?'dark':'light'}
+
+// Reveal on scroll
+const revealObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');revealObs.unobserve(e.target)}})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// Progress bars
+function fillMaturityDots(){document.querySelectorAll('.mat-dot').forEach(d=>{d.style.left=d.dataset.width+'%'})}
+const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){fillMaturityDots();barObs.unobserve(e.target)}})},{threshold:0.2});
+const progSection=document.getElementById('progressRows');if(progSection)barObs.observe(progSection.closest('section'));
+
+// ── Glossary popovers ──
+// Plain-English definitions for readers new to TS / Go / local-first.
+// Marked once per neighbourhood with <button class="term" data-term="...">.
+const GLOSSARY={
+  gloss:{t:'Glossary',d:'Exactly like this — every dotted term on this page opens a short, no-prior-context definition. Click anywhere else (or press Esc) to close.'},
+  droids:{t:'Adversarial reviewers ("droids")',d:'Our name for the 11 specialised AI code reviewers. Each reads a change from one angle only — SQL safety, Go concurrency, accessibility — and files findings the way a picky human reviewer would.'},
+  coderabbit:{t:'CodeRabbit',d:'A commercial AI code-review service that comments on every merge request in CI. It reviews holistically; our droids each go deep on a single domain.'},
+  mr:{t:'MR — Merge Request',d:'GitLab\'s name for a pull request: a proposed change, reviewed before it lands on main.'},
+  precommit:{t:'Pre-commit hook (lint-staged)',d:'A git hook that runs the linters on exactly the files you staged, the moment you commit. Problems are caught before the code ever leaves your machine.'},
+  oxlint:{t:'oxlint',d:'A Rust-based JavaScript/TypeScript linter, dramatically faster than ESLint. It runs first; ESLint follows for the rules oxlint doesn\'t cover yet.'},
+  rumdl:{t:'rumdl',d:'A fast Markdown linter — keeps docs formatting consistent across the repo.'},
+  golangci:{t:'golangci-lint',d:'A runner that executes many Go linters in a single pass. Ours runs 20 — from resource-leak detection to architecture rules like "domain packages may not import the web framework".'},
+  sqlitemaster:{t:'sqlite_master',d:'SQLite\'s internal catalog table. It stores the real DDL (the CREATE TABLE statements) of every table — reading it tells us what the database actually looks like, not what the ORM thinks it looks like.'},
+  drizzle:{t:'Drizzle',d:'Our TypeScript ORM. The schema is declared in code and migrations are generated from it — which is exactly why we verify the generated SQL against the real database.'},
+  fizzbee:{t:'FizzBee — formal verification',d:'A formal-verification tool. We describe a protocol (like sync) as a small mathematical model, and FizzBee exhaustively explores every possible interleaving to prove invariants hold — including orderings that tests would essentially never hit.'},
+  harbour:{t:'Harbour',d:'Our company\'s internal container registry. CI images must be imported there before GitLab pipelines can run them — which is what currently blocks FizzBee in CI.'},
+  hlc:{t:'HLC — Hybrid Logical Clock',d:'A timestamp that combines wall-clock time with a logical counter, so two devices that wrote the same row while offline can still agree on a single winner later — without a central authority. The local-first explainer walks through it.'},
+  localfirst:{t:'Local-first',d:'An architecture where the app reads and writes a local database first and syncs with the server in the background. The UI never waits on the network. There\'s a dedicated explainer for this.'},
+  opfs:{t:'OPFS — Origin Private File System',d:'Browser storage that gives a web app its own private files on the user\'s disk. It\'s what lets us keep a real SQLite database in the browser, so Peaky works offline and loads instantly.'},
+  wasm:{t:'SQLite WASM',d:'SQLite compiled to WebAssembly so the full SQL engine runs inside the browser — no server round-trip for queries.'},
+  outbox:{t:'Outbox',d:'A local table of pending writes. Every change lands there first; a background process then pushes them to the server in order. If you\'re offline, they simply wait.'},
+  openspec:{t:'OpenSpec',d:'Our change workflow: every significant change starts as a written proposal, is implemented against it, verified, then archived. The spec is the paper trail for why the code looks the way it does.'},
+  epic:{t:'Epic',d:'GitLab\'s grouping of related issues into one larger workstream. Each roadmap item maps to an epic with linked issues and timeline dates.'},
+  stride:{t:'STRIDE',d:'A threat-modelling checklist: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. We walked our trust boundary through all six before the security review. It has its own explainer.'},
+  sota:{t:'SOTA — state of the art',d:'The strongest model currently available. We pay for reasoning depth where it matters (planning) and use faster, cheaper models where the scope is narrow (implementation, reviewer droids).'},
+  fuzz:{t:'Fuzzing',d:'Feeding a function large volumes of random and malformed input to find cases that crash it or break its guarantees. Go has it built in: go test -fuzz.'},
+  property:{t:'Property-based testing',d:'Instead of one hand-picked input, the framework (rapid, in Go) generates thousands of random-but-valid inputs and asserts that invariants hold for all of them. It finds the edge cases nobody thought to write.'},
+  e2e:{t:'E2E — end-to-end tests',d:'Tests that drive a real browser through real user flows against the running app — sign in, create an assessment, sync it. Slowest layer, highest confidence.'},
+  playwright:{t:'Playwright',d:'The browser-automation framework our E2E tests use to click through the app like a user would.'},
+  a11y:{t:'A11y — accessibility',d:'Automated checks that the UI stays usable with screen readers and keyboards. "a11y" = "a", 11 letters, "y".'},
+  cedar:{t:'Cedar',d:'AWS\'s open-source authorization language. Permission rules live as data (policies), not as if-statements in code — we ask Cedar "may this user do X to Y?" and it answers from the policies.'},
+  rebac:{t:'RBAC / ReBAC / ABAC',d:'Three ways to model permissions: by role (RBAC — "admins can delete"), by relationship (ReBAC — "owners of this assessment can edit it"), and by attribute (ABAC — "only from a corporate device"). Cedar expresses all three.'},
+  pulumi:{t:'Pulumi — Infrastructure as Code',d:'Our AWS resources (ECS, RDS, S3) defined in a real programming language instead of clicked together in a console. Environments become reproducible, changes become reviewable diffs, and rollback is a code revert.'},
+  semantic:{t:'Semantic MR titles',d:'Merge-request titles in a machine-readable format — feat:, fix:, chore: — so changelogs and release notes can be generated automatically instead of written by hand.'},
+  preworkflow:{t:'Pre-workflow era',d:'Code we shipped before OpenSpec, the reviewer droids, and the full linter suite existed. It works and it got us here — but it predates the bar we now hold every MR to, which is why the Bug Bash revisits it.'}
+};
+const glossPop=document.createElement('div');
+glossPop.className='gloss-pop';
+glossPop.innerHTML='<div class="gloss-pop-term"></div><div class="gloss-pop-body"></div>';
+document.body.appendChild(glossPop);
+let glossOpenFor=null;
+function closeGloss(){
+  glossPop.classList.remove('open');
+  if(glossOpenFor)glossOpenFor.setAttribute('aria-expanded','false');
+  glossOpenFor=null;
+}
+function openGloss(btn){
+  const entry=GLOSSARY[btn.dataset.term];
+  if(!entry)return;
+  glossPop.querySelector('.gloss-pop-term').textContent=entry.t;
+  glossPop.querySelector('.gloss-pop-body').textContent=entry.d;
+  glossPop.classList.add('open');
+  btn.setAttribute('aria-expanded','true');
+  glossOpenFor=btn;
+  const r=btn.getBoundingClientRect();
+  const popW=glossPop.offsetWidth,popH=glossPop.offsetHeight;
+  let x=r.left+window.scrollX+r.width/2-popW/2;
+  x=Math.max(16,Math.min(x,window.scrollX+document.documentElement.clientWidth-popW-16));
+  let y=r.bottom+window.scrollY+10;
+  if(r.bottom+popH+20>window.innerHeight&&r.top-popH-10>0)y=r.top+window.scrollY-popH-10;
+  glossPop.style.left=x+'px';
+  glossPop.style.top=y+'px';
+}
+// Delegated — terms also appear inside JS-rendered content (inspect panel, pyramid panel).
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.term');
+  if(btn&&GLOSSARY[btn.dataset.term]){
+    if(glossOpenFor===btn){closeGloss()}else{openGloss(btn)}
+    return;
+  }
+  if(glossOpenFor&&!glossPop.contains(e.target))closeGloss();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGloss()});
+window.addEventListener('scroll',()=>{if(glossOpenFor)closeGloss()},{passive:true});
+
+// ── Test pyramid — layer selection drives the side panel (hover, tap, keyboard) ──
+const pyrData={
+  1:{status:'ci',eyebrow:'Layer 01 · In CI',title:'Unit tests',meta:'117 files — 106 TS/Vue (Vitest, ~16s) · 11 Go',body:'Fast feedback — type errors, logic bugs, component behaviour. Strongest layer; most regressions surface here first.'},
+  2:{status:'local',eyebrow:'Layer 02 · Local only',title:'Integration',meta:'11 files — 10 TS (live Nuxt, ~25s) · 1 Go (real PostgreSQL)',body:'Catches wiring bugs unit tests can\'t — missing routes, schema mismatches, the migration guard. CI coverage tracked in <a href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>.'},
+  3:{status:'local',eyebrow:'Layer 03 · Local only',title:'E2E + A11y',meta:'26 specs — 25 Playwright E2E (~3m) · 1 a11y',body:'Full-stack regressions: assessment flows, sync edge cases, UI state drift. Grown organically — some overlap to consolidate. Tracked in <a href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>.'},
+  4:{status:'local',eyebrow:'Layer 04 · Local only',title:'Fuzz · Property-based',meta:'2 Go files — hlc_fuzz_test.go · conflict_property_test.go',body:'<code style="color:var(--accent)">go test -fuzz</code> hammers HLC wire parsing; <code style="color:var(--accent)">rapid</code> generates thousands of realistic HLC scenarios. Finds edge cases hand-written tests structurally cannot.'}
+};
+const pyrSvg=document.getElementById('testPyramid');
+const pyrDetail=document.getElementById('pyrDetail');
+function pyrSelect(n){
+  const d=pyrData[n];
+  if(!d||!pyrDetail)return;
+  pyrSvg.querySelectorAll('.pyr-row').forEach(g=>g.classList.toggle('sel',g.dataset.layer===String(n)));
+  pyrDetail.querySelector('.pyr-detail-eyebrow').textContent=d.eyebrow;
+  pyrDetail.querySelector('.pyr-detail-eyebrow').className='pyr-detail-eyebrow '+d.status;
+  pyrDetail.querySelector('.pyr-detail-title').textContent=d.title;
+  pyrDetail.querySelector('.pyr-detail-meta').textContent=d.meta;
+  pyrDetail.querySelector('.pyr-detail-body').innerHTML=d.body;
+  pyrDetail.classList.remove('swap');
+  void pyrDetail.offsetWidth; // restart the entrance animation
+  pyrDetail.classList.add('swap');
+}
+if(pyrSvg&&pyrDetail){
+  pyrSvg.querySelectorAll('.pyr-row').forEach(g=>{
+    const sel=()=>pyrSelect(g.dataset.layer);
+    g.addEventListener('mouseenter',sel);
+    g.addEventListener('click',sel);
+    g.addEventListener('focus',sel);
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel()}});
+  });
+  pyrSelect(1);
+}
+
+// ── AI development loop — numbered circuit, selection drives the detail panel ──
+const LOOP_STAGES=[
+  {label:'Plan',body:'OpenSpec for significant changes, ad hoc for the rest. SOTA model for reasoning depth.'},
+  {label:'Implement',body:'Mid-tier model. Rules and conventions load automatically from <code>.factory/rules/</code>.'},
+  {label:'Quality gate',body:'<code>make mr</code> — lint → typecheck → audit → unit → Go tests → integration. Deterministic, fast, local.'},
+  {label:'Formal verification',future:true,body:'Specs exist for select domains. Not consistently in the loop yet — we\'re still working out where it fits.'},
+  {label:'Adversarial review',body:'11 droids on fast models. Every finding gets addressed — non-blocking is not a resolution.'},
+  {label:'Retro',body:'Patterns become skills; droid catches become linter rules. The harness compounds every cycle.'}
+];
+const loopTrack=document.getElementById('loopTrack');
+const loopDetail=document.getElementById('loopDetail');
+LOOP_STAGES.forEach((st,idx)=>{
+  const node=document.createElement('div');
+  node.className='loop-node'+(st.future?' future':'');
+  node.tabIndex=0;
+  node.setAttribute('role','button');
+  node.setAttribute('aria-label','Stage '+(idx+1)+': '+st.label);
+  node.innerHTML='<i>0'+(idx+1)+'</i><span class="loop-node-label">'+st.label+'</span>';
+  const sel=()=>loopSelect(idx+1);
+  node.addEventListener('mouseenter',sel);
+  node.addEventListener('click',sel);
+  node.addEventListener('focus',sel);
+  node.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();sel()}});
+  st._node=node;
+  loopTrack.appendChild(node);
+});
+let loopCurrent=null;
+function loopSelect(n){
+  const st=LOOP_STAGES[n-1];
+  if(!st||loopCurrent===st)return;
+  loopCurrent=st;
+  LOOP_STAGES.forEach(o=>o._node.classList.toggle('sel',o===st));
+  loopDetail.querySelector('.loop-detail-eyebrow').textContent='Stage 0'+n+(st.future?' · Not consistently in the loop yet':' · Active');
+  loopDetail.querySelector('.loop-detail-eyebrow').className='loop-detail-eyebrow'+(st.future?' future':'');
+  loopDetail.querySelector('.loop-detail-title').textContent=st.label;
+  loopDetail.querySelector('.loop-detail-body').innerHTML=st.body;
+  loopDetail.classList.remove('swap');
+  void loopDetail.offsetWidth;
+  loopDetail.classList.add('swap');
+}
+loopSelect(1);
+
+// ── What's already in place — grouped scan list + inspect panel ──
+// Active is the default and carries no mark; only exceptions are flagged.
+const ISSUE39='<a class="issue-ref" href="https://gitlab.is.adyen.com/containers/rtf/peaky/-/issues/39" target="_blank">#39</a>';
+const PRACTICES=[
+ {group:'Code Quality',key:'quality',items:[
+  {id:'reviewers',flagship:true,status:'active',name:'11 adversarial reviewers + CodeRabbit',
+   title:'11 <button class="term" data-term="droids">adversarial reviewers</button> + <button class="term" data-term="coderabbit">CodeRabbit</button>',
+   body:'11 domain-specific droids run locally on demand. CodeRabbit runs in CI on every <button class="term" data-term="mr">MR</button> — holistic, tuned per path, ~19% signal rate with more noise reduction to come.',
+   pills:[['done','Droids: local'],['done','CodeRabbit: CI']]},
+  {id:'precommit',status:'active',name:'Pre-commit quality gates',
+   title:'<button class="term" data-term="precommit">Pre-commit</button> quality gates',
+   body:'<button class="term" data-term="oxlint">oxlint</button>, ESLint, oxfmt, and <button class="term" data-term="rumdl">rumdl</button> run on every staged file at commit time.',
+   pills:[['done','Active']]},
+  {id:'guard',status:'active',name:'SQLite migration guard',
+   body:'Reads <button class="term" data-term="sqlitemaster"><code>sqlite_master</code></button> after every migration run and asserts every <button class="term" data-term="drizzle">Drizzle</button> enum value is in the DDL. Catches the schema drift E2E tests can\'t see.',
+   pills:[['done','Active']]},
+  {id:'tiering',status:'active',name:'Model tiering',
+   body:'<button class="term" data-term="sota">SOTA</button> for planning, mid-tier for implementation, kimi-k2.6 for reviewer droids. Fast and cheap where scope is narrow.',
+   pills:[['done','Active']]},
+  {id:'flywheel',flagship:true,status:'active',name:'Shrinking the non-deterministic surface',
+   body:'When a droid catches a class of bug — ask if it can be a linter rule. If yes, move it to <code>.golangci.yml</code> or <code>eslint.config.mjs</code>. Droids shrink; the deterministic floor rises.',
+   pills:[['done','Active']]},
+  {id:'fuzzing',flagship:true,status:'partial',flag:'CI growing',name:'Fuzzing, property-based & integration tests',
+   title:'<button class="term" data-term="fuzz">Fuzzing</button>, <button class="term" data-term="property">property-based</button> &amp; integration tests',
+   body:'HLC has fuzz tests + <code>rapid</code> property-based tests. Real pg sidecar for integration. Critical flow <button class="term" data-term="e2e">E2E</button> exists locally — CI coverage tracked in '+ISSUE39+'.',
+   pills:[['done','Tests in place'],['progress','CI coverage growing']]}
+ ]},
+ {group:'Architecture',key:'arch',items:[
+  {id:'fizzbee',flagship:true,status:'partial',flag:'CI pending',name:'FizzBee formal verification',
+   title:'<button class="term" data-term="fizzbee">FizzBee</button> formal verification',
+   body:'Sync protocol, engine bootstrap, HLC conflict resolution, and multi-tab write race — verified before production. Coverage grows as new failure domains are identified. CI pending <button class="term" data-term="harbour">Harbour</button> registry import.',
+   pills:[['done','Core specs pass'],['progress','CI pending'],['next','Coverage growing']]},
+  {id:'hlc',status:'active',name:'HLC conflict resolution',
+   title:'<button class="term" data-term="hlc">HLC</button> conflict resolution',
+   body:'Concurrent writes resolved without a central authority. Composite cursor (<code>RFC3339Nano:UUID</code>) prevents pagination bugs at identical timestamps.',
+   pills:[['done','Shipped']]},
+  {id:'localfirst',status:'active',name:'Local-first with OPFS',
+   title:'<button class="term" data-term="localfirst">Local-first</button> with <button class="term" data-term="opfs">OPFS</button>',
+   body:'<button class="term" data-term="wasm">SQLite WASM</button> + OPFS. Full SQL, offline-first, instant interactions. Background <button class="term" data-term="outbox">outbox</button> syncs to server.',
+   pills:[['done','Shipped']]},
+  {id:'evolutionary',flagship:true,status:'active',name:'Evolutionary backend architecture',
+   body:'Feature-first layout — each domain (<code>syncengine</code>, <code>authz</code>, <code>events</code>, <code>sse</code>) owns its handler, repo, and types. File-per-role. Evolves without rewrites.',
+   pills:[['done','In place']]}
+ ]},
+ {group:'Process',key:'process',items:[
+  {id:'openspec',flagship:true,status:'active',name:'OpenSpec change workflow',
+   title:'<button class="term" data-term="openspec">OpenSpec</button> change workflow',
+   body:'propose → implement → verify → archive, enforced via slash commands. Decisions are traceable; drift is detectable.',
+   pills:[['done','Active']]},
+  {id:'templates',status:'active',name:'Issue templates + slash commands',
+   body:'Four GitLab templates (Bug, Feature, Infra, Security) + four slash commands that fill them. Agents and humans produce the same quality issues.',
+   pills:[['done','Active']]},
+  {id:'epics',status:'active',name:'GitLab Epics + roadmap',
+   title:'GitLab <button class="term" data-term="epic">Epics</button> + roadmap',
+   body:'26 epics across Now / Beta / GA / Post-GA with timeline dates and linked issues. Bi-directional with the roadmap doc.',
+   pills:[['done','Active']]},
+  {id:'skills',flagship:true,status:'active',name:'Skills system',
+   body:'Hard-won patterns captured once, invoked everywhere via slash command. Recurring retro findings graduate into skills.',
+   pills:[['done','Active']]},
+  {id:'retro',status:'active',name:'Retro after every change',
+   body:'<code>/retro</code> after every meaningful change. Patterns become skills; droid catches become linter rules. The harness compounds.',
+   pills:[['done','Active']]},
+  {id:'token',status:'active',name:'Token efficiency by design',
+   body:'<code>AGENTS.md</code> is a pointer, not a content file. Rules and conventions live in <code>.factory/rules/</code> and <code>site/docs/development/</code> — one source of truth, small context window.',
+   pills:[['done','Active']]}
+ ]},
+ {group:'Documentation',key:'docs',items:[
+  {id:'explainers',status:'active',name:'Interactive architecture explainers',
+   body:'Six standalone HTML explainers — local-first, STRIDE, sync engine, Recent Changes, services architecture, and this one. Richer than any static doc.',
+   pills:[['done','Active']]},
+  {id:'stride',status:'active',name:'STRIDE threat model',
+   title:'<button class="term" data-term="stride">STRIDE</button> threat model',
+   body:'Trust boundary fully documented before the security review, not during it. Interactive explainer + dev docs walkthrough.',
+   pills:[['done','Active']]},
+  {id:'decisions',status:'active',name:'Architecture decisions log',
+   body:'Why things are built the way they are — in <code>decisions.md</code>, not tribal knowledge.',
+   pills:[['done','Active']]},
+  {id:'design',status:'active',name:'DESIGN.md — agent-readable design system',
+   body:'YAML frontmatter encodes every token, component spec, and pattern in a structured form agents can load directly. Semantic color tokens (<code>text-default</code>, <code>bg-elevated</code>, never raw <code>slate-*</code>), spacing grid, radius scale, and NuxtUI component conventions — all in one file. <code>visual-design.md</code> adds Vue code examples and explicit anti-patterns. NuxtUI v4 handles accessibility by default; the design system is built on top of it, not around it.',
+   pills:[['done','Active']]},
+  {id:'walkthroughs',status:'partial',flag:'Format evolving',name:'27 linear walkthroughs',
+   body:'Codebase, local-first, product, and formal verification traced end-to-end. More agent-readable than human-browsable today; explainers are taking over the human layer.',
+   pills:[['done','Active'],['progress','Format evolving']]}
+ ]},
+ {group:'Upcoming',key:'upcoming',items:[
+  {id:'cedar',status:'upcoming',flag:'GA milestone',cat:'Architecture',name:'Cedar authorization — RBAC / ReBAC / ABAC',
+   title:'<button class="term" data-term="cedar">Cedar</button> authorization — <button class="term" data-term="rebac">RBAC / ReBAC / ABAC</button>',
+   body:'Cedar — ReBAC + ABAC + RBAC over Peaky\'s entities. Entitlements sync to the frontend for offline use. First at our company.',
+   pills:[['next','GA milestone']]},
+  {id:'pulumi',status:'upcoming',flag:'AWS POC',cat:'Infrastructure',name:'Infrastructure as Code — Pulumi',
+   title:'Infrastructure as Code — <button class="term" data-term="pulumi">Pulumi</button>',
+   body:'ECS, RDS, and S3 defined in code. Reproducible environments, reviewable diffs, code-revert rollbacks.',
+   pills:[['next','AWS POC milestone']]}
+ ]}
+];
+const INSPECT_STATUS={active:'Active',partial:'Partially in place',upcoming:'Upcoming'};
+const INSPECT_FLAGSHIPS=['reviewers','fizzbee','openspec','flywheel','skills','evolutionary','fuzzing'];
+const inspectList=document.getElementById('inspectList');
+const inspectSide=document.getElementById('inspectSide');
+const inspectDetail=document.getElementById('inspectDetail');
+const INSPECT_ITEMS={};
+let inspectCurrent=null;
+PRACTICES.forEach(group=>{
+  const h=document.createElement('div');
+  h.className='inspect-group';
+  h.textContent=group.group+' · '+group.items.length;
+  group._header=h;
+  inspectList.appendChild(h);
+  group.items.forEach(it=>{
+    const row=document.createElement('div');
+    row.className='inspect-row'+(it.flagship?' flagship':'');
+    row.tabIndex=0;
+    row.setAttribute('role','button');
+    row.innerHTML='<span class="inspect-row-name">'+it.name+'</span>'
+      +(it.flag?'<span class="inspect-row-flag '+it.status+'"><i class="dot '+it.status+'"></i>'+it.flag+'</span>':'');
+    row.addEventListener('mouseenter',()=>inspectSelect(it.id));
+    row.addEventListener('click',()=>inspectSelect(it.id));
+    row.addEventListener('focus',()=>inspectSelect(it.id));
+    row.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inspectSelect(it.id)}});
+    it._row=row;it._group=group.group;it._gkey=group.key;
+    INSPECT_ITEMS[it.id]=it;
+    inspectList.appendChild(row);
+  });
+});
+function inspectSelect(id){
+  const it=INSPECT_ITEMS[id];
+  if(!it||inspectCurrent===it)return;
+  inspectCurrent=it;
+  if(glossOpenFor)closeGloss();
+  if(it._row.style.display==='none')filterInspect('all');
+  Object.values(INSPECT_ITEMS).forEach(o=>o._row.classList.toggle('sel',o===it));
+  inspectDetail.querySelector('.inspect-eyebrow').textContent=(it.cat||it._group)+' · '+INSPECT_STATUS[it.status];
+  inspectDetail.querySelector('.inspect-eyebrow').className='inspect-eyebrow '+it.status;
+  inspectDetail.querySelector('.inspect-title').innerHTML=it.title||it.name;
+  inspectDetail.querySelector('.inspect-body').innerHTML=it.body;
+  inspectDetail.querySelector('.inspect-pills').innerHTML=it.pills.map(p=>'<span class="flag '+p[0]+'"><i></i>'+p[1]+'</span>').join('');
+  inspectDetail.classList.remove('swap');
+  void inspectDetail.offsetWidth; // restart the entrance animation
+  inspectDetail.classList.add('swap');
+  placeInspectDetail();
+}
+// Narrow screens: the panel unfolds under the selected row. Wide: sticky side column.
+function placeInspectDetail(){
+  if(!inspectCurrent)return;
+  if(window.matchMedia('(max-width:900px)').matches&&!document.body.classList.contains('presenting')){
+    inspectCurrent._row.after(inspectDetail);
+  }else if(inspectDetail.parentNode!==inspectSide){
+    inspectSide.appendChild(inspectDetail);
+  }
+}
+window.addEventListener('resize',placeInspectDetail);
+const inspectRail=document.getElementById('inspectFilters');
+function filterInspect(key){
+  inspectRail.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.key===key));
+  PRACTICES.forEach(g=>{
+    const show=key==='all'||g.key===key;
+    g._header.style.display=show?'':'none';
+    g.items.forEach(it=>{it._row.style.display=show?'':'none'});
+  });
+  // Keep the panel on a visible row.
+  if(key!=='all'&&inspectCurrent&&inspectCurrent._gkey!==key){
+    inspectSelect(PRACTICES.find(g=>g.key===key).items[0].id);
+  }
+}
+inspectRail.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>filterInspect(b.dataset.key)));
+inspectSelect('reviewers');
+
+/* ── Present mode ── */
+function fragSteps(selector){
+  var items=Array.prototype.slice.call(document.querySelectorAll(selector));
+  items.forEach(function(el){el.classList.add('pr-frag')});
+  return {
+    count:items.length+1,
+    go:function(i){items.forEach(function(el,k){el.classList.toggle('pr-on',k<i)})}
+  };
+}
+function initPresent(slides){
+  var btn=document.getElementById('presentToggle');
+  if(!btn)return;
+  var deck=null,hud,countEl,barEl,prevBtn,nextBtn;
+  var adopted=[],cur=0,step=0,savedScroll=0,hudTimer=null;
+
+  function stepCount(s){return s.steps?s.steps.count:1}
+  function presenting(){return document.body.classList.contains('presenting')}
+
+  function build(){
+    deck=document.createElement('div');
+    deck.className='pr-deck';deck.tabIndex=-1;
+    deck.setAttribute('role','region');deck.setAttribute('aria-label','Presentation');
+    slides.forEach(function(s){
+      var sl=document.createElement('section');
+      sl.className='pr-slide';
+      if(s.layout)sl.dataset.layout=s.layout;
+      var stage=document.createElement('div');
+      stage.className='pr-stage';
+      if(s.kicker){var k=document.createElement('div');k.className='pr-kicker';k.textContent=s.kicker;stage.appendChild(k)}
+      if(s.title){var t=document.createElement('h2');t.className='pr-title';t.textContent=s.title;stage.appendChild(t)}
+      sl.appendChild(stage);
+      deck.appendChild(sl);
+      s._slide=sl;s._stage=stage;
+    });
+    hud=document.createElement('div');hud.className='pr-hud';
+    prevBtn=hudButton('←','Previous');nextBtn=hudButton('→','Next');
+    countEl=document.createElement('span');countEl.className='pr-count';
+    hud.appendChild(prevBtn);hud.appendChild(countEl);hud.appendChild(nextBtn);
+    barEl=document.createElement('div');barEl.className='pr-progress';
+    barEl.appendChild(document.createElement('i'));
+    document.body.appendChild(deck);
+    document.body.appendChild(hud);
+    document.body.appendChild(barEl);
+    prevBtn.addEventListener('click',prev);
+    nextBtn.addEventListener('click',next);
+  }
+  function hudButton(label,name){
+    var b=document.createElement('button');
+    b.type='button';b.textContent=label;b.setAttribute('aria-label',name);
+    return b;
+  }
+
+  function adopt(){
+    slides.forEach(function(s){
+      (s.pick||[]).forEach(function(sel){
+        var node=document.querySelector(sel);
+        if(!node)return;
+        adopted.push({el:node,parent:node.parentNode,next:node.nextSibling});
+        s._stage.appendChild(node);
+        if(node.classList.contains('reveal'))node.classList.add('in','is-visible');
+        node.querySelectorAll('.reveal').forEach(function(r){r.classList.add('in','is-visible')});
+      });
+    });
+  }
+  function restore(){
+    for(var i=adopted.length-1;i>=0;i--){
+      adopted[i].parent.insertBefore(adopted[i].el,adopted[i].next);
+    }
+    adopted=[];
+  }
+
+  var MIN_SCALE=0.6;
+  function fit(s){
+    var availW=s._slide.clientWidth-96;
+    var availH=s._slide.clientHeight-152;
+    var scale=Math.min(1,availW/s._stage.offsetWidth,availH/s._stage.offsetHeight);
+    var scrolls=scale<MIN_SCALE;
+    if(scrolls)scale=MIN_SCALE;
+    s._slide.classList.toggle('pr-scroll',scrolls);
+    s._stage.style.transformOrigin=scrolls?'top center':'center center';
+    s._stage.style.marginBottom=scrolls?(-(1-scale)*s._stage.offsetHeight)+'px':'';
+    s._stage.style.transform=scale<1?'scale('+scale+')':'none';
+  }
+  function refit(){
+    var s=slides[cur];
+    requestAnimationFrame(function(){fit(s);s._slide.scrollTop=0});
+  }
+
+  function syncHud(){
+    var s=slides[cur];
+    countEl.textContent=(cur+1)+' / '+slides.length;
+    barEl.firstChild.style.width=(((cur+1)/slides.length)*100)+'%';
+    prevBtn.disabled=cur===0&&step===0;
+    nextBtn.disabled=cur===slides.length-1&&step===stepCount(s)-1;
+  }
+  function show(i,dir){
+    cur=i;
+    var s=slides[i];
+    slides.forEach(function(o,j){
+      o._slide.classList.toggle('active',j===i);
+      o._slide.setAttribute('aria-hidden',j===i?'false':'true');
+    });
+    step=dir<0?stepCount(s)-1:0;
+    if(s.steps)s.steps.go(step);
+    syncHud();
+    refit();
+  }
+  function next(){
+    var s=slides[cur];
+    if(s.steps&&step<s.steps.count-1){step++;s.steps.go(step);syncHud();refit()}
+    else if(cur<slides.length-1){show(cur+1,1)}
+  }
+  function prev(){
+    var s=slides[cur];
+    if(s.steps&&step>0){step--;s.steps.go(step);syncHud();refit()}
+    else if(cur>0){show(cur-1,-1)}
+  }
+
+  function enter(){
+    if(!deck)build();
+    savedScroll=window.scrollY;
+    adopt();
+    document.body.classList.add('presenting');
+    btn.textContent='✕';btn.setAttribute('aria-label','Exit presentation (Esc)');
+    show(0,1);
+    deck.focus();
+    wakeHud();
+  }
+  function exit(){
+    document.body.classList.remove('presenting');
+    btn.textContent='▶';btn.setAttribute('aria-label','Present (P)');
+    slides.forEach(function(s){s._slide.classList.remove('active')});
+    restore();
+    window.scrollTo(0,savedScroll);
+  }
+  function toggle(){if(presenting()){exit()}else{enter()}}
+
+  function wakeHud(){
+    if(!hud)return;
+    hud.classList.remove('idle');
+    clearTimeout(hudTimer);
+    hudTimer=setTimeout(function(){hud.classList.add('idle')},3000);
+  }
+
+  btn.addEventListener('click',toggle);
+  window.addEventListener('resize',function(){if(presenting())refit()});
+  window.addEventListener('mousemove',function(){if(presenting())wakeHud()});
+  window.addEventListener('keydown',function(e){
+    var t=e.target;
+    if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+    if(!presenting()){
+      if(e.key==='p'||e.key==='P'){toggle();e.preventDefault()}
+      return;
+    }
+    switch(e.key){
+      case 'ArrowRight':case 'ArrowDown':case ' ':case 'PageDown':next();e.preventDefault();break;
+      case 'ArrowLeft':case 'ArrowUp':case 'PageUp':prev();e.preventDefault();break;
+      case 'Home':show(0,1);e.preventDefault();break;
+      case 'End':show(slides.length-1,1);e.preventDefault();break;
+      case 'Escape':exit();break;
+      case 'f':case 'F':
+        if(document.fullscreenElement){document.exitFullscreen()}
+        else if(document.documentElement.requestFullscreen){document.documentElement.requestFullscreen()}
+        break;
+      case 'p':case 'P':toggle();break;
+    }
+  });
+}
+
+// Slide manifest — recomposes the page; never a blind section-per-slide map.
+initPresent([
+  {pick:['#top']},
+  {kicker:'01 · What’s already in place',pick:['#inspectBlock'],
+    // Arrow keys walk the flagship rows, driving the inspect panel.
+    steps:{count:7,go:function(i){inspectSelect(INSPECT_FLAGSHIPS[i])}}},
+  {pick:['#loopHead','#loopDiagram'],
+    steps:{count:6,go:function(i){loopSelect(i+1)}}},
+  {kicker:'02 · The AI development loop',title:'The two habits that compound',pick:['#loopPanels']},
+  {pick:['#gapsHead','#gapsCallout']},
+  {kicker:'03 · The honest gaps',title:'Tracked, one by one',pick:['#gapsTable'],steps:fragSteps('#gapsTable .ledger-row')},
+  {kicker:'03 · The honest gaps',title:'Test pyramid — coverage today',pick:['#pyramidBlock'],
+    // Arrow keys walk the layers bottom-up, driving the detail panel.
+    steps:{count:4,go:function(i){pyrSelect(i+1)}}},
+  {kicker:'03 · The honest gaps',title:'Workflow maturity',pick:['#maturityBlock'],
+    steps:{count:1,go:function(){fillMaturityDots()}}},
+  {pick:['#gateHead','#gateFlow','#mrPipe']},
+  {kicker:'04 · make mr',title:'What the linters actually enforce',pick:['#linterCards']},
+  {pick:['#nextHead','#roadmapLinks']},
+  {pick:['#pictureHead','#pictureTable']}
+]);
+</script>
+</body>
+</html>
