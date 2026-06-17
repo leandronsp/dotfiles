@@ -213,6 +213,17 @@ return {
 :checkhealth          " System diagnostics
 ```
 
+## Pi bridge
+
+`lua/plugins/tools/pi-bridge.lua` sends context to a running pi session via `/tmp/pi-nvim-bridge.md`:
+
+- `:PiPrompt` — visual selection, or the current paragraph if there's no selection
+- `:PiFile` — the whole current file, fenced with its filename
+- `:PiBuffer` — scratch `pi-prompt.md`; `:w` sends it, `q` closes. Picks up terminal notes appended from tmux (`P` in copy mode)
+- `:PiImage` — saves the clipboard image via `pi-img` and inserts `![clipboard](path)`
+
+Pi's `nvim-bridge.ts` extension watches the file and expands `@file` / `![img]` refs. Full flow in the dotfiles `CLAUDE.md`.
+
 ## Troubleshooting
 
 **Plugins not loading**: `:Lazy sync` then restart nvim.
@@ -234,3 +245,4 @@ nvim
 - git, make, unzip, gcc, ripgrep
 - Nerd Font (for icons)
 - Node.js (for some Mason tools)
+- pi, plus `pi-img`/`pi-note` from the `local-bin` package, for the `:Pi*` bridge commands

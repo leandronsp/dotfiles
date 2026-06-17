@@ -76,6 +76,10 @@ Registered in `settings.json` under `"extensions"`. Load on startup — restart 
 - `tmux-status.ts` — writes model/tokens/cost to tmux status bar
 - `subagent/` — multi-agent orchestration (parallel, chain, single). Discovers agents from `~/.pi/agent/agents/*.md`. Required by `/skill:review`, `/skill:dev`, `/skill:po`
 - `plan-mode/` — read-only exploration mode (`/plan`, `/todos`, `Ctrl+Alt+P`). Restricts tools, tracks plan progress
+- `web-search.ts` — `web_search`, `web_fetch`, `web_snapshot` tools via agent-browser (Chromium). For models without built-in web access
+- `nvim-bridge.ts` — watches `/tmp/pi-nvim-bridge.md`; turns Neovim selections, buffers, and `![img]`/`@file` refs into pi messages. See [Neovim ↔ Pi bridge](#neovim--pi-bridge)
+- `auto-memory.ts` — LLM auto-captures learnings to `~/vault/learnings`, reloaded into the system prompt each turn
+- `ocr/` — extracts text from images for non-vision models. Primary backend `image-use` (Apple Vision, Neural Engine, from `local-bin`), Tesseract + PIL fallback
 
 ### Skills (pi-only)
 
@@ -89,6 +93,15 @@ Registered in `settings.json` under `"extensions"`. Load on startup — restart 
 
 1. **Shared with Claude Code**: `"skills": ["~/.claude/skills"]` — all Claude Code skills work in pi
 2. **Pi-only**: `~/.pi/agent/skills/` — skills that use subagents/extensions
+
+## Neovim ↔ Pi bridge
+
+Send context from Neovim and the terminal into a running pi session:
+
+- **Neovim** (`pi-bridge.lua`) — `:PiPrompt`, `:PiFile`, `:PiBuffer`, `:PiImage` write to `/tmp/pi-nvim-bridge.md` (commands in the [nvim README](nvim/.config/nvim/README.md#pi-bridge))
+- **Pi** (`nvim-bridge.ts`) — watches the bridge file, expands `@file` and `![img]` refs into content blocks, steers them into the session. `/nvim-read` is the manual fallback
+- **Tmux** — `P` in copy mode pipes the selection through `pi-note` into `/tmp/pi-nvim-notes.md`, which `:PiBuffer` picks up
+- **local-bin** — `pi-img` (clipboard PNG → temp path, via `pngpaste` or osascript), `pi-note` (append terminal text to the notes file)
 
 ## Ghostty config
 
