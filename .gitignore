@@ -8,3 +8,6 @@
 .claude/scheduled_tasks.lock
 cortex/
 scratch/
+
+# Compiled Swift tool — rebuild with `make build`
+local-bin/.local/bin/image-use

@@ -11,9 +11,18 @@ help: ## Show all available commands
 install: ## Install dotfiles (first time setup)
 	@command -v stow >/dev/null || (echo "Installing GNU Stow..." && brew install stow)
 	@mkdir -p ~/.config/nvim ~/.config/direnv ~/.config/ghostty ~/.ssh/config.d ~/.secrets ~/.pi/agent
+	@$(MAKE) build
 	@for pkg in $(PACKAGES); do echo "Stowing $$pkg..."; stow -t ~ $$pkg; done
 	@$(MAKE) sync-claude
 	@echo "Done. Run 'source ~/.zshrc' to reload."
+
+build: ## Compile local Swift tools (image-use OCR backend)
+	@if command -v swiftc >/dev/null 2>&1; then \
+		swiftc -O local-bin/.local/bin/image-use.swift -o local-bin/.local/bin/image-use \
+			&& echo "Built image-use."; \
+	else \
+		echo "swiftc not found, skipping image-use build."; \
+	fi
 
 uninstall: ## Remove all symlinks
 	@for pkg in $(PACKAGES); do echo "Unstowing $$pkg..."; stow -D -t ~ $$pkg; done
@@ -55,7 +64,7 @@ sync-claude: ## Sync portable settings into ~/.claude/settings.json
 
 deps: ## Check required dependencies
 	@ok=true; \
-	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch pi tig gh glow agent-browser; do \
+	for cmd in brew stow git nvim tmux asdf mise direnv opam jq curl cargo claude elan pipx rg gcc unzip node stylua reattach-to-user-namespace qmd fswatch pi tig gh glow agent-browser swiftc tesseract; do \
 		if command -v $$cmd >/dev/null 2>&1; then \
 			printf "  \e[32mOK\e[0m    %s (%s)\n" "$$cmd" "$$(command -v $$cmd)"; \
 		else \
