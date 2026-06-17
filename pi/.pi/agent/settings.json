@@ -1,8 +1,8 @@
 {
-  "lastChangelogVersion": "0.71.0",
+  "lastChangelogVersion": "0.79.6",
   "defaultProvider": "opencode-go",
-  "defaultModel": "glm-5.1",
-  "defaultThinkingLevel": "medium",
+  "defaultModel": "deepseek-v4-pro",
+  "defaultThinkingLevel": "high",
   "theme": "everforest",
   "skills": [
     "~/.claude/skills"
@@ -11,7 +11,10 @@
     "~/.pi/agent/extensions/tmux-status.ts",
     "~/.pi/agent/extensions/tmux-notify.ts",
     "~/.pi/agent/extensions/subagent",
-    "~/.pi/agent/extensions/plan-mode"
+    "~/.pi/agent/extensions/plan-mode",
+    "~/.pi/agent/extensions/web-search.ts",
+    "~/.pi/agent/extensions/nvim-bridge.ts",
+    "~/.pi/agent/extensions/auto-memory.ts"
   ],
   "hideThinkingBlock": true
 }
