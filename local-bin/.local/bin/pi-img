@@ -1,0 +1,22 @@
+#!/bin/bash
+# pi-img — save clipboard image to temp file, print path
+# Requires macOS. Falls back to pngpaste if available.
+OUT="/tmp/pi-clipboard-$(date +%s).png"
+
+if command -v pngpaste &>/dev/null; then
+  pngpaste "$OUT" && echo "$OUT" && exit 0
+fi
+
+# macOS native: write clipboard image via AppleScript
+osascript -e "
+  set f to (POSIX file \"$OUT\")
+  try
+    set img to the clipboard as «class PNGf»
+    set fd to open for access f with write permission
+    write img to fd
+    close access fd
+    return \"$OUT\"
+  on error errMsg
+    return \"ERROR: \" & errMsg
+  end try
+" 2>/dev/null

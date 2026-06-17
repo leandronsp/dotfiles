@@ -1,0 +1,7 @@
+#!/bin/bash
+# pi-note — append terminal text to the PiBuffer notes file
+# Usage: tmux copy-mode selection → P → appends to /tmp/pi-nvim-notes.md
+NOTES=/tmp/pi-nvim-notes.md
+echo "[terminal $(date +%H:%M)]" >> "$NOTES"
+cat >> "$NOTES"
+echo "" >> "$NOTES"
