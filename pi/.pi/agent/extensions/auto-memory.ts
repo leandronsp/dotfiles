@@ -190,6 +190,25 @@ export default function (pi: ExtensionAPI) {
 		await writeRecap(ctx.cwd, "compact", `reason=${reason}`);
 	});
 
+	// pi-generated compaction summary → vault (richer than the fact checkpoint above).
+	pi.on("session_compact", async (event, ctx) => {
+		const summary = event.compactionEntry?.summary;
+		if (!summary) return;
+		try {
+			const recapDir = join(homedir(), "vault", "sessions");
+			await mkdir(recapDir, { recursive: true });
+			const now = new Date().toISOString().replace("T", " ").slice(0, 19);
+			const body = [
+				`# Compaction summary: ${slug(ctx.cwd)}`,
+				`**Date:** ${now}  **Reason:** ${event.reason}  **Tokens before:** ${event.compactionEntry.tokensBefore}`,
+				"",
+				summary,
+				"",
+			].join("\n");
+			await writeFile(join(recapDir, `compact-${Date.now().toString(36)}.md`), body, "utf-8");
+		} catch { /* best effort */ }
+	});
+
 	pi.on("session_shutdown", async (_event, ctx) => {
 		await writeRecap(ctx.cwd, "shutdown", "");
 	});
