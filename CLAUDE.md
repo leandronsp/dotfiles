@@ -31,7 +31,7 @@ Personal dotfiles managed with GNU Stow. Each top-level directory is a stow pack
 - nvim CI workflow lives at repo root `.github/workflows/ci.yml` with path filter
 - Never use `git add -A`. Always stage files explicitly
 - `~/vault` symlinks to Obsidian iCloud storage. Skills and hooks depend on `qmd` for semantic search
-- pi (coding agent) config lives in `pi/.pi/agent/`. Skills shared with Claude Code via `"skills": ["~/.claude/skills"]` in pi settings
+- pi (coding agent) config lives in `pi/.pi/agent/`. Skills shared with Claude Code via the `project-skills` extension (`resources_discover`), not a settings `skills` key
 
 ## Packages
 
@@ -70,7 +70,7 @@ pi is an alternative coding agent TUI. Install via `npm i -g @mariozechner/pi-co
 
 ### Extensions
 
-Registered in `settings.json` under `"extensions"`. Load on startup — restart pi after changes.
+Registered in `settings.json` under `"extensions"`. Load on startup — restart pi after changes. Each extension prints a `✓ <name>` line on `session_start`, so the load shows which extensions came up.
 
 - `tmux-notify.ts` — sound + tmux highlight when pi finishes in background (port of `notify-ready.sh`)
 - `tmux-status.ts` — writes model/tokens/cost to tmux status bar
@@ -78,11 +78,18 @@ Registered in `settings.json` under `"extensions"`. Load on startup — restart 
 - `plan-mode/` — read-only exploration mode (`/plan`, `/todos`, `Ctrl+Alt+P`). Restricts tools, tracks plan progress
 - `web-search.ts` — `web_search`, `web_fetch`, `web_snapshot` tools via agent-browser (Chromium). For models without built-in web access
 - `nvim-bridge.ts` — watches `/tmp/pi-nvim-bridge.md`; turns Neovim selections, buffers, and `![img]`/`@file` refs into pi messages. See [Neovim ↔ Pi bridge](#neovim--pi-bridge)
-- `auto-memory.ts` — LLM auto-captures learnings to `~/vault/learnings`, reloaded into the system prompt each turn. Also checkpoints the session's recorded facts to `~/vault/sessions/` on `session_before_compact` (pi ≥ 0.79.10, skips overflow-retry events) and on `session_shutdown`
+- `auto-memory.ts` — LLM auto-captures learnings to `~/vault/learnings`, reloaded into the system prompt each turn. Also checkpoints the session's recorded facts to `~/vault/sessions/` on `session_before_compact` (pi ≥ 0.79.10, skips overflow-retry events) and on `session_shutdown`. Also writes pi's compaction **summary** to `~/vault/sessions/` on `session_compact` (richer than the fact checkpoint)
 - `rules-loader.ts` — injects `~/.claude/CLAUDE.md` + `~/.claude/rules/*.md` + `<cwd>/.claude/rules/*.md` into the system prompt. pi only auto-loads `CLAUDE.md`/`AGENTS.md`, never `.claude/rules` — this closes that gap. Prints a `📐` load line on `session_start`
 - `cc-memory-loader.ts` — reads Claude Code's curated memory (`~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) into the system prompt so both agents share one brain. Worktree-aware: resolves `<repo>/.worktrees/<name>` back to the main repo's memory (encoding replaces `/` and `.` with `-`). Prints a `🧠` load line on `session_start`
 - `vision-switch.ts` — routes vision work to a vision model (`opencode-go/minimax-m3`) automatically, via `pi.setModel` + `ctx.modelRegistry.find`. Two triggers: (1) **image** at turn start — `event.images` **or** an image path in the prompt text (clipboard paste writes the image to `pi-clipboard-*.png` and puts the PATH in the prompt, so `event.images` is empty — the common case); one-shot, reverts at `agent_end`. (2) **browser** — a `tool_call` running `agent-browser` or a Chrome DevTools MCP tool; sticky, stays on the vision model through the whole browsing flow and reverts on the first turn with no browser work. A manual `/model` switch drops the pending revert — **gotcha:** clipboard paste writes the image to `/var/folders/.../pi-clipboard-*.png` and puts the PATH in the prompt, so `event.images` stays empty (the common case). A manual `/model` switch cancels the pending revert
 - `ocr/` — OCR fallback for non-vision models (Apple Vision `image-use` → Tesseract + PIL). **Not registered** in `settings.json` — `vision-switch` supersedes it by switching to a real vision model. The `~/.claude/skills/ocr` skill remains the last-resort path when no vision model is reachable
+- `intent-router.ts` — scans the prompt and appends a `<tool-routing>` directive on known references (`before_agent_start`): Linear link → use `lineark`, GitHub link → use `gh`, localhost/navigation → use the browser skill. Deterministic nudge, not model-judgement. Extend via the `ROUTES` table
+- `project-skills.ts` — on `resources_discover`, contributes the nearest `<repo>/.claude/skills` (walking up from cwd) **and** `~/.claude/skills`, **project first** so it wins name collisions (e.g. the FF `browser` skill over the generic one). Portable, launch-independent — replaces a `--skill` shell wrapper. ⚠️ `skills` must be ABSENT from `settings.json`, or the user dir loads first and project overrides lose every collision
+- `status-widget.ts` — persistent panel above the editor: `⚙ <model>  think:<level>  ctx:<%>  🖼️ vision` (vision tag shows when the active model accepts images). Updates on session_start/model_select/turn_end (`ctx.ui.setWidget`)
+- `auto-format.ts` — runs the right formatter on every edited file (`tool_result`): `.rb`→`./bin/rubocop -a` (project wrapper) or `rubocop -a`; JS/TS/CSS/JSON/MD/YAML→`prettier --write`; `.go`→`gofmt -w`; `.rs`→`rustfmt`. Missing formatter = skip silently. Also registers `/clippy` (`cargo clippy --fix`, crate-level, on demand — clippy is too slow for per-edit)
+- `guardrails.ts` — blocks dangerous tool calls before they run (`tool_call` → `{block, reason}`): `rm -rf`, force-push (allows `--force-with-lease`), `git reset --hard`, `mkfs`/`dd if=`, fork bomb; and edits to `.env`/`.git/`/`secrets/`/`*.pem`/`id_rsa`/`credentials`. Speed bumps, not a sandbox
+- `truncate-output.ts` — caps any tool-result text block over 30k chars (`tool_result`), keeping the head + a "narrow the search" note. Saves context/budget on runaway grep/log. Skips edit/write
+- `shell-expand.ts` — expands `!{cmd}` in the prompt into the command's real output before the LLM sees it (`input` transform). Same trust as typing `!cmd` yourself
 
 ### Skills (pi-only)
 
@@ -102,7 +109,7 @@ opencode-go is a flat **$10/mo** plan (budget: $12/5h, $30/week, $60/month — n
 
 ### Skill sharing
 
-1. **Shared with Claude Code**: `"skills": ["~/.claude/skills"]` — all Claude Code skills work in pi
+1. **Shared with Claude Code**: the `project-skills` extension loads `<repo>/.claude/skills` (project, first) **and** `~/.claude/skills` (user) via `resources_discover`. `skills` is intentionally **not** set in `settings.json`, so project skills win name collisions. All Claude Code skills work in pi
 2. **Pi-only**: `~/.pi/agent/skills/` — skills that use subagents/extensions
 
 ## Neovim ↔ Pi bridge
