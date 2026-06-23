@@ -78,8 +78,11 @@ Registered in `settings.json` under `"extensions"`. Load on startup — restart 
 - `plan-mode/` — read-only exploration mode (`/plan`, `/todos`, `Ctrl+Alt+P`). Restricts tools, tracks plan progress
 - `web-search.ts` — `web_search`, `web_fetch`, `web_snapshot` tools via agent-browser (Chromium). For models without built-in web access
 - `nvim-bridge.ts` — watches `/tmp/pi-nvim-bridge.md`; turns Neovim selections, buffers, and `![img]`/`@file` refs into pi messages. See [Neovim ↔ Pi bridge](#neovim--pi-bridge)
-- `auto-memory.ts` — LLM auto-captures learnings to `~/vault/learnings`, reloaded into the system prompt each turn
-- `ocr/` — extracts text from images for non-vision models. Primary backend `image-use` (Apple Vision, Neural Engine, from `local-bin`), Tesseract + PIL fallback
+- `auto-memory.ts` — LLM auto-captures learnings to `~/vault/learnings`, reloaded into the system prompt each turn. Also checkpoints the session's recorded facts to `~/vault/sessions/` on `session_before_compact` (pi ≥ 0.79.10, skips overflow-retry events) and on `session_shutdown`
+- `rules-loader.ts` — injects `~/.claude/CLAUDE.md` + `~/.claude/rules/*.md` + `<cwd>/.claude/rules/*.md` into the system prompt. pi only auto-loads `CLAUDE.md`/`AGENTS.md`, never `.claude/rules` — this closes that gap. Prints a `📐` load line on `session_start`
+- `cc-memory-loader.ts` — reads Claude Code's curated memory (`~/.claude/projects/<encoded-cwd>/memory/MEMORY.md`) into the system prompt so both agents share one brain. Worktree-aware: resolves `<repo>/.worktrees/<name>` back to the main repo's memory (encoding replaces `/` and `.` with `-`). Prints a `🧠` load line on `session_start`
+- `vision-switch.ts` — auto-switches to a vision model (`opencode-go/minimax-m3`) when a turn carries an image, reverts to the prior model when the turn finishes (`agent_end`), via `pi.setModel` + `ctx.modelRegistry.find`. Triggers on `event.images` **or** an image file path in the prompt text — **gotcha:** clipboard paste writes the image to `/var/folders/.../pi-clipboard-*.png` and puts the PATH in the prompt, so `event.images` stays empty (the common case). A manual `/model` switch cancels the pending revert
+- `ocr/` — OCR fallback for non-vision models (Apple Vision `image-use` → Tesseract + PIL). **Not registered** in `settings.json` — `vision-switch` supersedes it by switching to a real vision model. The `~/.claude/skills/ocr` skill remains the last-resort path when no vision model is reachable
 
 ### Skills (pi-only)
 
@@ -87,7 +90,15 @@ Registered in `settings.json` under `"extensions"`. Load on startup — restart 
 
 ### Agents
 
-`scout` (haiku), `security-reviewer` (sonnet), `performance-reviewer` (sonnet), `quality-reviewer` (sonnet), `review-auditor` (sonnet)
+`scout` is pinned to `opencode-go/deepseek-v4-flash` via frontmatter `model:` (cheap recon). The reviewers (`security-reviewer`, `performance-reviewer`, `quality-reviewer`, `review-auditor`) and `tdd-driver`/`tdd-navigator` have no `model:` line, so they inherit `defaultModel`. Pin any agent with `model: provider/id` in its frontmatter — the subagent extension passes it straight to `pi --model`.
+
+### Model routing
+
+opencode-go is a flat **$10/mo** plan (budget: $12/5h, $30/week, $60/month — not per-token billing).
+
+- `defaultModel` (`settings.json`) — the opencode-go coding model. `mimo-v2.5-pro` wins agentic coding and is token-efficient; `deepseek-v4-pro` is the reasoning-heavy alternate. Both are text-only.
+- Scout → `deepseek-v4-flash` (cheapest, stretches the budget).
+- Images → `minimax-m3` automatically via `vision-switch.ts` (the text-only defaults can't see images; OCR is useless on diagrams).
 
 ### Skill sharing
 
