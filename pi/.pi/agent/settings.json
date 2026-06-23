@@ -4,9 +4,6 @@
   "defaultModel": "deepseek-v4-pro",
   "defaultThinkingLevel": "high",
   "theme": "everforest",
-  "skills": [
-    "~/.claude/skills"
-  ],
   "extensions": [
     "~/.pi/agent/extensions/tmux-status.ts",
     "~/.pi/agent/extensions/tmux-notify.ts",
@@ -19,7 +16,8 @@
     "~/.pi/agent/extensions/cc-memory-loader.ts",
     "~/.pi/agent/extensions/vision-switch.ts",
     "~/.pi/agent/extensions/intent-router.ts",
-    "~/.pi/agent/extensions/project-skills.ts"
+    "~/.pi/agent/extensions/project-skills.ts",
+    "~/.pi/agent/extensions/status-widget.ts"
   ],
   "hideThinkingBlock": true
 }
