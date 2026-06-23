@@ -166,24 +166,30 @@ export default function (pi: ExtensionAPI) {
 		return { systemPrompt: event.systemPrompt + block };
 	});
 
-	// ── Recap on shutdown ────────────────────────────────────────
+	// ── Recap on shutdown and before compaction ──────────────────
 
-	pi.on("session_shutdown", async (_event, ctx) => {
+	async function writeRecap(cwd: string, kind: string, note: string) {
 		if (sessionFacts.length === 0) return;
-
 		try {
 			const recapDir = join(homedir(), "vault", "sessions");
 			await mkdir(recapDir, { recursive: true });
 			const now = new Date().toISOString().replace("T", " ").slice(0, 19);
-			const body = [
-				`# Auto-recap: ${slug(ctx.cwd)}`,
-				`**Date:** ${now}`,
-				"",
-				"## Facts recorded this session",
-				...sessionFacts.map((f) => `- ${f}`),
-				"",
-			].join("\n");
-			await writeFile(join(recapDir, `auto-recap-${Date.now().toString(36)}.md`), body, "utf-8");
+			const lines = [`# Auto-recap (${kind}): ${slug(cwd)}`, `**Date:** ${now}`];
+			if (note) lines.push(`**Note:** ${note}`);
+			lines.push("", "## Facts recorded this session", ...sessionFacts.map((f) => `- ${f}`), "");
+			await writeFile(join(recapDir, `auto-recap-${Date.now().toString(36)}.md`), lines.join("\n"), "utf-8");
 		} catch { /* best effort */ }
+	}
+
+	// Checkpoint before context is compacted away (pi >= 0.79.10). A long session that
+	// compacts several times — or crashes before shutdown — still gets its facts recapped.
+	pi.on("session_before_compact", async (event, ctx) => {
+		const { reason = "unknown", willRetry = false } = event as { reason?: string; willRetry?: boolean };
+		if (willRetry) return; // overflow retry fires its own event — don't double-write
+		await writeRecap(ctx.cwd, "compact", `reason=${reason}`);
+	});
+
+	pi.on("session_shutdown", async (_event, ctx) => {
+		await writeRecap(ctx.cwd, "shutdown", "");
 	});
 }
