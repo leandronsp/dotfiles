@@ -120,7 +120,7 @@ Follow the user's voice in all output. Informal, direct, no AI-speak, no em dash
   blog/published/     Published post references
   blog/ideas.md       Blog idea backlog
   learning/til/       Today I Learned
-  projects/           Per-project notes (fullfabric, mendio, etc)
+  projects/           Per-project notes (one folder per project)
   references/         Tools, links, useful info
   sessions/           Session logs
   tasks/              Task management (roadmap, sprint, pomodoro, routines)
