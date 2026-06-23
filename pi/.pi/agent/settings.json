@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.10",
+  "lastChangelogVersion": "0.80.1",
   "defaultProvider": "opencode-go",
   "defaultModel": "deepseek-v4-pro",
   "defaultThinkingLevel": "high",
@@ -16,7 +16,8 @@
     "~/.pi/agent/extensions/nvim-bridge.ts",
     "~/.pi/agent/extensions/auto-memory.ts",
     "~/.pi/agent/extensions/rules-loader.ts",
-    "~/.pi/agent/extensions/cc-memory-loader.ts"
+    "~/.pi/agent/extensions/cc-memory-loader.ts",
+    "~/.pi/agent/extensions/vision-switch.ts"
   ],
   "hideThinkingBlock": true
 }
