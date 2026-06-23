@@ -9,6 +9,7 @@
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ tmux-notify", display: true }); } catch {} });
 	pi.on("agent_end", async () => {
 		if (!process.env.TMUX) return;
 

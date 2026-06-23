@@ -36,6 +36,7 @@ function getTextContent(message: AssistantMessage): string {
 }
 
 export default function planModeExtension(pi: ExtensionAPI): void {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ plan-mode", display: true }); } catch {} });
 	let planModeEnabled = false;
 	let executionMode = false;
 	let todoItems: TodoItem[] = [];

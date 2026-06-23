@@ -37,6 +37,7 @@ function isBrowserCall(event: { toolName?: string; input?: unknown }) {
 }
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ vision-switch", display: true }); } catch {} });
 	let revertTo: { provider: string; id: string } | null = null;
 	let browserThisTurn = false;
 

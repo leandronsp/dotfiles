@@ -44,6 +44,7 @@ async function loadMemory(cwd: string): Promise<{ dir: string; index: string } |
 }
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ cc-memory-loader", display: true }); } catch {} });
 	let cached: string | null = null;
 
 	pi.on("session_start", async (_event, ctx) => {

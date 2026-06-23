@@ -22,6 +22,7 @@ function cleanStatus() {
 }
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ tmux-status", display: true }); } catch {} });
 	pi.on("session_start", (_event, ctx) => {
 		// Empty footer — all info goes to tmux
 		ctx.ui.setFooter((_tui, _theme, _footerData) => ({

@@ -428,6 +428,7 @@ const SubagentParams = Type.Object({
 });
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ subagent", display: true }); } catch {} });
 	pi.registerTool({
 		name: "subagent",
 		label: "Subagent",

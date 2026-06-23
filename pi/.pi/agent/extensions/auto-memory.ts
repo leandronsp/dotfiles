@@ -90,6 +90,7 @@ async function loadRecent(cwd: string): Promise<string[]> {
 // ── Extension ───────────────────────────────────────────────────────
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ auto-memory", display: true }); } catch {} });
 	const sessionFacts: string[] = [];
 	let loaded = false;
 

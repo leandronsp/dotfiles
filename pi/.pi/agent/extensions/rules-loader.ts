@@ -33,6 +33,7 @@ async function readFileOrEmpty(path: string): Promise<string> {
 }
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ rules-loader", display: true }); } catch {} });
 	let cached: string | null = null;
 
 	async function load(cwd: string): Promise<string> {

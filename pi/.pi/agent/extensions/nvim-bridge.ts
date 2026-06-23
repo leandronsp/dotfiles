@@ -143,6 +143,7 @@ function sendIfNew(pi: ExtensionAPI, cwd: string): boolean {
 }
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ nvim-bridge", display: true }); } catch {} });
 	pi.registerCommand("nvim-read", {
 		description: "Read pending Neovim bridge messages (@file, ![img])",
 		handler: async (_args, ctx) => {

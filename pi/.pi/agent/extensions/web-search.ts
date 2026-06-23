@@ -165,6 +165,7 @@ async function searchWeb(pi: ExtensionAPI, query: string): Promise<SearchResult[
 // ── Extension ──────────────────────────────────────────────────────────
 
 export default function (pi: ExtensionAPI) {
+	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ web-search", display: true }); } catch {} });
 	pi.registerTool({
 		name: "web_search",
 		label: "Web Search",
