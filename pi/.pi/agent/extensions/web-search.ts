@@ -23,8 +23,12 @@ async function ab(
 	args: string[],
 	timeout = 20_000,
 ): Promise<{ stdout: string; stderr: string; ok: boolean }> {
-	const result = await pi.exec(AGENT_BROWSER, args, { timeout });
-	return { stdout: result.stdout, stderr: result.stderr, ok: result.code === 0 };
+	try {
+		const result = await pi.exec(AGENT_BROWSER, args, { timeout });
+		return { stdout: result.stdout, stderr: result.stderr, ok: result.code === 0 };
+	} catch (e) {
+		return { stdout: "", stderr: e instanceof Error ? e.message : String(e), ok: false };
+	}
 }
 
 async function abOpen(pi: ExtensionAPI, url: string, timeout = 15_000): Promise<boolean> {
@@ -76,7 +80,8 @@ async function searchDdgHtml(pi: ExtensionAPI, query: string): Promise<SearchRes
 
 	const raw = await abEval(pi, js, 10_000);
 	try {
-		return JSON.parse(raw).slice(0, 10);
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed.slice(0, 10) : [];
 	} catch {
 		return [];
 	}
@@ -103,7 +108,8 @@ async function searchGoogle(pi: ExtensionAPI, query: string): Promise<SearchResu
 
 	const raw = await abEval(pi, js, 10_000);
 	try {
-		return JSON.parse(raw).slice(0, 10);
+		const parsed = JSON.parse(raw);
+		return Array.isArray(parsed) ? parsed.slice(0, 10) : [];
 	} catch {
 		return [];
 	}
@@ -192,7 +198,7 @@ export default function (pi: ExtensionAPI) {
 					};
 				}
 
-				const formatted = results
+				const formatted = `Search: "${params.query}"\n\n` + results
 					.map((r, i) => `${i + 1}. **${r.title}**\n   ${r.url}\n   ${r.snippet}`)
 					.join("\n\n");
 
