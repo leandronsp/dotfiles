@@ -18,7 +18,8 @@
     "~/.pi/agent/extensions/rules-loader.ts",
     "~/.pi/agent/extensions/cc-memory-loader.ts",
     "~/.pi/agent/extensions/vision-switch.ts",
-    "~/.pi/agent/extensions/intent-router.ts"
+    "~/.pi/agent/extensions/intent-router.ts",
+    "~/.pi/agent/extensions/project-skills.ts"
   ],
   "hideThinkingBlock": true
 }

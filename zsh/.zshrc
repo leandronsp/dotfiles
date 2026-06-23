@@ -51,15 +51,7 @@ yololo() {
   ollama launch claude -- --dangerously-skip-permissions
 }
 
-# pi — auto-load the repo's .claude/skills so FF (and any project) skills work in pi too.
-# Keeps skills in .claude/skills (portable: Claude Code uses the same dir). Finds the repo
-# root so it works from any subdir / worktree.
-pi() {
-  local root extra=()
-  root=$(git rev-parse --show-toplevel 2>/dev/null) || root="$PWD"
-  [ -d "$root/.claude/skills" ] && extra+=(--skill "$root/.claude/skills")
-  command pi "${extra[@]}" "$@"
-}
+# pi is on PATH (mise). Project .claude/skills are loaded by the project-skills extension.
 
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
