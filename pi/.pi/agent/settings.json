@@ -17,7 +17,11 @@
     "~/.pi/agent/extensions/vision-switch.ts",
     "~/.pi/agent/extensions/intent-router.ts",
     "~/.pi/agent/extensions/project-skills.ts",
-    "~/.pi/agent/extensions/status-widget.ts"
+    "~/.pi/agent/extensions/status-widget.ts",
+    "~/.pi/agent/extensions/auto-format.ts",
+    "~/.pi/agent/extensions/guardrails.ts",
+    "~/.pi/agent/extensions/truncate-output.ts",
+    "~/.pi/agent/extensions/shell-expand.ts"
   ],
   "hideThinkingBlock": true
 }
