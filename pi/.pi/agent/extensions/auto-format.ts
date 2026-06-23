@@ -2,8 +2,8 @@
  * auto-format — run the right formatter on every file the agent edits/writes.
  *
  * Deterministic (tool_result hook), so it doesn't depend on the model remembering to format.
- * Matches FullFabric's "RUBOCOP AFTER RUBY" golden rule, prettier for JS/TS (CI-enforced),
- * gofmt for Go, rustfmt for Rust. Prefers a project wrapper (./bin/rubocop) over the global.
+ * Project-agnostic: Ruby → rubocop (prefers a ./bin/rubocop wrapper), JS/TS/CSS/JSON/MD → prettier,
+ * Go → gofmt, Rust → rustfmt. Each project's own formatter config is found from the edited file's path.
  *
  * clippy is intentionally NOT here: it's a crate-level linter (compiles the whole crate, slow),
  * wrong to run on every edit. Use the `/clippy` command below for an on-demand lint-fix.

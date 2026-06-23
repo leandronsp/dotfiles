@@ -23,7 +23,7 @@ const ROUTES: { name: string; test: RegExp; hint: string }[] = [
 	},
 	{
 		name: "browser",
-		test: /https?:\/\/\S*localhost|tbs\.localhost|\b(navega\w*|abre a (p[aá]gina|url)|testa no browser|open the page|navigate to)\b/i,
+		test: /\b[\w.-]*localhost(:\d+)?\b|\b(navega\w*|abre a (p[aá]gina|url)|testa no browser|open the page|navigate to)\b/i,
 		hint: "Local app / navigation request — use the browser skill (the `agent-browser` CLI) to open and test the page.",
 	},
 ];
