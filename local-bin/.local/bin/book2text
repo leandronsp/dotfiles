@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# book2text — turn a book into a clean text file for LLM Q&A.
+#
+# Picks the right path per input: PDF text layer → pdftotext; scanned PDF (no text
+# layer, e.g. an Apple Notes scan) → pdftoppm + Apple Vision OCR (image-use); EPUB →
+# pandoc; image files / a folder of page images → image-use.
+#
+# Usage:
+#   book2text livro.pdf                 # one PDF
+#   book2text vol1.pdf vol2.pdf         # many PDFs → one concatenated .md
+#   book2text livro.epub                # EPUB
+#   book2text paginas/                  # folder of page images
+#   book2text p1.png p2.png             # image files
+#
+# Output: ~/vault/books/<name>.md  (override with BOOKS_DIR=, OCR langs with OCR_LANGS=)
+
+set -euo pipefail
+shopt -s nullglob
+
+BOOKS_DIR="${BOOKS_DIR:-$HOME/vault/books}"
+LANGS="${OCR_LANGS:-en,pt}"
+MIN_TEXT_CHARS=200   # below this a PDF is treated as scanned (no usable text layer)
+
+die() { echo "book2text: $*" >&2; exit 1; }
+[ $# -gt 0 ] || die "usage: book2text <file.pdf|file.epub|image...|dir>"
+
+mkdir -p "$BOOKS_DIR"
+out="$BOOKS_DIR/$(basename "${1%.*}" | tr ' ' '_').md"
+: > "$out"
+
+ocr() { [ $# -gt 0 ] && image-use --lang "$LANGS" "$@" >> "$out"; }
+
+pdf_to_text() {
+  local pdf="$1" txt
+  txt="$(pdftotext -layout "$pdf" - 2>/dev/null || true)"
+  if [ "${#txt}" -ge "$MIN_TEXT_CHARS" ]; then
+    printf '%s\n' "$txt" >> "$out"
+  else
+    echo "  $pdf has no text layer — OCR'ing pages" >&2
+    local tmp; tmp="$(mktemp -d)"
+    pdftoppm -png -r 200 "$pdf" "$tmp/p" 2>/dev/null || die "pdftoppm failed on $pdf"
+    ocr "$tmp"/p*.png
+    rm -rf "$tmp"
+  fi
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    *.pdf|*.PDF)   { echo; echo "# $(basename "$arg")"; echo; } >> "$out"; pdf_to_text "$arg" ;;
+    *.epub|*.EPUB) pandoc "$arg" -t plain >> "$out" ;;
+    *.png|*.PNG|*.jpg|*.JPG|*.jpeg|*.JPEG|*.gif|*.webp|*.bmp|*.tiff) ocr "$arg" ;;
+    *) [ -d "$arg" ] || die "unsupported: $arg"
+       imgs=("$arg"/*.png "$arg"/*.PNG "$arg"/*.jpg "$arg"/*.JPG "$arg"/*.jpeg "$arg"/*.JPEG)
+       [ ${#imgs[@]} -gt 0 ] || die "no page images in $arg"
+       ocr "${imgs[@]}" ;;
+  esac
+done
+
+words=$(wc -w < "$out" | tr -d ' ')
+echo "✅ $out  (~${words} words)"
+echo "   in pi:  @${out}   (or ask the model to read it), then ask away"
