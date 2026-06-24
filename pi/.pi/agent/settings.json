@@ -10,7 +10,6 @@
     "~/.pi/agent/extensions/subagent",
     "~/.pi/agent/extensions/plan-mode",
     "~/.pi/agent/extensions/web-search.ts",
-    "~/.pi/agent/extensions/nvim-bridge.ts",
     "~/.pi/agent/extensions/auto-memory.ts",
     "~/.pi/agent/extensions/rules-loader.ts",
     "~/.pi/agent/extensions/cc-memory-loader.ts",
@@ -20,8 +19,7 @@
     "~/.pi/agent/extensions/status-widget.ts",
     "~/.pi/agent/extensions/auto-format.ts",
     "~/.pi/agent/extensions/guardrails.ts",
-    "~/.pi/agent/extensions/truncate-output.ts",
-    "~/.pi/agent/extensions/shell-expand.ts"
+    "~/.pi/agent/extensions/truncate-output.ts"
   ],
   "hideThinkingBlock": true
 }
