@@ -19,7 +19,8 @@
     "~/.pi/agent/extensions/status-widget.ts",
     "~/.pi/agent/extensions/auto-format.ts",
     "~/.pi/agent/extensions/guardrails.ts",
-    "~/.pi/agent/extensions/truncate-output.ts"
+    "~/.pi/agent/extensions/truncate-output.ts",
+    "~/.pi/agent/extensions/monitor.ts"
   ],
   "hideThinkingBlock": true
 }
