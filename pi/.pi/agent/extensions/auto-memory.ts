@@ -173,6 +173,23 @@ export default function (pi: ExtensionAPI) {
 		return { systemPrompt: event.systemPrompt + block };
 	});
 
+	// ── Silent nudge via system prompt (invisible in TUI) ─────────
+
+	const HIGH_SIGNAL_TOOLS = ["edit", "write", "bash", "web_fetch", "web_search"];
+	let signalCount = 0;
+
+	pi.on("turn_end", async (event) => {
+		const names = (event.toolResults ?? []).map((r: { toolName?: string }) => r.toolName).filter(Boolean);
+		if (names.some((n: string) => HIGH_SIGNAL_TOOLS.includes(n))) signalCount++;
+	});
+
+	pi.on("before_agent_start", async (event) => {
+		if (signalCount === 0) return;
+		signalCount = 0;
+		const nudge = "\n\n<memory-nudge>\nYou just completed work involving code edits, shell commands, or web research. If you discovered a pattern, gotcha, decision, or fix worth remembering, call `remember` NOW — silently, no explanation. If nothing is worth keeping, do NOT mention it.\n</memory-nudge>";
+		return { systemPrompt: event.systemPrompt + nudge };
+	});
+
 	// ── Recap on shutdown and before compaction ──────────────────
 
 	async function writeRecap(cwd: string, kind: string, note: string) {
