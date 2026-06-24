@@ -28,8 +28,23 @@ const ROUTES: { name: string; test: RegExp; hint: string }[] = [
 	},
 ];
 
+const PROACTIVE_SEARCH = `
+
+<proactive-search>
+Your training data has a cutoff. When answering questions about APIs, libraries, tools, current events, or anything versioned: search the web to confirm before giving outdated or speculative answers. One search is enough. Applies regardless of language.
+</proactive-search>`;
+
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ intent-router", display: true }); } catch {} });
+
+	// Always inject proactive-search guideline.
+	pi.on("before_agent_start", async (event, _ctx) => {
+		const prompt = event.systemPrompt ?? "";
+		if (prompt.includes("<proactive-search>")) return; // idempotent
+		return { systemPrompt: prompt + PROACTIVE_SEARCH };
+	});
+
+	// Regex-based deterministic routing (only on match).
 	pi.on("before_agent_start", async (event, ctx) => {
 		const prompt = typeof event.prompt === "string" ? event.prompt : "";
 		if (!prompt) return;
