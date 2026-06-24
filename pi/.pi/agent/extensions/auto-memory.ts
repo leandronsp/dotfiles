@@ -173,29 +173,6 @@ export default function (pi: ExtensionAPI) {
 		return { systemPrompt: event.systemPrompt + block };
 	});
 
-	// ── Reactive nudge: after high-signal turns, prompt the LLM to review ──
-
-	const HIGH_SIGNAL_TOOLS = ["edit", "write", "bash", "web_fetch", "web_search"];
-	let lastTurnHadSignal = false;
-	let turnNudgeBudget = 3; // max nudges per agent cycle (resets on before_agent_start)
-
-	pi.on("turn_end", async (event, _ctx) => {
-		const toolNames = (event.toolResults ?? []).map((r: { toolName?: string }) => r.toolName).filter(Boolean);
-		lastTurnHadSignal = toolNames.some((n: string) => HIGH_SIGNAL_TOOLS.includes(n));
-	});
-
-	pi.on("context", async (event, _ctx) => {
-		if (!lastTurnHadSignal || turnNudgeBudget <= 0) return;
-		lastTurnHadSignal = false;
-		turnNudgeBudget--;
-		const nudge = { role: "user" as const, content: "[auto-memory] Review the last turn. Did you discover a pattern, gotcha, decision, or fix worth calling `remember` for?" };
-		return { messages: [...event.messages, nudge] };
-	});
-
-	pi.on("before_agent_start", () => {
-		turnNudgeBudget = 3;
-	});
-
 	// ── Recap on shutdown and before compaction ──────────────────
 
 	async function writeRecap(cwd: string, kind: string, note: string) {
