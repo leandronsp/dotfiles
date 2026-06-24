@@ -18,6 +18,7 @@
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Type } from "@sinclair/typebox";
 import { spawn, ChildProcess } from "node:child_process";
 
 interface Watched {
@@ -71,6 +72,16 @@ function ensurePolling(pi: ExtensionAPI, ctx: any) {
 function stopPollingIfEmpty() {
 	if (watched.size > 0) return;
 	if (pollHandle) { clearInterval(pollHandle); pollHandle = null; }
+}
+
+async function findPid(pi: ExtensionAPI, port: number): Promise<number | null> {
+	try {
+		const r = await pi.exec("lsof", ["-ti", `:${port}`, "-sTCP:LISTEN"], { timeout: 3_000 });
+		const pid = parseInt(r.stdout.trim(), 10);
+		return Number.isFinite(pid) ? pid : null;
+	} catch {
+		return null;
+	}
 }
 
 export default function (pi: ExtensionAPI) {
@@ -143,4 +154,39 @@ export default function (pi: ExtensionAPI) {
 
 	// Empty widget on session start
 	pi.on("session_start", (_event, ctx) => renderWidget(pi, ctx));
+
+	// ── Tool (callable by the agent) ─────────────────────────────
+
+	pi.registerTool({
+		name: "monitor",
+		label: "Monitor",
+		description: "Add or remove a background process from the monitor widget. Use when starting dev servers or any long-running command that should be watched.",
+		promptGuidelines: [
+			"After starting a background server (bash with run_in_background:true), call monitor with the process label and the port it listens on. The monitor will show live status in the widget.",
+			"Use label|log:path notation to enable log tailing: monitor(label: \"backend|log:log/development.log\", port: 3000).",
+		],
+		parameters: Type.Object({
+			label: Type.String({ description: "Short name for the process. Add |log:path for log support (e.g. backend|log:log/development.log)" }),
+			port: Type.Number({ description: "TCP port this process listens on" }),
+		}),
+		async execute(_id, params, _signal, _upd, ctx) {
+			const { label, port } = params;
+			const labelOnly = label.split("|")[0];
+			const log = label.split("|").find((o: string) => o.startsWith("log:"))?.slice(4) ?? null;
+			const pid = await findPid(pi, port);
+			if (pid == null) {
+				return {
+					content: [{ type: "text" as const, text: `No process found on port ${port}. Is the server running?` }],
+					details: {},
+				};
+			}
+			watched.set(labelOnly, { label: labelOnly, cmd: `port ${port}`, cwd: ctx.cwd, pid, log, proc: null });
+			renderWidget(pi, ctx);
+			ensurePolling(pi, ctx);
+			return {
+				content: [{ type: "text" as const, text: `Monitoring ${labelOnly} (pid ${pid}, port ${port})` }],
+				details: {},
+			};
+		},
+	});
 }
