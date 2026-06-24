@@ -169,11 +169,28 @@ export default function (pi: ExtensionAPI) {
 			label: Type.String({ description: "Short name for the process. Add |log:path for log support (e.g. backend|log:log/development.log)" }),
 			port: Type.Optional(Type.Number({ description: "TCP port this process listens on" })),
 			command: Type.Optional(Type.String({ description: "Shell command to spawn and monitor (runs in background). Mutually exclusive with port." })),
+			logs: Type.Optional(Type.Boolean({ description: "If true, tail the last 30 lines of the monitored process log (requires label|log:path)" })),
 		}),
 		async execute(_id, params, _signal, _upd, ctx) {
-			const { label, port, command } = params;
+			const { label, port, command, logs } = params;
 			const labelOnly = label.split("|")[0];
-			const log = label.split("|").find((o: string) => o.startsWith("log:"))?.slice(4) ?? null;
+			const logPath = label.split("|").find((o: string) => o.startsWith("log:"))?.slice(4) ?? null;
+
+			if (logs) {
+				const w = watched.get(labelOnly);
+				const path = logPath ?? w?.log;
+				if (!path) {
+					return { content: [{ type: "text" as const, text: `No log configured for ${labelOnly}. Use label|log:path when registering.` }], details: {} };
+				}
+				try {
+					const cwd = w?.cwd ?? ctx.cwd;
+					const r = await pi.exec("tail", ["-30", path], { cwd, timeout: 5_000 });
+					const lines = r.stdout.trim() || "(empty)";
+					return { content: [{ type: "text" as const, text: `${labelOnly} logs:\n\`\`\`\n${lines}\n\`\`\`` }], details: {} };
+				} catch (e) {
+					return { content: [{ type: "text" as const, text: `Failed: ${e instanceof Error ? e.message : e}` }], details: {} };
+				}
+			}
 
 			let pid: number | null = null;
 
@@ -193,7 +210,7 @@ export default function (pi: ExtensionAPI) {
 				};
 			}
 
-			watched.set(labelOnly, { label: labelOnly, cmd: command ?? `port ${port}`, cwd: ctx.cwd, pid, log, proc: null });
+			watched.set(labelOnly, { label: labelOnly, cmd: command ?? `port ${port}`, cwd: ctx.cwd, pid, log: logPath, proc: null });
 			renderWidget(pi, ctx);
 			ensurePolling(pi, ctx);
 			return {
