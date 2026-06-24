@@ -106,7 +106,13 @@ export default function (pi: ExtensionAPI) {
 			'Good: "docker-compose precisa de COMPOSE_PROJECT_NAME=mendio" ' +
 			'Bad: "Aprendemos sobre Docker hoje"',
 		promptGuidelines: [
-			"Call remember AUTONOMOUSLY when you discover a fact, pattern, gotcha, or decision worth keeping for future sessions. One line per fact.",
+			"Call remember IMMEDIATELY after discovering any of these:",
+			"- A codebase pattern or convention a future agent should follow",
+			"- A bug fix that revealed something non-obvious (wrong formula, wrong assumption)",
+			"- A gotcha or trap (spike data was wrong, config quirk, tool limitation)",
+			"- A design decision with its rationale (why X over Y)",
+			"- Any fact that prevents repeating a mistake you just made",
+			"Do NOT batch. Do NOT wait. Every discovery gets its own remember call.",
 		],
 		parameters: Type.Object({
 			category: Type.String({
@@ -165,6 +171,29 @@ export default function (pi: ExtensionAPI) {
 
 		const block = `\n\n<project-memory>\nProject learnings from past sessions (${slug(ctx.cwd)}):\n${facts.join("\n")}\n</project-memory>`;
 		return { systemPrompt: event.systemPrompt + block };
+	});
+
+	// ── Reactive nudge: after high-signal turns, prompt the LLM to review ──
+
+	const HIGH_SIGNAL_TOOLS = ["edit", "write", "bash", "web_fetch", "web_search"];
+	let lastTurnHadSignal = false;
+	let turnNudgeBudget = 3; // max nudges per agent cycle (resets on before_agent_start)
+
+	pi.on("turn_end", async (event, _ctx) => {
+		const toolNames = (event.toolResults ?? []).map((r: { toolName?: string }) => r.toolName).filter(Boolean);
+		lastTurnHadSignal = toolNames.some((n: string) => HIGH_SIGNAL_TOOLS.includes(n));
+	});
+
+	pi.on("context", async (event, _ctx) => {
+		if (!lastTurnHadSignal || turnNudgeBudget <= 0) return;
+		lastTurnHadSignal = false;
+		turnNudgeBudget--;
+		const nudge = { role: "user" as const, content: "[auto-memory] Review the last turn. Did you discover a pattern, gotcha, decision, or fix worth calling `remember` for?" };
+		return { messages: [...event.messages, nudge] };
+	});
+
+	pi.on("before_agent_start", () => {
+		turnNudgeBudget = 3;
 	});
 
 	// ── Recap on shutdown and before compaction ──────────────────
