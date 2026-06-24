@@ -46,7 +46,8 @@ function renderWidget(pi: ExtensionAPI, ctx: any) {
 	const parts: string[] = [];
 	for (const w of watched.values()) {
 		const ok = w.pid != null;
-		parts.push(`${w.label} ${ok ? "✓" : "✗"}`);
+		const dir = w.cwd.split("/").pop() || "";
+		parts.push(`${w.label}(${dir}) ${ok ? "✓" : "✗"}`);
 	}
 	try { ctx.ui.setWidget("monitor", [parts.join("  ·  ")]); } catch { /* */ }
 }
