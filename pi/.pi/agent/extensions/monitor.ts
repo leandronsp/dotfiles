@@ -167,24 +167,37 @@ export default function (pi: ExtensionAPI) {
 		],
 		parameters: Type.Object({
 			label: Type.String({ description: "Short name for the process. Add |log:path for log support (e.g. backend|log:log/development.log)" }),
-			port: Type.Number({ description: "TCP port this process listens on" }),
+			port: Type.Optional(Type.Number({ description: "TCP port this process listens on" })),
+			command: Type.Optional(Type.String({ description: "Shell command to spawn and monitor (runs in background). Mutually exclusive with port." })),
 		}),
 		async execute(_id, params, _signal, _upd, ctx) {
-			const { label, port } = params;
+			const { label, port, command } = params;
 			const labelOnly = label.split("|")[0];
 			const log = label.split("|").find((o: string) => o.startsWith("log:"))?.slice(4) ?? null;
-			const pid = await findPid(pi, port);
+
+			let pid: number | null = null;
+
+			if (command) {
+				const proc = spawn("bash", ["-lc", command], { cwd: ctx.cwd, stdio: "pipe", detached: false });
+				pid = proc.pid ?? null;
+			}
+
+			if (port != null) {
+				pid = await findPid(pi, port);
+			}
+
 			if (pid == null) {
 				return {
-					content: [{ type: "text" as const, text: `No process found on port ${port}. Is the server running?` }],
+					content: [{ type: "text" as const, text: port != null ? `No process found on port ${port}. Is the server running?` : "Command failed to start." }],
 					details: {},
 				};
 			}
-			watched.set(labelOnly, { label: labelOnly, cmd: `port ${port}`, cwd: ctx.cwd, pid, log, proc: null });
+
+			watched.set(labelOnly, { label: labelOnly, cmd: command ?? `port ${port}`, cwd: ctx.cwd, pid, log, proc: null });
 			renderWidget(pi, ctx);
 			ensurePolling(pi, ctx);
 			return {
-				content: [{ type: "text" as const, text: `Monitoring ${labelOnly} (pid ${pid}, port ${port})` }],
+				content: [{ type: "text" as const, text: `Monitoring ${labelOnly} (pid ${pid}${port != null ? `, port ${port}` : ""})` }],
 				details: {},
 			};
 		},
