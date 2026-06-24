@@ -93,7 +93,9 @@ const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms
 
 // Ensures SearXNG is up AND keeps a persistent health status in the footer (🔎 searxng ✓/✗).
 async function ensureSearxng(pi: ExtensionAPI, ctx: any): Promise<void> {
-	const status = (s: string) => { try { ctx.ui.setStatus("searxng", s); } catch { /* */ } };
+	// setWidget (panel above the editor), NOT setStatus — tmux-status replaces the footer with an
+	// empty renderer, so setStatus is swallowed. Widgets coexist by key, so this gets its own line.
+	const status = (s: string) => { try { ctx.ui.setWidget("searxng", [s]); } catch { /* */ } };
 
 	if (await isUp(pi)) { status("🔎 searxng ✓"); return; }
 
