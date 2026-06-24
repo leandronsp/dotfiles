@@ -51,7 +51,9 @@ yololo() {
   ollama launch claude -- --dangerously-skip-permissions
 }
 
-# pi is on PATH (mise). Project .claude/skills are loaded by the project-skills extension.
+# pi — symlinked into ~/.local/bin (on PATH) since it's npm-installed under node 23.9.0 while the
+# active node differs. Re-run: ln -sf "$(ls ~/.local/share/mise/installs/node/*/bin/pi|head -1)" ~/.local/bin/pi
+# if the node version changes. Project .claude/skills loaded by the project-skills extension.
 
 # opencode
 export PATH=$HOME/.opencode/bin:$PATH
