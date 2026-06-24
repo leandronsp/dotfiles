@@ -1,9 +1,13 @@
 /**
- * monitor — background process supervision for dev servers.
+ * monitor — generic background process supervisor.
  *
- * Checks lsof on configured ports every few seconds, shows a persistent
- * status widget, and notifies on crash. Configure targets per project
- * via .pi/monitor.json or fall back to defaults.
+ * Health-checks processes by port (lsof). Shows a persistent status widget
+ * and notifies on crash. Configure targets via .pi/monitor.json:
+ *
+ *   [
+ *     { "name": "backend", "port": 3000, "log": "log/development.log" },
+ *     { "name": "web",    "port": 8080 }
+ *   ]
  *
  * Commands:
  *   /monitor start       Start watching
@@ -22,20 +26,12 @@ interface Target {
 	log?: string;
 }
 
-const DEFAULT_TARGETS: Target[] = [
-	{ name: "backend", port: 3000, log: "log/development.log" },
-	{ name: "marionette", port: 3001 },
-	{ name: "react", port: 3002 },
-];
-
 const POLL_SEC = 5;
 
 function loadTargets(cwd: string): Target[] {
-	try {
-		const cfg = join(cwd, ".pi", "monitor.json");
-		if (existsSync(cfg)) return JSON.parse(readFileSync(cfg, "utf-8"));
-	} catch { /* fall through */ }
-	return DEFAULT_TARGETS;
+	const cfg = join(cwd, ".pi", "monitor.json");
+	if (existsSync(cfg)) return JSON.parse(readFileSync(cfg, "utf-8"));
+	return [];
 }
 
 async function checkPort(pi: ExtensionAPI, port: number): Promise<boolean> {
@@ -55,6 +51,7 @@ export default function (pi: ExtensionAPI) {
 	let targets: Target[] = [];
 
 	function render(ctx: any) {
+		if (targets.length === 0) return;
 		const parts = targets.map((t) => {
 			const up = statuses[t.name];
 			const icon = up ? "✓" : "✗";
@@ -79,11 +76,15 @@ export default function (pi: ExtensionAPI) {
 	function start(ctx: any) {
 		if (watcher) return;
 		targets = loadTargets(ctx.cwd);
+		if (targets.length === 0) {
+			try { ctx.ui.notify("monitor: no .pi/monitor.json found", "warning"); } catch { /* */ }
+			return;
+		}
 		statuses = {};
 		for (const t of targets) statuses[t.name] = false;
 		tick(ctx);
 		watcher = setInterval(() => tick(ctx), POLL_SEC * 1000);
-		try { ctx.ui.notify(`monitor: watching ${targets.length} targets every ${POLL_SEC}s`, "info"); } catch { /* */ }
+		try { ctx.ui.notify(`monitor: watching ${targets.length} processes every ${POLL_SEC}s`, "info"); } catch { /* */ }
 	}
 
 	function stop(ctx: any) {
@@ -109,7 +110,8 @@ export default function (pi: ExtensionAPI) {
 					statuses[t.name] = up;
 				}
 				render(ctx);
-				ctx.ui.notify(Object.entries(statuses).map(([k, v]) => `${k}: ${v ? "✓ up" : "✗ down"}`).join("  "), "info");
+				const lines = Object.entries(statuses).map(([k, v]) => `${k}: ${v ? "✓ up" : "✗ down"}`);
+				ctx.ui.notify(lines.join("  "), "info");
 				return;
 			}
 
@@ -119,7 +121,7 @@ export default function (pi: ExtensionAPI) {
 				try {
 					const r = await pi.exec("tail", ["-30", t.log], { cwd: ctx.cwd, timeout: 5_000 });
 					const lines = r.stdout.trim() || "(empty)";
-					pi.sendMessage({ customType: "monitor-logs", content: `## ${t.name} logs\n\`\`\`\n${lines}\n\`\`\``, display: true });
+					pi.sendMessage({ customType: "monitor-logs", content: `${t.name} logs\n\`\`\`\n${lines}\n\`\`\``, display: true });
 				} catch (e) {
 					ctx.ui.notify(`Failed: ${e instanceof Error ? e.message : e}`, "error");
 				}
@@ -130,7 +132,7 @@ export default function (pi: ExtensionAPI) {
 		},
 	});
 
-	// Auto-start on session start if .pi/monitor.json exists
+	// Auto-start if .pi/monitor.json exists
 	pi.on("session_start", (_event, ctx) => {
 		if (existsSync(join(ctx.cwd, ".pi", "monitor.json"))) start(ctx);
 	});
