@@ -169,12 +169,14 @@ export default function (pi: ExtensionAPI) {
 			label: Type.String({ description: "Short name for the process. Add |log:path for log support (e.g. backend|log:log/development.log)" }),
 			port: Type.Optional(Type.Number({ description: "TCP port this process listens on" })),
 			command: Type.Optional(Type.String({ description: "Shell command to spawn and monitor (runs in background). Mutually exclusive with port." })),
+			cwd: Type.Optional(Type.String({ description: "Working directory for this process. Defaults to ctx.cwd. Use for cross-repo log paths." })),
 			logs: Type.Optional(Type.Boolean({ description: "If true, tail the last 30 lines of the monitored process log (requires label|log:path)" })),
 		}),
 		async execute(_id, params, _signal, _upd, ctx) {
-			const { label, port, command, logs } = params;
+			const { label, port, command, cwd: explicitCwd, logs } = params;
 			const labelOnly = label.split("|")[0];
 			const logPath = label.split("|").find((o: string) => o.startsWith("log:"))?.slice(4) ?? null;
+			const procCwd = explicitCwd ?? ctx.cwd;
 
 			if (logs) {
 				const w = watched.get(labelOnly);
@@ -195,7 +197,7 @@ export default function (pi: ExtensionAPI) {
 			let pid: number | null = null;
 
 			if (command) {
-				const proc = spawn("bash", ["-lc", command], { cwd: ctx.cwd, stdio: "pipe", detached: false });
+				const proc = spawn("bash", ["-lc", command], { cwd: procCwd, stdio: "pipe", detached: false });
 				pid = proc.pid ?? null;
 			}
 
@@ -210,7 +212,7 @@ export default function (pi: ExtensionAPI) {
 				};
 			}
 
-			watched.set(labelOnly, { label: labelOnly, cmd: command ?? `port ${port}`, cwd: ctx.cwd, pid, log: logPath, proc: null });
+			watched.set(labelOnly, { label: labelOnly, cmd: command ?? `port ${port}`, cwd: procCwd, pid, log: logPath, proc: null });
 			renderWidget(pi, ctx);
 			ensurePolling(pi, ctx);
 			return {
