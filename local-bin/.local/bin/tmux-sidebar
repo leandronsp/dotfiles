@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Interactive live agent sidebar (runs inside a narrow tmux pane).
+#   j / k (or ↑/↓)  move the cursor
+#   Enter / l       jump to the selected agent's window
+#   q               close the sidebar
+# Refreshes every 2s. Detection mirrors tmux-agent-menu (Claude panes title "✳ …";
+# a window flagged red by notify-ready.sh is "waiting").
+
+G=$'\033[38;2;122;154;94m'; R=$'\033[38;2;230;126;128m'
+D=$'\033[2m'; B=$'\033[1m'; INV=$'\033[7m'; X=$'\033[0m'
+HOME_CLR=$'\033[H\033[2J'
+
+cursor=0
+locs=(); names=(); metas=(); waits=()
+
+printf '\033[?25l'                                  # hide terminal cursor
+trap 'printf "\033[?25h\033[2J\033[H"; exit 0' INT TERM HUP
+
+build() {
+  locs=(); names=(); metas=(); waits=()
+  local seen="" pane loc wname title meta fmt w
+  while IFS='|' read -r pane loc wname title; do
+    case "$title" in *Claude\ Code*|✳*) : ;; *) continue ;; esac
+    case " $seen " in *" $loc "*) continue ;; esac
+    seen="$seen $loc"
+    [ ${#wname} -gt 17 ] && wname="${wname:0:16}…"
+    meta=$(awk -F' · ' 'NR==1{print $1 (NF>1?" · "$2:"")}' "/tmp/claude-statusline-$pane" 2>/dev/null)
+    fmt=$(tmux show-options -wv -t "$loc" window-status-format 2>/dev/null)
+    w=0; printf '%s' "$fmt" | grep -q 'bg=red' && w=1
+    locs+=("$loc"); names+=("$wname"); metas+=("$meta"); waits+=("$w")
+  done < <(tmux list-panes -a -F '#{pane_id}|#{session_name}:#{window_index}|#{window_name}|#{pane_title}' | sort -t'|' -k2)
+  local n=${#locs[@]}
+  [ "$cursor" -ge "$n" ] && cursor=$((n - 1)); [ "$cursor" -lt 0 ] && cursor=0
+}
+
+render() {
+  printf '%s%s%s AGENTS%s\n%s──────────────%s\n' "$HOME_CLR" "$G" "$B" "$X" "$D" "$X"
+  local n=${#locs[@]} i mark
+  [ "$n" -eq 0 ] && { printf '%s  (nenhum agente)%s\n' "$D" "$X"; return; }
+  for i in $(seq 0 $((n - 1))); do
+    mark=" ·"; [ "${waits[$i]}" = 1 ] && mark="🔔"
+    if [ "$i" -eq "$cursor" ]; then
+      printf '%s %s %-7s %s%s\n' "$INV" "$mark" "${locs[$i]}" "${names[$i]}" "$X"
+    elif [ "${waits[$i]}" = 1 ]; then
+      printf '%s%s %-7s%s %s\n' "$R$B" "$mark" "${locs[$i]}" "$X" "${names[$i]}"
+    else
+      printf '%s%s%s %s%-7s%s %s\n' "$G" "$mark" "$X" "$D" "${locs[$i]}" "$X" "${names[$i]}"
+    fi
+    [ -n "${metas[$i]}" ] && printf '     %s%s%s\n' "$D" "${metas[$i]}" "$X"
+  done
+}
+
+build; render
+while :; do
+  IFS= read -rsN1 -t 2 key; rc=$?
+  if [ "$rc" -gt 128 ]; then build; render; continue; fi   # 2s timeout -> refresh
+  n=${#locs[@]}
+  case "$key" in
+    j) [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+    k) [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+    l|$'\n'|$'\r') [ "$n" -gt 0 ] && tmux switch-client -t "${locs[$cursor]}" ;;
+    q) printf '\033[?25h'; tmux kill-pane; exit 0 ;;
+    $'\033')  # arrow keys: ESC [ A/B
+      IFS= read -rsN2 -t 0.005 seq
+      case "$seq" in
+        '[A') [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+        '[B') [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+      esac ;;
+  esac
+  render
+done
