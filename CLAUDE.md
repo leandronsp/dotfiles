@@ -135,6 +135,20 @@ Custom two-line zsh prompt (no theme). First line shows `path:branch` with dirty
 
 Everforest-inspired dark theme. Session name with green accent (`#83C092`), window separators with `·`, active window highlighted with green background. Pane borders show active/inactive labels with command name. Status-right displays pi session info (model, thinking, context, tokens, cost) via `tmux-pi-status.sh`. Tmux hooks auto-reset notification highlights when switching windows/sessions.
 
+## Tmux agent + worktree tools
+
+Keyboard-driven multi-select TUIs in `display-popup`s. No fzf: native `display-menu` was dropped for hand-rolled bash TUIs (checkbox multi-select, in-popup confirmation and text input, hjkl/space/a). Scripts in `local-bin/.local/bin/`.
+
+- **`prefix+a`** — agent dashboard (`tmux-agent-tui`). Lists Claude agents across all sessions with live state: **● idle** (green) · **◐ working** (yellow) · **✓ concluiu** (blue). `space`/`a` mark, `enter` jumps, `x` bulk-kills (in-popup confirm), `q` quits.
+- **`prefix+g`** — worktree TUI (`tmux-worktree-tui`), scoped to the current repo's git worktrees: **●** open (has a window) / **○** closed. `enter` jumps/opens a window, `d` bulk-deletes (`git worktree remove --force`, in-popup confirm), `n` creates (in-popup input, esc cancels). Generic git, no project coupling.
+- **`prefix+\`** — toggleable agent sidebar (`tmux-sidebar` + `tmux-sidebar-toggle`): a left split with the same live dashboard, opens focused. `j/k` move, `enter` jumps, `q` closes.
+
+Detection and state are deliberately **not** UI scraping (fragile across Claude versions):
+
+- **Agent detection**: `pane_current_command` is the Claude version (e.g. `2.1.195`); exited panes revert to the shell. Catches working AND idle, unlike the `✳`/spinner title.
+- **State**: the Claude **hooks are the source of truth** (`UserPromptSubmit` → working, `Stop`/`Notification` → idle, via `agent-state.sh` writing `/tmp/agent-state-<pane>`). The title spinner / live `(<time>s · … tokens)` scrape is only a **fallback** for agents started before the hook existed. **done** = the `notify-ready.sh` red flag (finished + unseen, cleared on window enter).
+- The `agent-state.sh` script is tracked; the hook wiring lives in `~/.claude/settings.json` (machine, not tracked) alongside the others. Add it there on a new machine.
+
 ## Neovim config
 
 Lives in `nvim/.config/nvim/`. Stowed to `~/.config/nvim/`. Full reference in [`nvim/.config/nvim/README.md`](nvim/.config/nvim/README.md).

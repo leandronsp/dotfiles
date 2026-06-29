@@ -208,6 +208,7 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 |------|---------|-------------|
 | `vault-session-load.sh` | SessionStart | Loads last session recap + related vault notes (score >= 70%) |
 | `notify-ready.sh` | Stop, Notification | macOS notification + sound + tmux window highlight when Claude finishes in a background window |
+| `agent-state.sh` | UserPromptSubmit, Stop, Notification | Records agent state (working/idle) to `/tmp/agent-state-<pane>` for the tmux agent dashboard (robust, hook-based vs UI scraping) |
 
 ### Skills
 
@@ -257,6 +258,18 @@ Review tmux output without scroll fatigue. Each tmux window gets its own buffer 
 | `tmux-pi-status.sh` | Reads pi session status for active pane, displayed in tmux status-right |
 
 Written by the `tmux-status.ts` pi extension, read by tmux every second.
+
+### Agent dashboard, worktree TUI, sidebar
+
+Keyboard-driven multi-select popups (no fzf, hand-rolled bash TUIs). Full design in [CLAUDE.md](CLAUDE.md#tmux-agent--worktree-tools).
+
+| Key | Script | What it does |
+|-----|--------|-------------|
+| `prefix + a` | `tmux-agent-tui` | Agent dashboard across all sessions: **● idle** / **◐ working** / **✓ concluiu**. `space`/`a` mark, `enter` jumps, `x` bulk-kills (in-popup confirm) |
+| `prefix + g` | `tmux-worktree-tui` | Current repo's git worktrees (**●** open / **○** closed): `enter` jump/open, `d` bulk-delete (`--force`, confirm), `n` create |
+| `prefix + \` | `tmux-sidebar`, `tmux-sidebar-toggle` | Toggle a left split with the live agent dashboard; opens focused, `j/k` move, `enter` jumps, `q` closes |
+
+Agent **state** comes from Claude hooks (`agent-state.sh` → `/tmp/agent-state-<pane>`), not UI scraping, so it survives version changes; the title spinner / status-line scrape is a fallback for pre-hook agents. **Detection** is by `pane_current_command` (the Claude version, e.g. `2.1.195`). **done** = the `notify-ready.sh` red flag (finished + unseen).
 
 ### Annotation Buffer Keybindings
 
