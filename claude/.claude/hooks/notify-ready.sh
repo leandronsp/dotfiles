@@ -13,10 +13,13 @@ if [ "$claude_session" != "$active_session" ]; then
   tmux set-option -t "$active_session" status-left "#[fg=#FFFFFF,bg=red,bold] #S #[bg=#2D353B] "
 fi
 
-# Skip sound + window highlight if in the same window
+# Skip sound + highlight only when you're actually looking: same window AND the
+# terminal is focused. If you switched to another app (terminal unfocused, no
+# "focused" in client_flags), notify even on the agent's own window.
 active_window=$(tmux list-clients -F '#{window_index}' | head -1)
 claude_window=$(tmux display-message -t "$TMUX_PANE" -p '#I')
-if [ "$claude_session" = "$active_session" ] && [ "$claude_window" = "$active_window" ]; then
+focused=$(tmux list-clients -F '#{client_flags}' | head -1 | grep -q focused && echo 1)
+if [ "$claude_session" = "$active_session" ] && [ "$claude_window" = "$active_window" ] && [ -n "$focused" ]; then
   exit 0
 fi
 

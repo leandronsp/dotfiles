@@ -207,7 +207,7 @@ The `claude` stow package manages hooks, skills, MCP servers, and portable setti
 | Hook | Trigger | What it does |
 |------|---------|-------------|
 | `vault-session-load.sh` | SessionStart | Loads last session recap + related vault notes (score >= 70%) |
-| `notify-ready.sh` | Stop, Notification | macOS notification + sound + tmux window highlight when Claude finishes in a background window |
+| `notify-ready.sh` | Stop, Notification | Sound + tmux window highlight when Claude finishes in a background window, a background session, or on the current window while the terminal is unfocused (you switched apps). Skipped only when you are actually looking (focused, on the agent's window) |
 | `agent-state.sh` | UserPromptSubmit, Stop, Notification | Records agent state (working/idle) to `/tmp/agent-state-<pane>` for the tmux agent dashboard (robust, hook-based vs UI scraping) |
 
 ### Skills
