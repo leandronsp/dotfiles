@@ -152,13 +152,30 @@ while :; do
       fi ;;
     r)
       [ "$n" -eq 0 ] && continue
-      if [ -z "${opens[$cursor]}" ]; then status="○ fechado — sem window pra renomear (abra com enter antes)"; continue; fi
-      prompt_line "renomear window de ${names[$cursor]} (atual em ${opens[$cursor]}):"
-      if [ "$CANCELLED" = 0 ] && [ -n "$REPLY" ] && [ -n "$TMUX" ]; then
-        tmux rename-window -t "${opens[$cursor]}" -- "$REPLY"
-        status="window renomeada -> $REPLY"
-      fi
-      build ;;
+      prompt_line "renomear worktree ${names[$cursor]} para:"
+      if [ "$CANCELLED" = 0 ] && [ -n "$REPLY" ]; then
+        old="${paths[$cursor]}"; oldname="${names[$cursor]}"; new="$(dirname "$old")/$REPLY"
+        if [ -e "$new" ]; then
+          status="já existe: $REPLY"
+        else
+          out=$(git -C "$main_root" worktree move "$old" "$new" 2>&1)
+          if [ $? -eq 0 ]; then
+            # rename the branch too only when the dir name IS the branch's last
+            # segment (feat/SQ4-264 ↔ SQ4-264); otherwise the branch is its own
+            # identity (a slug) and renaming it would be wrong.
+            br=$(git -C "$new" rev-parse --abbrev-ref HEAD 2>/dev/null)
+            if [ "${br##*/}" = "$oldname" ]; then
+              git -C "$main_root" branch -m "$br" "${br%$oldname}$REPLY" 2>/dev/null
+              status="renomeado pasta+branch -> $REPLY"
+            else
+              status="renomeado pasta -> $REPLY (branch mantido)"
+            fi
+          else
+            status="move falhou: ${out##*: }"
+          fi
+        fi
+        build
+      fi ;;
     $'\033')
       IFS= read -rsN2 -t 0.01 seq
       case "$seq" in

@@ -140,7 +140,7 @@ Everforest-inspired dark theme. Session name with green accent (`#83C092`), wind
 Keyboard-driven multi-select TUIs in `display-popup`s. No fzf: native `display-menu` was dropped for hand-rolled bash TUIs (checkbox multi-select, in-popup confirmation and text input, hjkl/space/a). Scripts in `local-bin/.local/bin/`.
 
 - **`prefix+a`** — agent dashboard (`tmux-agent-tui`). Lists Claude agents across all sessions with live state: **● idle** (green) · **◐ working** (yellow) · **✓ concluiu** (blue). `space`/`a` mark, `enter` jumps, `x` bulk-kills (in-popup confirm), `q` quits.
-- **`prefix+g`** — worktree TUI (`tmux-worktree-tui`), scoped to the current repo's git worktrees: **●** open (has a window) / **○** closed. `enter` jumps/opens a window, `d` bulk-deletes (`git worktree remove --force`, in-popup confirm), `n` creates (in-popup input, esc cancels). Generic git, no project coupling.
+- **`prefix+g`** — worktree TUI (`tmux-worktree-tui`), scoped to the current repo's git worktrees: **●** open (has a window) / **○** closed. `enter` jumps/opens a window, `d` bulk-deletes (`git worktree remove --force`, in-popup confirm), `n` creates (in-popup input, esc cancels), `r` renames the worktree itself (`git worktree move` + the branch when the dir name is the branch's last segment, e.g. `feat/SQ4-264` ↔ `SQ4-264`). Generic git, no project coupling.
 - **`prefix+\`** — toggleable agent sidebar (`tmux-sidebar` + `tmux-sidebar-toggle`): a left split with the same live dashboard, opens focused. `j/k` move, `enter` jumps, `q` closes.
 
 Detection and state are deliberately **not** UI scraping (fragile across Claude versions):
