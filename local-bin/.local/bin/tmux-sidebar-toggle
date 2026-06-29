@@ -9,5 +9,5 @@ if [ -n "$sb" ]; then
 else
   tmux split-window -hb -l 34 -c "#{pane_current_path}" "exec $HOME/.local/bin/tmux-sidebar"
   tmux set -p @is_sidebar 1
-  tmux select-pane -R
+  # leave focus IN the sidebar so j/k work immediately (no manual pane switch)
 fi

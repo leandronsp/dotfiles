@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# Interactive worktree TUI (runs in a tmux display-popup). Multi-select with
+# checkboxes; confirmation and text input happen IN the popup, not the status line.
+#   j/k or ↑/↓   move cursor          space   toggle mark on current
+#   a            mark / unmark all    enter/l open (jump if open, else new window)
+#   d            delete marked (force, with an in-popup confirmation)
+#   n            new worktree (in-popup input)
+#   r            rename the current worktree's window (in-popup input)
+#   q / esc      close
+# tmux actions are guarded by $TMUX so the TUI can be tested headless with `tu`.
+
+G=$'\033[38;2;122;154;94m'; R=$'\033[38;2;230;126;128m'; Y=$'\033[38;2;219;188;127m'
+D=$'\033[2m'; B=$'\033[1m'; INV=$'\033[7m'; X=$'\033[0m'; CLR=$'\033[H\033[2J'
+
+cwd="${WT_CWD:-$PWD}"
+common=$(git -C "$cwd" rev-parse --git-common-dir 2>/dev/null) || {
+  printf '%snot in a git repo%s\n(press any key)' "$R" "$X"; read -rsn1; exit 0
+}
+case "$common" in /*) ;; *) common="$cwd/$common" ;; esac
+main_root=$(cd "$(dirname "$common")" 2>/dev/null && pwd)
+reponame=$(basename "$main_root")
+wt_base="$main_root/.worktrees"
+
+stty_orig=$(stty -g 2>/dev/null)
+stty -echo -icanon 2>/dev/null
+trap 'stty "$stty_orig" 2>/dev/null; printf "\033[?25h"' EXIT INT TERM
+printf '\033[?25l'
+
+cursor=0; top=0; marks=" "; status=""
+paths=(); names=(); brs=(); opens=()
+
+build() {
+  paths=(); names=(); brs=(); opens=()
+  local panes="" cur_path="" cur_br="" line br sw porcelain main_wt
+  [ -n "$TMUX" ] && panes=$(tmux list-panes -a -F '#{session_name}:#{window_index}|#{pane_current_path}' 2>/dev/null)
+  porcelain=$(git -C "$main_root" worktree list --porcelain)
+  main_wt="${porcelain%%$'\n'*}"; main_wt="${main_wt#worktree }"   # first entry = main checkout
+  while IFS= read -r line; do
+    case "$line" in
+      worktree\ *) cur_path="${line#worktree }"; cur_br="" ;;
+      branch\ *)   cur_br="${line#branch refs/heads/}" ;;
+      detached)    cur_br="(detached)" ;;
+      "")
+        [ -z "$cur_path" ] && continue
+        [ "$cur_path" = "$main_wt" ] && { cur_path=""; continue; }
+        br="$cur_br"; [ ${#br} -gt 30 ] && br="${br:0:28}…"
+        sw=$(printf '%s\n' "$panes" | awk -F'|' -v wp="$cur_path" '$2==wp || index($2, wp"/")==1 {print $1; exit}')
+        paths+=("$cur_path"); names+=("$(basename "$cur_path")"); brs+=("$br"); opens+=("$sw")
+        cur_path=""; cur_br=""
+        ;;
+    esac
+  done < <(printf '%s\n' "$porcelain"; echo)
+  local n=${#paths[@]}
+  [ "$cursor" -ge "$n" ] && cursor=$((n - 1)); [ "$cursor" -lt 0 ] && cursor=0
+}
+
+is_marked() { case "$marks" in *" $1 "*) return 0 ;; esac; return 1; }
+unmark()    { marks="${marks/ $1 / }"; }
+mark_count(){ set -- $marks; echo $#; }
+
+render() {
+  local rows; rows=$(( ${LINES:-$(tput lines 2>/dev/null || echo 30)} - 4 ))
+  [ "$rows" -lt 3 ] && rows=3
+  [ "$cursor" -lt "$top" ] && top=$cursor
+  [ "$cursor" -ge $((top + rows)) ] && top=$((cursor - rows + 1))
+  printf '%s%s%s worktrees · %s%s  %s%s marked%s   %s%s%s\n' "$CLR" "$G" "$B" "$reponame" "$X" "$D" "$(mark_count)" "$X" "$Y" "$status" "$X"
+  printf '%sspace mark · a all · enter open · d delete · n new · r rename · q quit%s\n' "$D" "$X"
+  printf '%s● aberto (tem window) · ○ fechado%s\n\n' "$D" "$X"
+  local n=${#paths[@]} i box dot end
+  [ "$n" -eq 0 ] && { printf '%s  (sem worktrees)%s\n' "$D" "$X"; return; }
+  end=$((top + rows)); [ "$end" -gt "$n" ] && end=$n
+  for ((i = top; i < end; i++)); do
+    if is_marked "${paths[$i]}"; then box="${G}[x]${X}"; else box="${D}[ ]${X}"; fi
+    if [ -n "${opens[$i]}" ]; then dot="${G}●${X}"; else dot="${Y}○${X}"; fi
+    if [ "$i" -eq "$cursor" ]; then
+      printf '%s %s %s %-20s %s %s\n' "$INV>" "$box" "$dot" "${names[$i]}" "${brs[$i]}" "$X"
+    else
+      printf '   %s %s %-20s %s%s%s\n' "$box" "$dot" "${names[$i]}" "$D" "${brs[$i]}" "$X"
+    fi
+  done
+}
+
+confirm_delete() {  # paths in $@
+  printf '%s%s%s delete %d worktree(s) — force%s\n\n' "$CLR" "$R" "$B" "$#" "$X"
+  local p
+  for p in "$@"; do printf '   %s✗%s %s  %s%s%s\n' "$R" "$X" "$(basename "$p")" "$D" "$p" "$X"; done
+  printf '\n%suncommitted changes in these worktrees will be lost%s\n' "$Y" "$X"
+  printf '\n   %s[y]%s delete all     %s[n / esc]%s cancel\n' "$G" "$X" "$D" "$X"
+  local k; IFS= read -rsN1 k
+  [ "$k" = y ] || [ "$k" = Y ]
+}
+
+prompt_line() {  # $1 prompt -> sets REPLY, sets CANCELLED=1 on esc
+  REPLY=""; CANCELLED=0
+  local c
+  while :; do
+    printf '%s%s%s%s\n\n   %s_%s\n\n   %s[enter] ok   [esc] cancelar%s' \
+      "$CLR" "$B" "$1" "$X" "$REPLY" "$X" "$D" "$X"
+    IFS= read -rsN1 c
+    case "$c" in
+      $'\n'|$'\r') return 0 ;;
+      $'\033')     CANCELLED=1; return 1 ;;
+      $'\177'|$'\b') REPLY="${REPLY%?}" ;;
+      *) case "$c" in [[:print:]]) REPLY="$REPLY$c" ;; esac ;;
+    esac
+  done
+}
+
+open_win_for() { printf '%s\n' "$1" | awk -F'|' -v wp="$2" '$2==wp || index($2, wp"/")==1 {print $1; exit}'; }
+
+build
+while :; do
+  render
+  IFS= read -rsN1 key
+  status=""
+  n=${#paths[@]}
+  case "$key" in
+    q) exit 0 ;;
+    j) [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+    k) [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+    ' ') [ "$n" -gt 0 ] && { is_marked "${paths[$cursor]}" && unmark "${paths[$cursor]}" || marks="$marks${paths[$cursor]} "; } ;;
+    a)
+      if [ "$(mark_count)" -gt 0 ]; then marks=" "; else marks=" "; for p in "${paths[@]}"; do marks="$marks$p "; done; fi ;;
+    l|$'\n'|$'\r')
+      [ "$n" -eq 0 ] && continue
+      if [ -n "${opens[$cursor]}" ]; then [ -n "$TMUX" ] && tmux switch-client -t "${opens[$cursor]}"
+      else [ -n "$TMUX" ] && tmux new-window -c "${paths[$cursor]}" -n "${names[$cursor]}"; fi
+      exit 0 ;;
+    d)
+      sel=(); for p in "${paths[@]}"; do is_marked "$p" && sel+=("$p"); done
+      [ ${#sel[@]} -eq 0 ] && [ "$n" -gt 0 ] && sel=("${paths[$cursor]}")
+      if [ ${#sel[@]} -gt 0 ] && confirm_delete "${sel[@]}"; then
+        panes=""; [ -n "$TMUX" ] && panes=$(tmux list-panes -a -F '#{session_name}:#{window_index}|#{pane_current_path}' 2>/dev/null)
+        for p in "${sel[@]}"; do
+          if [ -n "$TMUX" ]; then sw=$(open_win_for "$panes" "$p"); [ -n "$sw" ] && tmux kill-window -t "$sw" 2>/dev/null; fi
+          git -C "$main_root" worktree remove --force "$p" 2>/dev/null
+          unmark "$p"
+        done
+        cnt=${#sel[@]}; build; status="removido(s): $cnt"
+      fi ;;
+    n)
+      prompt_line "novo worktree (nome do branch):"
+      if [ "$CANCELLED" = 0 ] && [ -n "$REPLY" ]; then
+        mkdir -p "$wt_base"
+        if git -C "$main_root" show-ref --verify --quiet "refs/heads/$REPLY"; then
+          git -C "$main_root" worktree add "$wt_base/$REPLY" "$REPLY" 2>/dev/null
+        else
+          git -C "$main_root" worktree add "$wt_base/$REPLY" -b "$REPLY" 2>/dev/null
+        fi
+        [ -n "$TMUX" ] && tmux new-window -c "$wt_base/$REPLY" -n "$REPLY"
+        build; status="criado: $REPLY"
+      fi ;;
+    r)
+      [ "$n" -eq 0 ] && continue
+      if [ -z "${opens[$cursor]}" ]; then status="○ fechado — sem window pra renomear (abra com enter antes)"; continue; fi
+      prompt_line "renomear window de ${names[$cursor]} (atual em ${opens[$cursor]}):"
+      if [ "$CANCELLED" = 0 ] && [ -n "$REPLY" ] && [ -n "$TMUX" ]; then
+        tmux rename-window -t "${opens[$cursor]}" -- "$REPLY"
+        status="window renomeada -> $REPLY"
+      fi
+      build ;;
+    $'\033')
+      IFS= read -rsN2 -t 0.01 seq
+      case "$seq" in
+        '[A') [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+        '[B') [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+        '')   exit 0 ;;
+      esac ;;
+  esac
+done

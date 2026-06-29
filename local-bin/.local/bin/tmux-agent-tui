@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# Interactive agent TUI (runs in a tmux display-popup). Multi-select Claude
+# agents across all sessions; jump to one or bulk-kill. Confirmation happens IN
+# the popup. Mirrors tmux-worktree-tui (duplicated on purpose — extract a shared
+# core if a third picker shows up).
+#   j/k or ↑/↓  move     space  toggle mark    a  mark/unmark all
+#   enter / l   jump to the agent's window      k  kill marked (with confirm)
+#   q / esc     close
+# tmux actions are guarded by $TMUX; data can be mocked via $AGENT_PANES_FILE.
+
+G=$'\033[38;2;122;154;94m'; R=$'\033[38;2;230;126;128m'; Y=$'\033[38;2;219;188;127m'
+BL=$'\033[38;2;127;187;183m'
+D=$'\033[2m'; B=$'\033[1m'; INV=$'\033[7m'; X=$'\033[0m'; CLR=$'\033[H\033[2J'
+
+stty_orig=$(stty -g 2>/dev/null); stty -echo -icanon 2>/dev/null
+trap 'stty "$stty_orig" 2>/dev/null; printf "\033[?25h"' EXIT INT TERM
+printf '\033[?25l'
+
+cursor=0; top=0; marks=" "; status=""
+locs=(); names=(); metas=(); apanes=(); states=()
+
+agent_state() {  # $1 pane  $2 loc  $3 title -> idle | working | done
+  local p="$1" loc="$2" title="$3" fmt st="idle"
+  # working: prefer the hook-written state (robust, version-proof). Fall back to
+  # the title spinner / live status line for agents that predate the hook.
+  if [ -f "/tmp/agent-state-$p" ]; then
+    [ "$(cat "/tmp/agent-state-$p" 2>/dev/null)" = working ] && st="working"
+  else
+    case "$title" in ✳*) ;; *) st="working" ;; esac
+    [ "$st" = idle ] && [ -n "$TMUX" ] && tmux capture-pane -t "$p" -p 2>/dev/null | grep -qE '\(([0-9]+m )?[0-9]+s' && st="working"
+  fi
+  # done = finished and unseen (window red-flagged); else idle
+  if [ "$st" = idle ] && [ -n "$TMUX" ]; then
+    fmt=$(tmux show-options -wv -t "$loc" window-status-format 2>/dev/null)
+    printf '%s' "$fmt" | grep -q 'bg=red' && st="done"
+  fi
+  echo "$st"
+}
+
+build() {
+  locs=(); names=(); metas=(); apanes=(); states=()
+  local seen="" src p loc wname cmd title teststate meta fmt st
+  if [ -n "$AGENT_PANES_FILE" ]; then src=$(cat "$AGENT_PANES_FILE" 2>/dev/null)
+  elif [ -n "$TMUX" ]; then src=$(tmux list-panes -a -F '#{pane_id}|#{session_name}:#{window_index}|#{window_name}|#{pane_current_command}|#{pane_title}' 2>/dev/null); fi
+  while IFS='|' read -r p loc wname cmd title teststate; do
+    [ -z "$p" ] && continue
+    # a live Claude pane runs the version as its command (e.g. 2.1.195); exited
+    # ones revert to the shell. Catches working AND idle, unlike the ✳ title.
+    [ -z "$AGENT_PANES_FILE" ] && { case "$cmd" in [0-9]*) : ;; *) continue ;; esac; }
+    case " $seen " in *" $loc "*) continue ;; esac
+    seen="$seen $loc"
+    [ ${#wname} -gt 18 ] && wname="${wname:0:17}…"
+    meta=$(awk -F' · ' 'NR==1{print $1 (NF>1?" · "$2:"")}' "/tmp/claude-statusline-$p" 2>/dev/null)
+    if [ -n "$teststate" ]; then
+      st="$teststate"                                            # test injection
+    else
+      st=$(agent_state "$p" "$loc" "$title")
+    fi
+    locs+=("$loc"); names+=("$wname"); metas+=("$meta"); apanes+=("$p"); states+=("$st")
+  done <<< "$src"
+  local n=${#locs[@]}
+  [ "$cursor" -ge "$n" ] && cursor=$((n - 1)); [ "$cursor" -lt 0 ] && cursor=0
+}
+
+is_marked() { case "$marks" in *" $1 "*) return 0 ;; esac; return 1; }
+unmark()    { marks="${marks/ $1 / }"; }
+mark_count(){ set -- $marks; echo $#; }
+
+render() {
+  local rows; rows=$(( ${LINES:-$(tput lines 2>/dev/null || echo 30)} - 4 ))
+  [ "$rows" -lt 3 ] && rows=3
+  [ "$cursor" -lt "$top" ] && top=$cursor
+  [ "$cursor" -ge $((top + rows)) ] && top=$((cursor - rows + 1))
+  printf '%s%s%s agents%s  %s%s marked%s   %s%s%s\n' "$CLR" "$G" "$B" "$X" "$D" "$(mark_count)" "$X" "$Y" "$status" "$X"
+  printf '%sspace mark · a all · enter jump · x kill · q quit%s\n' "$D" "$X"
+  printf '%s%s● idle%s %s · %s◐ working%s %s · %s✓ concluiu%s\n\n' "$D" "$G" "$D" "$D" "$Y" "$D" "$D" "$BL" "$X"
+  local n=${#locs[@]} i box mark end
+  [ "$n" -eq 0 ] && { printf '%s  (nenhum agente)%s\n' "$D" "$X"; return; }
+  end=$((top + rows)); [ "$end" -gt "$n" ] && end=$n
+  for ((i = top; i < end; i++)); do
+    if is_marked "${locs[$i]}"; then box="${G}[x]${X}"; else box="${D}[ ]${X}"; fi
+    case "${states[$i]}" in
+      done)    mark="${BL}✓${X}" ;;
+      working) mark="${Y}◐${X}" ;;
+      *)       mark="${G}●${X}" ;;
+    esac
+    if [ "$i" -eq "$cursor" ]; then
+      printf '%s %s %s %-8s %-18s %s%s\n' "$INV>" "$box" "$mark" "${locs[$i]}" "${names[$i]}" "${metas[$i]}" "$X"
+    else
+      printf '   %s %s %s%-8s%s %-18s %s%s%s\n' "$box" "$mark" "$D" "${locs[$i]}" "$X" "${names[$i]}" "$D" "${metas[$i]}" "$X"
+    fi
+  done
+}
+
+confirm_kill() {  # locs in $@
+  printf '%s%s%s kill %d agent(s)%s\n\n' "$CLR" "$R" "$B" "$#" "$X"
+  local l
+  for l in "$@"; do printf '   %s✗%s %s\n' "$R" "$X" "$l"; done
+  printf '\n%sthe Claude process in each pane is terminated (kill-pane)%s\n' "$Y" "$X"
+  printf '\n   %s[y]%s kill all     %s[n / esc]%s cancel\n' "$G" "$X" "$D" "$X"
+  local k; IFS= read -rsN1 k
+  [ "$k" = y ] || [ "$k" = Y ]
+}
+
+pane_for() { local i; for i in "${!locs[@]}"; do [ "${locs[$i]}" = "$1" ] && { echo "${apanes[$i]}"; return; }; done; }
+
+build
+while :; do
+  render
+  IFS= read -rsN1 key
+  status=""
+  n=${#locs[@]}
+  case "$key" in
+    q) exit 0 ;;
+    j) [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+    k) [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+    x|X)
+      [ "$n" -eq 0 ] && continue
+      sel=(); for l in "${locs[@]}"; do is_marked "$l" && sel+=("$l"); done
+      [ ${#sel[@]} -eq 0 ] && [ "$n" -gt 0 ] && sel=("${locs[$cursor]}")
+      if [ ${#sel[@]} -gt 0 ] && confirm_kill "${sel[@]}"; then
+        for l in "${sel[@]}"; do
+          [ -n "$TMUX" ] && tmux kill-pane -t "$(pane_for "$l")" 2>/dev/null
+          unmark "$l"
+        done
+        cnt=${#sel[@]}; build; status="morto(s): $cnt"
+      fi ;;
+    ' ') [ "$n" -gt 0 ] && { is_marked "${locs[$cursor]}" && unmark "${locs[$cursor]}" || marks="$marks${locs[$cursor]} "; } ;;
+    a)
+      if [ "$(mark_count)" -gt 0 ]; then marks=" "; else marks=" "; for l in "${locs[@]}"; do marks="$marks$l "; done; fi ;;
+    l|$'\n'|$'\r')
+      [ "$n" -eq 0 ] && continue
+      [ -n "$TMUX" ] && tmux switch-client -t "${locs[$cursor]}"
+      exit 0 ;;
+    $'\033')
+      IFS= read -rsN2 -t 0.01 seq
+      case "$seq" in
+        '[A') [ "$cursor" -gt 0 ] && cursor=$((cursor - 1)) ;;
+        '[B') [ "$cursor" -lt $((n - 1)) ] && cursor=$((cursor + 1)) ;;
+        '')   exit 0 ;;
+      esac ;;
+  esac
+done
