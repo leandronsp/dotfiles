@@ -1,9 +1,39 @@
 {
   "providers": {
+    "ollama": {
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "baseUrl": "http://127.0.0.1:11434/v1",
+      "models": [
+        {
+          "_launch": true,
+          "contextWindow": 1000000,
+          "id": "glm-5.2:cloud",
+          "input": [
+            "text"
+          ]
+        }
+      ],
+      "modelOverrides": {
+        "glm-5.2:cloud": {
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": null,
+            "low": null,
+            "medium": null,
+            "high": "high",
+            "max": "max"
+          }
+        }
+      }
+    },
     "opencode-go": {
       "modelOverrides": {
         "glm-5.1": {
-          "input": ["text"]
+          "input": [
+            "text"
+          ]
         }
       }
     }

@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.80.2",
-  "defaultProvider": "opencode-go",
-  "defaultModel": "deepseek-v4-pro",
+  "lastChangelogVersion": "0.80.10",
+  "defaultProvider": "ollama",
+  "defaultModel": "glm-5.2:cloud",
   "defaultThinkingLevel": "high",
   "theme": "everforest",
   "extensions": [
@@ -9,7 +9,6 @@
     "~/.pi/agent/extensions/tmux-notify.ts",
     "~/.pi/agent/extensions/subagent",
     "~/.pi/agent/extensions/plan-mode",
-    "~/.pi/agent/extensions/web-search.ts",
     "~/.pi/agent/extensions/auto-memory.ts",
     "~/.pi/agent/extensions/rules-loader.ts",
     "~/.pi/agent/extensions/cc-memory-loader.ts",
@@ -22,5 +21,10 @@
     "~/.pi/agent/extensions/truncate-output.ts",
     "~/.pi/agent/extensions/monitor.ts"
   ],
-  "hideThinkingBlock": true
+  "hideThinkingBlock": true,
+  "warnings": {
+    "anthropicExtraUsage": false
+  },
+  "treeFilterMode": "default",
+  "defaultProjectTrust": "ask"
 }

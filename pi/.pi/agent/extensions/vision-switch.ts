@@ -1,8 +1,8 @@
 /**
  * vision-switch — switch to a vision model only when an ACTUAL image is involved, revert after.
  *
- * The opencode-go coding defaults (mimo-v2.5-pro, deepseek-v4-pro) are text-only. Switch to a
- * vision model (minimax-m3) only for real images:
+ * The ollama cloud coding default (glm-5.2:cloud) is text-only. Switch to a
+ * vision model (minimax-m3:cloud) only for real images:
  *   1. image at turn start — attached (event.images) OR an image path in the prompt
  *      (clipboard paste writes /var/folders/.../pi-clipboard-*.png and puts the PATH in the prompt).
  *   2. a `read` of an image file mid-loop — e.g. a screenshot agent-browser saved.
@@ -14,8 +14,8 @@
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 
-const VISION_PROVIDER = "opencode-go";
-const VISION_MODEL = "minimax-m3";
+const VISION_PROVIDER = "ollama";
+const VISION_MODEL = "minimax-m3:cloud";
 const IMAGE_PATH = /(?:^|\s)\/\S+\.(?:png|jpe?g|gif|webp|bmp|tiff)\b/i;
 const IMAGE_EXT = /\.(?:png|jpe?g|gif|webp|bmp|tiff)$/i;
 
