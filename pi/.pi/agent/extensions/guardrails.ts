@@ -33,12 +33,13 @@ const SECRET_PATH = /(^|\/)(\.env(?!\.(?:example|sample|template|dist))(\.\w+)?$
 const SECRET_READ_CMD = /\b(cat|less|more|head|tail|bat|xxd|od|strings|grep|rg|awk|sed)\b[^|;&\n]*(\.env(?!\.(?:example|sample|template|dist))\b|\bid_rsa\b|\.pem\b|\bcredentials\b|\.aws\/|\.ssh\/|secrets?\/)/i;
 
 // network egress / pipe-to-shell (the exfiltration / remote-code chain)
-const EGRESS: RegExp[] = [
-	/\|\s*(sh|bash|zsh|fish|python3?|node|ruby|perl)\b/i,                                                     // pipe to interpreter
-	/\b(curl|wget)\b[^|;&\n]*\|\s*\S/i,                                                                        // curl … | something
-	/\b(curl|wget)\b[^|;&\n]*(\s-d\b|--data|\s-F\b|--form|\s-T\b|--upload-file|-X\s*POST|--request\s+POST)/i,  // upload / POST
-	/\bnc\b\s+\S+\s+\d+/i,                                                                                     // netcat
-];
+// Smart: only flag REMOTE egress or pipe to an actual shell. Local API calls
+// (curl http://127.0.0.1:11434 | python3 -c …) and pipes to text tools
+// (python3/node/awk/sed) are not exfiltration — let them through silently.
+const SHELL_PIPE = /\|\s*(sh|bash|zsh|fish)\b/i;                                                              // pipe to a real shell (RCE end)
+const REMOTE_URL = /\bhttps?:\/\/(?!127\.0\.0\.1\b|0\.0\.0\.0\b|::1\b|localhost\b)/i;                         // http(s):// non-loopback host
+const REMOTE_NC = /\bnc\b\s+(?!127\.0\.0\.1\b|0\.0\.0\.0\b|::1\b|localhost\b)\S+/i;                           // netcat to non-loopback
+const LOCALHOST = /\b(127\.0\.0\.1|0\.0\.0\.0|::1|localhost)\b/i;
 
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", () => { try { pi.sendMessage({ customType: "boot", content: "✓ guardrails", display: true }); } catch { /* */ } });
@@ -52,7 +53,9 @@ export default function (pi: ExtensionAPI) {
 
 			if (SECRET_READ_CMD.test(cmd)) return { block: true, reason: "guardrails: refusing to read a secret/credential file (.env, keys, credentials). Read it yourself if intended." };
 
-			if (EGRESS.some((re) => re.test(cmd))) {
+			const hasCurl = /\b(curl|wget)\b/i.test(cmd);
+			const remoteCurl = hasCurl && (REMOTE_URL.test(cmd) || !LOCALHOST.test(cmd));
+			if (SHELL_PIPE.test(cmd) || remoteCurl || REMOTE_NC.test(cmd)) {
 				let ok = false;
 				try { ok = await ctx.ui.confirm("⚠️  Network egress / pipe-to-shell", `Allow this command?\n\n${cmd}`); } catch { ok = false; }
 				if (!ok) return { block: true, reason: "guardrails: egress / pipe-to-shell not confirmed — blocked (fail-closed). Run it yourself if intended." };
