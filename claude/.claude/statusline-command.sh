@@ -6,30 +6,34 @@ ctx=$(echo "$input" | jq -r '.context_window.used_percentage // 0 | floor')
 usage_5h=$(echo "$input" | jq -r 'if .rate_limits.five_hour.used_percentage then (.rate_limits.five_hour.used_percentage | floor | tostring) else empty end')
 usage_7d=$(echo "$input" | jq -r 'if .rate_limits.seven_day.used_percentage then (.rate_limits.seven_day.used_percentage | floor | tostring) else empty end')
 
-# --- Fable weekly usage -------------------------------------------------------
-# Per-model usage is NOT in the statusline stdin (that only carries the aggregate
-# 5h/7d windows). It lives in the undocumented OAuth usage endpoint, under
-# limits[] scoped by model: we match the limit whose scope.model.display_name is
-# "Fable" and read its percent. (The flat seven_day_* keys are all null / return
-# internal codenames, so limits[] is the only clean source.)
+# --- Usage limits: percentages + reset countdowns -----------------------------
+# The statusline stdin carries only the aggregate 5h/7d percentages: no reset
+# times and no per-model (Fable) breakdown. All of that lives in the undocumented
+# OAuth usage endpoint (top-level five_hour/seven_day plus a limits[] array scoped
+# by model). We cache, per 60s, a small JSON blob { fable%, plus the reset epochs
+# for 5h / 7d / fable } and read it back to append a "~Xh"/"~Xd" countdown.
 #
-# Failure is ALWAYS graceful — the whole fetch runs in a backgrounded subshell and
-# the display is gated on a non-empty cache, so if anything goes wrong the cache is
-# overwritten empty and the "fable:" segment just vanishes. No crash, next refresh
-# moves on. This covers every case worth worrying about:
+# Reset times are APPROXIMATE by design: the 5h window slides (only the oldest
+# usage rolls off at resets_at, you don't drop to 0) and the weekly reset is
+# fuzzy in practice. Hence the "~" prefix. Read it as "no earlier than", a guide.
+#
+# Failure is ALWAYS graceful. The fetch runs in a detached subshell and every
+# field is read defensively, so if anything goes wrong the cache is overwritten
+# empty and the extras simply vanish:
 #   - Fable loses its own weekly cap (moves to credits) -> no scoped limit -> gone
 #   - endpoint 404s / 429s / returns non-JSON / times out -> empty         -> gone
 #   - no OAuth token in the keychain                      -> empty         -> gone
-# The main line (model/ctx/5h/7d) never touches this and always renders.
+# The 5h/7d percentages come from stdin, so they keep rendering (just without the
+# countdown); only the Fable segment depends entirely on the endpoint. The main
+# line (model/ctx) never touches this.
 #
-# Endpoint is undocumented and can change without notice; that too just degrades
-# to no segment. Cached to a file with a 60s TTL; `touch` claims the slot up front
-# so rapid refreshes don't fire duplicate requests while one is in flight. The
-# fetch is detached so it never blocks the render on the network.
-fable_cache="/tmp/claude-fable-usage"
-mtime=$(stat -f %m "$fable_cache" 2>/dev/null || echo 0)
+# Undocumented endpoint, can change without notice (also degrades to no extras).
+# `touch` claims the slot up front so rapid refreshes don't fire duplicate
+# requests while one is in flight; the fetch is detached so it never blocks.
+cache_file="/tmp/claude-fable-usage"
+mtime=$(stat -f %m "$cache_file" 2>/dev/null || echo 0)
 if [ $(( $(date +%s) - mtime )) -ge 60 ]; then
-  touch "$fable_cache"
+  touch "$cache_file"
   version=$(echo "$input" | jq -r '.version // "2.1.0"')
   ( out=""
     token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null | jq -r '.claudeAiOauth.accessToken // empty')
@@ -38,23 +42,42 @@ if [ $(( $(date +%s) - mtime )) -ge 60 ]; then
         -H "Authorization: Bearer $token" \
         -H "anthropic-beta: oauth-2025-04-20" \
         -H "User-Agent: claude-code/$version" \
-      | jq -r '(.limits // []) | map(select((.scope.model.display_name // "") | test("fable"; "i"))) | (.[0].percent // empty) | floor' 2>/dev/null)
+      | jq -c 'def e: if . == null then null else (sub("(\\.[0-9]+)?([+-][0-9:]+|Z)$";"Z") | fromdateiso8601) end;
+               ((.limits // []) | map(select((.scope.model.display_name // "") | test("fable";"i"))) | .[0]) as $f
+               | { fable: ($f.percent // null),
+                   r5h: (.five_hour.resets_at | e),
+                   r7d: (.seven_day.resets_at | e),
+                   rfb: ($f.resets_at | e) }' 2>/dev/null)
     fi
     # Always overwrite, even when empty, so a dead endpoint or unscoped Fable
-    # clears the value instead of freezing the last reading on screen.
-    printf '%s' "$out" > "$fable_cache.tmp"
-    mv -f "$fable_cache.tmp" "$fable_cache" ) &
+    # clears the extras instead of freezing the last reading on screen.
+    printf '%s' "$out" > "$cache_file.tmp"
+    mv -f "$cache_file.tmp" "$cache_file" ) &
 fi
-fable=""
-[ -s "$fable_cache" ] && fable=$(cat "$fable_cache")
+
+cache=""
+[ -s "$cache_file" ] && cache=$(cat "$cache_file")
+fable=$(printf '%s' "$cache" | jq -r '.fable // empty' 2>/dev/null)
+r5h=$(printf '%s' "$cache" | jq -r '.r5h // empty' 2>/dev/null)
+r7d=$(printf '%s' "$cache" | jq -r '.r7d // empty' 2>/dev/null)
+rfb=$(printf '%s' "$cache" | jq -r '.rfb // empty' 2>/dev/null)
+
+now=$(date +%s)
+# epoch -> "~Xh" (<1d, rounded up) or "~Xd" (>=1d); nothing if empty or past
+eta() {
+  [ -z "$1" ] && return
+  local s=$(( $1 - now ))
+  [ "$s" -le 0 ] && { printf '~0h'; return; }
+  if [ "$s" -ge 86400 ]; then printf '~%dd' "$(( s / 86400 ))"; else printf '~%dh' "$(( (s + 3599) / 3600 ))"; fi
+}
 
 # "Opus 4.6 (1M context)" -> "Opus 4.6"
 short_model=$(echo "$model" | sed -E 's/ \(.*//')
 
 output="$short_model · ctx:${ctx}%"
-[ -n "$usage_5h" ] && output="$output · 5h:${usage_5h}%"
-[ -n "$usage_7d" ] && output="$output · 7d:${usage_7d}%"
-[ -n "$fable" ] && output="$output · fable:${fable}%"
+[ -n "$usage_5h" ] && output="$output · 5h:${usage_5h}%$(eta "$r5h")"
+[ -n "$usage_7d" ] && output="$output · 7d:${usage_7d}%$(eta "$r7d")"
+[ -n "$fable" ] && output="$output · fable:${fable}%$(eta "$rfb")"
 
 # Save per-pane for tmux
 if [ -n "$TMUX_PANE" ]; then
