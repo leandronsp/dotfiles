@@ -4,6 +4,19 @@
       "api": "openai-completions",
       "apiKey": "ollama",
       "baseUrl": "http://127.0.0.1:11434/v1",
+      "modelOverrides": {
+        "glm-5.2:cloud": {
+          "reasoning": true,
+          "thinkingLevelMap": {
+            "high": "high",
+            "low": null,
+            "max": "max",
+            "medium": null,
+            "minimal": null,
+            "off": null
+          }
+        }
+      },
       "models": [
         {
           "_launch": true,
@@ -12,21 +25,16 @@
           "input": [
             "text"
           ]
+        },
+        {
+          "contextWindow": 262144,
+          "id": "kimi-k2.7-code:cloud",
+          "input": [
+            "text",
+            "image"
+          ]
         }
-      ],
-      "modelOverrides": {
-        "glm-5.2:cloud": {
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": null,
-            "minimal": null,
-            "low": null,
-            "medium": null,
-            "high": "high",
-            "max": "max"
-          }
-        }
-      }
+      ]
     },
     "opencode-go": {
       "modelOverrides": {
