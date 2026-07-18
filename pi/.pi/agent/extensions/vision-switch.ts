@@ -1,5 +1,5 @@
 /**
- * vision-switch — switch to a vision model only when an ACTUAL image is involved, revert after.
+ * vision-switch — switch to a vision model when an image is involved, revert when no image.
  *
  * The ollama cloud coding default (glm-5.2:cloud) is text-only. Switch to a
  * vision model (minimax-m3:cloud) only for real images:
@@ -8,8 +8,12 @@
  *   2. a `read` of an image file mid-loop — e.g. a screenshot agent-browser saved.
  *
  * NOT for browser navigation: `agent-browser snapshot` returns a TEXT accessibility tree (buttons,
- * links, refs), which a text model reads fine. Only reading a screenshot needs vision. One-shot:
- * revert at agent_end so heavy code/debugging during a browser flow stays on the coding model.
+ * links, refs), which a text model reads fine. Only reading a screenshot needs vision.
+ *
+ * Revert strategy: revert on the NEXT `before_agent_start` that has NO image. This avoids the
+ * agent_end → tool_call → before_agent_start loop where the model ping-pongs between vision and
+ * coding on every model call within a single turn. The model stays on vision for the entire turn
+ * once an image is detected, and reverts when the user sends a new message without an image.
  *
  * BUGFIX: pi persists the active model across sessions in the same project directory. If a previous
  * session was still on the vision model (e.g. agent_end hadn't fired yet when a new session started),
@@ -34,8 +38,8 @@ function promptHasImage(event: { images?: unknown[]; prompt?: string }) {
 export default function (pi: ExtensionAPI) {
 	pi.on("session_start", async (_event, ctx) => {
 		// Force-reset to the default coding model. pi persists the active model across sessions —
-		// if the previous session ended while on the vision model (agent_end not yet fired), this
-		// new session would inherit it. Reset early, before any agent turns run.
+		// if the previous session ended while on the vision model, this new session would inherit
+		// it. Reset early, before any agent turns run.
 		const current = ctx.model;
 		if (current && current.provider === VISION_PROVIDER && current.id === VISION_MODEL) {
 			const def = ctx.modelRegistry.find(DEFAULT_PROVIDER, DEFAULT_MODEL);
@@ -61,9 +65,28 @@ export default function (pi: ExtensionAPI) {
 		}
 	}
 
-	// Image attached or pasted (path in the prompt) at turn start.
+	async function revertToDefault(ctx: any) {
+		if (!revertTo) return;
+		if (ctx.model?.id === VISION_MODEL) {
+			const prev = ctx.modelRegistry.find(revertTo.provider, revertTo.id);
+			const id = revertTo.id;
+			revertTo = null;
+			if (prev && (await pi.setModel(prev))) {
+				try { ctx.ui.notify(`↩️  back to ${id}`, "info"); } catch { /* no UI */ }
+			}
+		} else {
+			revertTo = null;
+		}
+	}
+
+	// Image attached or pasted (path in the prompt) at turn start → switch to vision.
+	// No image in this prompt → revert to the coding model (if we were on vision).
 	pi.on("before_agent_start", async (event, ctx) => {
-		if (promptHasImage(event)) await switchToVision(ctx, "🖼️  image");
+		if (promptHasImage(event)) {
+			await switchToVision(ctx, "🖼️  image");
+		} else {
+			await revertToDefault(ctx);
+		}
 	});
 
 	// Reading an actual image file mid-loop (e.g. a screenshot). Browser navigation is text — skipped.
@@ -71,17 +94,5 @@ export default function (pi: ExtensionAPI) {
 		if (event.toolName !== "read") return;
 		const path = String((event.input as { path?: unknown })?.path ?? "");
 		if (IMAGE_EXT.test(path)) await switchToVision(ctx, "🖼️  screenshot");
-	});
-
-	// Revert when the turn finishes (one-shot vision).
-	pi.on("agent_end", async (_event, ctx) => {
-		if (ctx.model?.id !== VISION_MODEL) { revertTo = null; return; } // manual switch away — drop state
-		if (!revertTo) return;
-		const prev = ctx.modelRegistry.find(revertTo.provider, revertTo.id);
-		const id = revertTo.id;
-		revertTo = null;
-		if (prev && (await pi.setModel(prev))) {
-			try { ctx.ui.notify(`↩️  back to ${id}`, "info"); } catch { /* no UI */ }
-		}
 	});
 }
