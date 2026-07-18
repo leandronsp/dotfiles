@@ -1,5 +1,5 @@
 /**
- * vision-switch — switch to a vision model when an image is involved, revert when no image.
+ * vision-switch — switch to a vision model when an image is involved, revert at turn end.
  *
  * The ollama cloud coding default (glm-5.2:cloud) is text-only. Switch to a
  * vision model (minimax-m3:cloud) only for real images:
@@ -10,15 +10,15 @@
  * NOT for browser navigation: `agent-browser snapshot` returns a TEXT accessibility tree (buttons,
  * links, refs), which a text model reads fine. Only reading a screenshot needs vision.
  *
- * Revert strategy: revert on the NEXT `before_agent_start` that has NO image. This avoids the
- * agent_end → tool_call → before_agent_start loop where the model ping-pongs between vision and
- * coding on every model call within a single turn. The model stays on vision for the entire turn
- * once an image is detected, and reverts when the user sends a new message without an image.
+ * Revert strategy: revert on agent_end (turn end). A `revertedThisTurn` flag prevents the
+ * tool_call handler from re-switching to vision AFTER agent_end has already reverted within the
+ * same turn. The flag resets on each before_agent_start (new user message), so a new turn can
+ * switch to vision again if it has an image.
  *
  * BUGFIX: pi persists the active model across sessions in the same project directory. If a previous
  * session was still on the vision model (e.g. agent_end hadn't fired yet when a new session started),
- * the new session would inherit minimax as its starting model. We now force-reset to the default
- * coding model on session_start, before any agent turns run.
+ * the new session would inherit minimax as its starting model. We force-reset to the default coding
+ * model on session_start, before any agent turns run.
  */
 
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
@@ -51,8 +51,12 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	let revertTo: { provider: string; id: string } | null = null;
+	// Prevents tool_call from re-switching to vision after agent_end reverted within the same turn.
+	// Reset on each before_agent_start (new user message) so a new turn can switch to vision again.
+	let revertedThisTurn = false;
 
 	async function switchToVision(ctx: any, why: string) {
+		if (revertedThisTurn) return; // already reverted this turn — don't re-switch
 		const model = ctx.model;
 		if (model?.input?.includes("image")) return; // already vision-capable — nothing to do
 		const vision = ctx.modelRegistry.find(VISION_PROVIDER, VISION_MODEL);
@@ -65,27 +69,12 @@ export default function (pi: ExtensionAPI) {
 		}
 	}
 
-	async function revertToDefault(ctx: any) {
-		if (!revertTo) return;
-		if (ctx.model?.id === VISION_MODEL) {
-			const prev = ctx.modelRegistry.find(revertTo.provider, revertTo.id);
-			const id = revertTo.id;
-			revertTo = null;
-			if (prev && (await pi.setModel(prev))) {
-				try { ctx.ui.notify(`↩️  back to ${id}`, "info"); } catch { /* no UI */ }
-			}
-		} else {
-			revertTo = null;
-		}
-	}
-
-	// Image attached or pasted (path in the prompt) at turn start → switch to vision.
-	// No image in this prompt → revert to the coding model (if we were on vision).
+	// New user message → reset the per-turn flag.
+	// Image in prompt → switch to vision. No image → revert to coding model (if on vision).
 	pi.on("before_agent_start", async (event, ctx) => {
+		revertedThisTurn = false;
 		if (promptHasImage(event)) {
 			await switchToVision(ctx, "🖼️  image");
-		} else {
-			await revertToDefault(ctx);
 		}
 	});
 
@@ -94,5 +83,18 @@ export default function (pi: ExtensionAPI) {
 		if (event.toolName !== "read") return;
 		const path = String((event.input as { path?: unknown })?.path ?? "");
 		if (IMAGE_EXT.test(path)) await switchToVision(ctx, "🖼️  screenshot");
+	});
+
+	// Revert when the turn finishes (one-shot vision).
+	pi.on("agent_end", async (_event, ctx) => {
+		if (ctx.model?.id !== VISION_MODEL) { revertTo = null; return; } // manual switch away — drop state
+		if (!revertTo) return;
+		const prev = ctx.modelRegistry.find(revertTo.provider, revertTo.id);
+		const id = revertTo.id;
+		revertTo = null;
+		revertedThisTurn = true; // prevent tool_call from re-switching after this revert
+		if (prev && (await pi.setModel(prev))) {
+			try { ctx.ui.notify(`↩️  back to ${id}`, "info"); } catch { /* no UI */ }
+		}
 	});
 }
