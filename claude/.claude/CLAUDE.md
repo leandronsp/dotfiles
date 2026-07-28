@@ -57,8 +57,8 @@ Skip for: typo fixes, doc-only edits, IDE renames, single-line comment changes, 
 - **Auto mode is on.** Move fast. Execute unless the action is destructive or hard to reverse.
 - **Response length matches task size.** One-line answers for one-line questions. Code examples over prose when the code makes the point. Skip throat-clearing and closing summaries.
 - **Adaptive thinking.** Think harder on hard problems (debugging, race conditions, architecture decisions). Respond directly when the answer is obvious.
-- **Effort level: xhigh by default.** Use `high` for concurrent sessions or cost-sensitive work. Reserve `max` for genuinely hard problems; it tends to overthink.
-- **Fewer subagents on 4.7.** Spell parallel work out explicitly. Keep tasks that fit one response in one response.
+- **Effort level: `high` by default.** `low` and `medium` are the primary lever for token cost and latency, use them wherever quality holds. Step up to `xhigh` for demanding coding and agentic work. Reserve `max` for genuinely hard problems; it tends to overthink.
+- **Delegate sparingly.** Subagents are for large tasks that are genuinely independent and parallelizable, such as a wide multi-file investigation. Never delegate work that fits in a handful of tool calls, and never use a subagent to verify or double-check your own work. One subagent beats several. Keep spawn counts low.
 
 ## Communication
 
