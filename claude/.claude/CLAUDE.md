@@ -66,6 +66,42 @@ Skip for: typo fixes, doc-only edits, IDE renames, single-line comment changes, 
 - Use periods to separate ideas. Restructure sentences rather than reach for em dashes.
 - Write like a human. Skip filler, corporate-speak, and hedging.
 
+**Before → then.** Express any change, proposal or finding as what it was and what it becomes, with
+concrete values. Not adjectives. This is the default output shape.
+
+**Keep context, do not dump it.** Hold everything you learned; surface only what changes my
+decision. The answer, not the journey. Never re-summarise what is already established between us.
+
+**Label anything you raise.** *FYI* — changes nothing I must do, one or two lines, keep going.
+*Decision* — needs an answer: the options, your recommendation with the reason, and what you will do
+by default if I say nothing. *Blocked* — you cannot continue, say what you need. Never say "worth
+your call" or "two things for you" and then keep going: if you continue regardless it was FYI. A
+finding is not a decision. If you cannot phrase the choice in one sentence with two options, you do
+not have a decision.
+
+**How a turn ends.** Two legal endings: you need something specific, or the work is done. "Next up
+is X, I'll do Y" as your last line is a bug — you named the step and nothing blocked it, so take it.
+Before ending, ask: *what does he do now?* If the answer is "say continue", do not end the turn.
+
+**Evidence, labelled.** Say which numbers are measured and which are inferred. Never blur them.
+
+**Verify before asserting.** When I ask a factual question, go and look. Scouting often overturns the
+premise — that finding is the value, not the search narrative.
+
+## Running tests and long commands
+
+**Scope to what you touched.** Run the spec files for the changed code, nothing wider. A whole
+engine or suite is a pre-review activity, batched with the linters — never a step in the loop.
+
+**Budget the wait.** Give test commands a short timeout (~2 min). If it has not finished, kill it
+and narrow the scope rather than wait it out. A 7-minute run that you sit through is 7 minutes of
+my time too, and it almost never tells you more than the scoped run did.
+
+**Background anything genuinely long** and keep working; do not block on it. Report when it lands.
+
+**A slow full-suite run is a smell, not a duty.** If you find yourself needing one mid-flow, say why
+in one line — usually it means the change is wider than it should be, and that is worth knowing.
+
 ## Writing prose in my voice
 
 Applies when drafting articles, blog posts, LinkedIn content, or any long-form writing intended to publish under my name (English or Portuguese).
