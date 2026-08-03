@@ -52,16 +52,15 @@ tu screenshot --name backend | python3 -c "import sys,json;print(json.load(sys.s
 
 ## Naming is the interface
 
-One process, one stable name, lowercase, the role not the command: `backend`,
-`marionette`, `react`, `worker`, `db`, `test`. The human types `tu monitor --name backend`
+One process, one stable name, lowercase, the role not the command: `backend`, `frontend`,
+`worker`, `db`, `test`. The human types `tu monitor --name backend`
 without asking what you called it. Never `default`, never a name with a timestamp or a
 branch in it, and never two names for the same role across a session.
 
 ## Starting a server
 
 ```bash
-tu run --name backend --cwd /path/to/repo --env "ANTIVIRUS_PATH=/path/to/bin/fakeav" \
-  -- mise exec -- ./script/rails s -p 3000
+tu run --name backend --cwd /path/to/repo --env "PORT=3000" -- bin/server
 
 tu wait --name backend --text "Listening on|Puma starting|localhost:3000" --timeout 90000
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ || true
@@ -82,8 +81,8 @@ Rules that keep this honest:
 Compound commands need `--shell`, which wraps in `$SHELL -c`:
 
 ```bash
-tu run --name react --shell --cwd /path/to/frontend 'npm run start'
-tu run --name worker --shell --cwd /path/to/repo 'RAILS_ENV=development bundle exec rake jobs:work'
+tu run --name frontend --shell --cwd /path/to/frontend 'npm run start'
+tu run --name worker --shell --cwd /path/to/repo 'ENV=development ./bin/worker'
 ```
 
 ## Reading a running process
@@ -120,7 +119,7 @@ you want for a server that cleans up on SIGINT (flushing a build cache, releasin
 The PTY is real, so prompts work: `rails console`, `iex -S mix`, `psql`, a REPL.
 
 ```bash
-tu run --name console --cwd /path/to/repo -- mise exec -- ./script/rails c
+tu run --name console --cwd /path/to/repo -- ./bin/console
 tu wait --name console --text "irb|pry|>" --timeout 60000
 tu type --name console "Model.count"
 tu press --name console Enter
