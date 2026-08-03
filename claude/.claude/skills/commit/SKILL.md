@@ -17,19 +17,45 @@ Small, incremental git commits following conventional commits. Optionally open a
 
 ```
 <type>(<scope>): <short description>
+
+<body: the decisions behind this commit>
 ```
 
 **Types:** `feat`, `fix`, `refactor`, `test`, `chore`, `docs`
 **Scope:** optional, module or area name (e.g. `feat(auth): add token refresh`)
 
+## The body is mandatory
+
+Every commit carries a body. The subject says what changed; the body says **why it was
+done this way and not another way**. Write it for the next person or agent who arrives
+with the diff in front of them and none of the conversation that produced it: the diff
+already shows the what, so a body that restates it is wasted.
+
+What earns a line in the body:
+
+- The decision taken, stated as a fact ("the type flip is in place, no new field").
+- The constraint that forced it ("field references are name-based, so renaming breaks rules and letters").
+- A non-obvious consequence a reader would otherwise discover the hard way ("rollback is the same flip in reverse").
+- The reason a tempting alternative was not taken, but only when a reader would otherwise assume it was an oversight.
+
+What stays out: file lists, changelogs, restating the diff, implementation walkthroughs,
+hedging, and anything the code already says plainly.
+
+Two to five lines for ordinary commits. A one-line body is fine when the change genuinely
+holds one decision. Wrap at 72 columns.
+
 ## Modes
 
 ### Quick (default)
 
-Single-line commit message.
+Subject plus a short body. Commit directly.
 
 ```bash
-git commit -m "feat(auth): add token refresh"
+git commit -m "feat(auth): add token refresh on expiry
+
+Refresh happens on the request path rather than a background timer, so a
+token that expires mid-session recovers without a second round trip.
+Failures fall back to re-authentication instead of failing the request."
 ```
 
 ### Detailed (`detailed` or when the change is significant)
@@ -37,14 +63,6 @@ git commit -m "feat(auth): add token refresh"
 Multi-paragraph for milestone features, non-obvious fixes, architectural changes.
 
 Output the proposed message as plain text for review. **Do NOT run `git commit` until the user approves.**
-
-```bash
-git commit -m "feat(auth): add token refresh on expiry
-
-Tokens are now refreshed automatically when they expire.
-Refresh failures fall back to re-authentication instead of
-silently failing the request."
-```
 
 ## Commit Rules
 
@@ -56,6 +74,7 @@ silently failing the request."
 6. **No emojis** in commit messages
 7. **Human voice** — write like a developer wrote it by hand
 8. **Small commits** — one logical change per commit. During TDD: commit after each RED-GREEN-REFACTOR cycle
+9. **Always a body** — never `git commit -m "<subject>"` alone. If no decision comes to mind, look again: a commit with genuinely no decision in it is usually two commits or a rename
 
 ## Pre-commit
 
@@ -75,6 +94,8 @@ git diff --staged
 
 ## Commit Examples
 
+Subjects:
+
 ```
 test(auth): add token expiration edge cases
 feat(api): add webhook endpoint for events
@@ -83,6 +104,26 @@ refactor(store): extract state operations into module
 docs(readme): add setup instructions for local dev
 chore(ci): add type checking to CI pipeline
 ```
+
+Bodies, good and bad:
+
+```
+fix(worker): handle nil payload on retry
+
+A retry rebuilds the job from the persisted row, where payload is
+nullable, so the guard belongs at the entry point rather than at each
+call site. Nil is dropped rather than raised: the row is already dead
+and raising would retry it forever.
+```
+
+```
+fix(worker): handle nil payload on retry
+
+Changed perform to check for nil before calling process, and updated
+worker_spec.rb with a new test. Also touched job.rb.
+```
+
+The second one says only what the diff already shows.
 
 ---
 
