@@ -14,9 +14,11 @@ Never both halves in one breath.
 1. **Pick the smallest slice** of the fuzzy thing: one field, one screen, one endpoint, one flow.
 2. **Establish the source of truth.** Parity: the reference implementation. Bug: the reproduction.
    New feature: current behavior plus the human's stated expectation.
-3. **Smoke it for real.** Drive the running app (browser, CLI, API). Click everything in the
-   slice, both sides when comparing. Capture evidence: screenshots, log lines, data checks.
-   When the UI is ambiguous, verify against the data layer before claiming anything.
+3. **Smoke it for real.** Drive the running app (browser, CLI, API). If the project keeps an
+   app map (routes, URLs, navigation, selectors), read it before driving and write back what
+   you discover. Click everything in the slice, both sides when comparing. Capture evidence:
+   screenshots, log lines, data checks. When the UI is ambiguous, verify against the data
+   layer before claiming anything.
 4. **Report.** Behavior/parity table plus gaps, severity-ordered. Each gap: actual vs expected,
    with its evidence. The report is the deliverable of this phase, not a plan.
 5. **Close the bag.** 1-3 issues, each one deliverable (one PR), shaped from evidence with
