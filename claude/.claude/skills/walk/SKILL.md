@@ -97,6 +97,9 @@ generic advice: *"validate input"* is not a finding, *"the `id` param reaches a 
 - scope that quietly widened
 - where you guessed
 
+A blind spot too fuzzy to judge from the diff is not an annotation: name it a `/smoke` candidate
+(observe the running app, then decide).
+
 **Raise these before the user answers, not after.** A chunk with no blind spots is either trivial or
 under-reviewed — say which.
 
