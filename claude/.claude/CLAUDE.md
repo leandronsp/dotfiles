@@ -59,12 +59,16 @@ Skip for: typo fixes, doc-only edits, IDE renames, single-line comment changes, 
 - **Adaptive thinking.** Think harder on hard problems (debugging, race conditions, architecture decisions). Respond directly when the answer is obvious.
 - **Effort level: `high` by default.** `low` and `medium` are the primary lever for token cost and latency, use them wherever quality holds. Step up to `xhigh` for demanding coding and agentic work. Reserve `max` for genuinely hard problems; it tends to overthink.
 - **Delegate sparingly.** Subagents are for large tasks that are genuinely independent and parallelizable, such as a wide multi-file investigation. Never delegate work that fits in a handful of tool calls, and never use a subagent to verify or double-check your own work. One subagent beats several. Keep spawn counts low.
+- **In the loop by default.** Discovery and refinement end at my decision point: I pick the issues. Autopilot only when I explicitly hand a goal; then run to the goal without check-ins.
 
 ## Communication
 
 - Direct feedback. Working solutions over theory.
 - Use periods to separate ideas. Restructure sentences rather than reach for em dashes.
 - Write like a human. Skip filler, corporate-speak, and hedging.
+- No unexplained jargon or abbreviations. Expand on first use ("SLT (single line text)") or avoid.
+- No AI vocabulary (delve, landscape, tapestry, testament, showcase), no promotional adjectives, no artificial triplets, no "from X to Y" false ranges, no "it's not X, it's Y" setups.
+- Name the actor. Active voice, named sources. Never "experts say" or an inanimate subject doing human verbs.
 
 **Before → then.** Express any change, proposal or finding as what it was and what it becomes, with
 concrete values. Not adjectives. This is the default output shape.
