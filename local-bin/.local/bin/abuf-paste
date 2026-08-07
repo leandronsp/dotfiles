@@ -1,9 +1,12 @@
 #!/bin/bash
-# Pastes annotation buffer into the target pane via send-keys.
+# Pastes annotation buffer into the target pane via a tmux paste buffer.
+# send-keys -l fails with "command too long" on large buffers (>~16KB argv).
 
 PANE="$1"
 
 [ ! -s /tmp/.abuf-paste ] && { tmux display-message "Buffer empty."; exit 0; }
 
-tmux send-keys -t "$PANE" -l "$(cat /tmp/.abuf-paste)"
-tmux display-message "Pasted."
+tmux load-buffer -b abuf /tmp/.abuf-paste \
+  && tmux paste-buffer -p -b abuf -t "$PANE" \
+  && tmux display-message "Pasted." \
+  || tmux display-message "Paste FAILED (see :show-messages)."
