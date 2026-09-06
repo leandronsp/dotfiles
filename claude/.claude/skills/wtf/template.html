@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<style>
+:root {
+  --bg: #fafaf7; --fg: #1c1c1a; --muted: #6b6b66; --line: #e2e2dc; --panel: #f1f1ec;
+  --accent: #0b6ea8; --ok: #2f8f4e; --part: #b7791f; --miss: #c0392b; --code-bg: #f1f1ec;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1114; --fg: #e6e6e1; --muted: #9a9a94; --line: #262a30; --panel: #171a1f;
+    --accent: #5cc8ff; --ok: #5ccb7a; --part: #e0a844; --miss: #ef6a5c; --code-bg: #171a1f;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1114; --fg: #e6e6e1; --muted: #9a9a94; --line: #262a30; --panel: #171a1f;
+  --accent: #5cc8ff; --ok: #5ccb7a; --part: #e0a844; --miss: #ef6a5c; --code-bg: #171a1f;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+code { background: var(--code-bg); padding: .1em .35em; border-radius: 4px; font-size: .9em; }
+pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: .8rem 1rem; overflow-x: auto; line-height: 1.45; }
+pre code { background: none; padding: 0; font-size: .85em; }
+blockquote { margin: 1rem 0; padding: .2rem 1rem; border-left: 3px solid var(--line); color: var(--muted); }
+hr { border: 0; border-top: 1px solid var(--line); margin: 1.5rem 0; }
+h1 { font-size: 1.9rem; line-height: 1.15; letter-spacing: -.01em; margin: .2rem 0 .6rem; }
+h2 { font-size: 1.45rem; line-height: 1.2; margin: 0; }
+h3 { font-size: 1.05rem; margin: 1.6rem 0 .4rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+h4 { font-size: 1rem; margin: 1.2rem 0 .3rem; }
+p { margin: .6rem 0; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .2rem 0; }
+
+.wrap { display: grid; grid-template-columns: 1fr; gap: 0; max-width: 1080px; margin: 0 auto; padding: 0 1rem 4rem; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0 .5rem; }
+.kicker { font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.kicker .mono { color: var(--muted); }
+.input { color: var(--muted); margin: 0 0 1rem; }
+.badge { font-size: .8rem; padding: .25rem .6rem; border: 1px solid var(--line); border-radius: 999px; white-space: nowrap; }
+button.theme { background: none; border: 1px solid var(--line); color: var(--fg); border-radius: 999px; padding: .3rem .7rem; cursor: pointer; font: inherit; font-size: .8rem; }
+
+nav ul { list-style: none; padding: 0; margin: 0 0 1rem; display: flex; gap: .4rem; overflow-x: auto; scrollbar-width: none; }
+nav li a { display: inline-flex; gap: .4rem; align-items: baseline; white-space: nowrap; padding: .35rem .7rem; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--fg); font-size: .85rem; }
+nav li a span { color: var(--muted); font-size: .75rem; }
+nav li a:hover { border-color: var(--accent); }
+
+article { padding: 1.5rem 0; border-top: 1px solid var(--line); scroll-margin-top: 1rem; }
+.t-head { display: flex; align-items: baseline; gap: .8rem; margin-bottom: .6rem; }
+.t-num { color: var(--accent); font-size: .85rem; letter-spacing: .1em; }
+article > h3:first-of-type { margin-top: 1rem; }
+
+.term { border-bottom: 1px dotted var(--accent); cursor: help; position: relative; outline: none; }
+.term::after { content: attr(data-tip); position: absolute; left: 0; top: 1.6em; z-index: 5; width: min(320px, 80vw); background: var(--panel); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .7rem; font-size: .85rem; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,.18); opacity: 0; pointer-events: none; transition: opacity .12s; }
+.term:hover::after, .term:focus::after { opacity: 1; }
+
+.quiz { margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.quiz h3 { margin-top: 0; display: flex; justify-content: space-between; gap: 1rem; }
+.quiz .score { text-transform: none; letter-spacing: 0; color: var(--fg); font-family: ui-monospace, Menlo, monospace; font-size: .85rem; }
+.q { padding: .9rem 0; border-top: 1px solid var(--line); }
+.q-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.q-text { font-weight: 600; }
+.q-status { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; color: var(--muted); white-space: nowrap; }
+.q.ok .q-status { color: var(--ok); } .q.part .q-status { color: var(--part); } .q.miss .q-status { color: var(--miss); }
+.opts { list-style: upper-alpha; }
+.opts li { padding-left: .2rem; }
+.opts li.correct { color: var(--ok); }
+.opts li.picked:not(.correct) { color: var(--miss); text-decoration: line-through; }
+.opts li.picked::after { content: " ←"; }
+.rubric { list-style: none; padding: 0; }
+.rubric li::before { content: "✗ "; color: var(--miss); }
+.rubric li.hit::before { content: "✓ "; color: var(--ok); }
+.yours { border-left-color: var(--accent); color: var(--fg); }
+.why { color: var(--muted); font-size: .92rem; }
+
+footer { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+footer h3 { margin-top: 1rem; }
+footer ul { word-break: break-word; }
+
+@media (min-width: 1000px) {
+  .wrap { grid-template-columns: 240px 1fr; gap: 2.5rem; }
+  .top, .input { grid-column: 1 / -1; }
+  nav { position: sticky; top: 1rem; align-self: start; }
+  nav ul { flex-direction: column; overflow: visible; }
+  nav li a { white-space: normal; border: 0; padding: .3rem .4rem; }
+  main { min-width: 0; }
+}
+@media (max-width: 999px) {
+  .wrap { grid-template-columns: 1fr; }
+  nav { position: sticky; top: 0; background: var(--bg); padding: .4rem 0; z-index: 3; }
+  nav ul { margin: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="kicker">wtf · {{MODE}} · <span class="mono">{{DATE}}</span></div>
+      <h1>{{TITLE}}</h1>
+    </div>
+    <div style="display:flex;gap:.5rem;align-items:center">
+      <span class="badge mono">{{BADGE}}</span>
+      <button class="theme" type="button" onclick="toggleTheme()">theme</button>
+    </div>
+  </div>
+  <p class="input">{{INPUT}}</p>
+  <nav><ul>{{NAV}}</ul></nav>
+  <main>
+    {{TOPICS}}
+    <footer>
+      <h3>{{L_SOURCES}}</h3>
+      <ul>{{SOURCES}}</ul>
+      <h3>{{L_BOOKS}}</h3>
+      <ul>{{BOOKS}}</ul>
+      <div{{FOLLOWUPS_HIDDEN}}>
+        <h3>{{L_FOLLOWUPS}}</h3>
+        <ul>{{FOLLOWUPS}}</ul>
+      </div>
+    </footer>
+  </main>
+</div>
+<script>
+(function () {
+  var root = document.documentElement;
+  try { var saved = localStorage.getItem('wtf-theme'); if (saved) root.dataset.theme = saved; } catch (e) {}
+  window.toggleTheme = function () {
+    var dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    try { localStorage.setItem('wtf-theme', root.dataset.theme); } catch (e) {}
+  };
+})();
+</script>
+</body>
+</html>
