@@ -160,7 +160,7 @@ source ~/.zshrc     # Reload shell
 
 ### 12. Neovim first run
 
-Open `nvim`. Lazy will auto-install plugins. Mason will auto-install LSP servers (lua_ls, rust_analyzer) and debug adapters (delve).
+Open `nvim`. Lazy will auto-install plugins. Mason will auto-install lua_ls and debug adapters (delve). rust-analyzer comes from the rustup toolchain. For Elixir, drop the `expert` binary in `~/.local/bin` (see the nvim README).
 
 ## Usage
 
@@ -307,14 +307,16 @@ Leader is `;` (semicolon). Full reference in [`nvim/.config/nvim/README.md`](nvi
 | `;sg` | Grep with preview |
 | `;sd` | Search diagnostics |
 
-### LSP (works out of the box for Rust and Lua)
+### LSP (Rust, Elixir and Lua)
 
 | Key | Action |
 |-----|--------|
+| `;?` | Cheat sheet of what the current server supports |
 | `gd` | Go to definition |
 | `gr` | Find all references |
 | `gI` | Go to implementation |
 | `K` | Hover docs (type info, signature) |
+| `gK` | Full docs in a side window |
 | `;rn` | Rename symbol across project |
 | `;ca` | Code actions (quick fix, refactor) |
 | `;th` | Toggle inlay hints |

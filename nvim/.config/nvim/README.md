@@ -27,7 +27,7 @@ lua/
     ui/                     Everforest theme, lualine, which-key, todo-comments
     editor/                 Snacks (fuzzy finder), treesitter, mini.nvim
     coding/                 LSP, completion, formatting
-    tools/                  Copilot, languages, markdown, sleuth
+    tools/                  languages, markdown, sleuth, pi bridge
   kickstart/                Health check, DAP, gitsigns, indent, lint, neo-tree, autopairs
   tests/                    Plenary specs
 tests/run.lua               Test runner
@@ -64,12 +64,21 @@ Leader is `;` (semicolon).
 
 ### LSP
 
+Keys only exist when the attached server supports them, so which-key shows a
+different list for Rust and Elixir. `;?` opens a cheat sheet for the current
+buffer grouped by intent, with the unsupported actions dimmed at the bottom.
+
 | Key | Action |
 |-----|--------|
+| `;?` | Cheat sheet: what this server supports |
+| `K` | Hover docs (type, signature). `K` again enters the popup |
+| `gK` | Same docs in a full-height side window |
+| `Ctrl-s` | Signature help while typing a call (insert mode) |
 | `gd` | Go to definition |
 | `gr` | Go to references |
 | `gI` | Go to implementation |
-| `K` | Hover documentation |
+| `;D` | Go to the type of the variable |
+| `;ds` / `;ws` | Document / workspace symbols |
 | `;rn` | Rename symbol |
 | `;ca` | Code actions |
 | `;th` | Toggle inlay hints |
@@ -110,10 +119,16 @@ Leader is `;` (semicolon).
 
 ## LSP servers
 
-Managed by Mason. Auto-installed:
+Per-server settings go through `vim.lsp.config`; mason-lspconfig v2 only
+installs and enables.
 
-- **rust_analyzer** - Clippy on save, all cargo features, proc macros, inlay hints
-- **lua_ls** - Neovim Lua with LazyDev integration
+- **rust_analyzer** - the binary shipped by the rustup toolchain
+  (`~/.cargo/bin/rust-analyzer`), so server and compiler never drift apart.
+  cargo check on save, proc macros, inlay hints
+- **lua_ls** - Neovim Lua with LazyDev integration, via Mason
+- **expert** - the official Elixir language server. Not in the Mason registry,
+  the binary lives in `~/.local/bin/expert`:
+  `gh release download --repo elixir-lang/expert --pattern expert_darwin_arm64`
 
 ## Formatters
 
@@ -241,8 +256,9 @@ nvim
 
 ## Dependencies
 
-- Neovim 0.10+
+- Neovim 0.11+
 - git, make, unzip, gcc, ripgrep
+- rustup (provides rust-analyzer), `expert` in `~/.local/bin` for Elixir
 - Nerd Font (for icons)
 - Node.js (for some Mason tools)
 - pi, plus `pi-img`/`pi-note` from the `local-bin` package, for the `:Pi*` bridge commands
