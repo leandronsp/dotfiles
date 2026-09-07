@@ -118,7 +118,7 @@ return {
       -- Completion behavior
       completion = {
         completeopt = 'menu,menuone,noinsert', -- Don't auto-insert first match
-        keyword_length = 1, -- Start completion after 1 character
+        keyword_length = 3, -- Start completion after 3 characters
       },
 
       -- ===================================================================
@@ -136,7 +136,22 @@ return {
 
         -- Completion confirmation
         ['<C-y>'] = cmp.mapping.confirm { select = true },
-        ['<CR>'] = cmp.mapping.confirm { select = true },
+        -- Enter confirms only LSP, snippet and path entries. A word
+        -- repeated from the buffer never hijacks Enter.
+        ['<CR>'] = cmp.mapping(function(fallback)
+          if not cmp.visible() then
+            return fallback()
+          end
+
+          local entry = cmp.get_selected_entry() or cmp.get_entries()[1]
+          local confirmable = { 'nvim_lsp', 'luasnip', 'path', 'lazydev' }
+
+          if entry and vim.tbl_contains(confirmable, entry.source.name) then
+            return cmp.confirm { select = true }
+          end
+
+          fallback()
+        end, { 'i', 's' }),
 
         -- Tab completion (alternative to C-n/C-p)
         ['<Tab>'] = cmp.mapping.select_next_item(),
@@ -205,12 +220,7 @@ return {
           priority = 600,
           option = {
             get_bufnrs = function()
-              -- Complete from all visible buffers
-              local bufs = {}
-              for _, win in ipairs(vim.api.nvim_list_wins()) do
-                bufs[vim.api.nvim_win_get_buf(win)] = true
-              end
-              return vim.tbl_keys(bufs)
+              return { vim.api.nvim_get_current_buf() }
             end,
           },
         },
@@ -246,11 +256,13 @@ return {
         documentation = cmp.config.window.bordered(),
       },
 
+            -- Current buffer only. Words from a file tree, a terminal or
+            -- another open file never reach the menu.
       -- ===================================================================
       -- Experimental Features
       -- ===================================================================
       experimental = {
-        ghost_text = true, -- Show ghost text preview
+        ghost_text = false, -- No inline preview of the selected entry
       },
     }
 
