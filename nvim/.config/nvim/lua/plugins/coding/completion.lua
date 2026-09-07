@@ -104,6 +104,46 @@ return {
       TypeParameter = '',
     }
 
+    local SOURCE_LABELS = {
+      luasnip = '[Snippet]',
+      buffer = '[Buffer]',
+      path = '[Path]',
+      lazydev = '[LazyDev]',
+      nvim_lsp_signature_help = '[Signature]',
+    }
+
+    local function truncate(text, max)
+      if text and vim.fn.strdisplaywidth(text) > max then
+        return vim.fn.strcharpart(text, 0, max - 1) .. '…'
+      end
+      return text
+    end
+
+    -- "(use std::io::BufReader)" -> "std::io"
+    local function import_path(detail)
+      local path = detail:match '^%(use (.+)%)$'
+      return path and path:gsub('::[^:]+$', '') or nil
+    end
+
+    -- The third menu column. For LSP entries prefer the import path, then
+    -- the signature; skip a detail that only repeats the kind ("(function)").
+    local function item_origin(source, item, kind)
+      if source ~= 'nvim_lsp' then
+        return SOURCE_LABELS[source]
+      end
+
+      local details = item.labelDetails or {}
+      if details.detail then
+        return import_path(details.detail) or details.detail
+      end
+
+      local detail = details.description or item.detail
+      if not detail or detail:lower() == ('(%s)'):format(kind:lower()) then
+        return nil
+      end
+      return detail
+    end
+
     -- ===================================================================
     -- Main Completion Setup
     -- ===================================================================
@@ -130,9 +170,11 @@ return {
         ['<C-n>'] = cmp.mapping.select_next_item(),
         ['<C-p>'] = cmp.mapping.select_prev_item(),
 
-        -- Documentation scrolling
+        -- Documentation scrolling (the side window, while the menu is open)
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
+        ['<C-u>'] = cmp.mapping.scroll_docs(-4),
+        ['<C-d>'] = cmp.mapping.scroll_docs(4),
 
         -- Completion confirmation
         ['<C-y>'] = cmp.mapping.confirm { select = true },
@@ -219,6 +261,8 @@ return {
           name = 'buffer',
           priority = 600,
           option = {
+            -- Current buffer only. Words from a file tree, a terminal or
+            -- another open file never reach the menu.
             get_bufnrs = function()
               return { vim.api.nvim_get_current_buf() }
             end,
@@ -229,20 +273,20 @@ return {
       -- ===================================================================
       -- Formatting and Appearance
       -- ===================================================================
+      -- Three columns: name | kind | where it comes from. The last column is
+      -- what tells three identical `BufReader` entries apart: rust-analyzer
+      -- sends the import path in labelDetails.detail as "(use std::io::X)",
+      -- Expert puts the signature straight into the label and only sends a
+      -- redundant "(function)" as detail, which we drop.
       formatting = {
+        fields = { 'abbr', 'kind', 'menu' },
         format = function(entry, vim_item)
-          -- Kind icons
-          vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind)
+          local item = entry.completion_item
+          local kind = vim_item.kind
 
-          -- Source names
-          vim_item.menu = ({
-            nvim_lsp = '[LSP]',
-            luasnip = '[Snippet]',
-            buffer = '[Buffer]',
-            path = '[Path]',
-            lazydev = '[LazyDev]',
-            nvim_lsp_signature_help = '[Signature]',
-          })[entry.source.name]
+          vim_item.abbr = truncate(vim_item.abbr, 40)
+          vim_item.kind = string.format('%s %s', kind_icons[kind] or '', kind)
+          vim_item.menu = truncate(item_origin(entry.source.name, item, kind), 36)
 
           return vim_item
         end,
@@ -251,13 +295,29 @@ return {
       -- ===================================================================
       -- Window Appearance
       -- ===================================================================
+      -- `border` is explicit because bordered() otherwise falls back to the
+      -- global `winborder` option, which is empty and yields no border at
+      -- all. Both floats use NormalFloat so the box stands out from the
+      -- buffer. Docs get room to breathe: rust-analyzer hard-wraps its
+      -- markdown at ~80 columns, so a narrower window re-wraps every line
+      -- into an ugly long/short pair. bordered() drops max_width, hence the
+      -- tbl_extend.
       window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
+        completion = cmp.config.window.bordered {
+          border = 'rounded',
+          winhighlight = 'Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel,Search:None',
+        },
+        documentation = vim.tbl_extend(
+          'force',
+          cmp.config.window.bordered {
+            border = 'rounded',
+            winhighlight = 'Normal:NormalFloat,FloatBorder:FloatBorder,Search:None',
+            max_height = 24,
+          },
+          { max_width = 84 }
+        ),
       },
 
-            -- Current buffer only. Words from a file tree, a terminal or
-            -- another open file never reach the menu.
       -- ===================================================================
       -- Experimental Features
       -- ===================================================================
