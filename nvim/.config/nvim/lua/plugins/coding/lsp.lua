@@ -200,21 +200,20 @@ return {
       require('mason-lspconfig').setup {
         -- Don't auto-install here (use mason-tool-installer instead)
         ensure_installed = {},
-        automatic_installation = false,
-
-        -- Handler for each language server
-        handlers = {
-          function(server_name)
-            local server = servers[server_name] or {}
-
-            -- Merge server-specific capabilities with defaults
-            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-
-            -- Setup the language server
-            require('lspconfig')[server_name].setup(server)
-          end,
-        },
       }
+
+      -- ===================================================================
+      -- Server Settings
+      -- ===================================================================
+      -- mason-lspconfig v2 dropped the `handlers` option: it enables every
+      -- installed server itself through vim.lsp.enable. Per-server settings
+      -- therefore have to be registered with vim.lsp.config, which merges
+      -- them over the definition nvim-lspconfig ships in lsp/<name>.lua.
+      vim.lsp.config('*', { capabilities = capabilities })
+
+      for name, config in pairs(servers) do
+        vim.lsp.config(name, config)
+      end
 
       -- ===================================================================
       -- Module Exports for Testing
