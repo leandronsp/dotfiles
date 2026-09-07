@@ -216,6 +216,18 @@ return {
       end
 
       -- ===================================================================
+      -- Expert: the official Elixir language server
+      -- ===================================================================
+      -- Not in the Mason registry, so the binary lives in ~/.local/bin.
+      -- Update it with: gh release download --repo elixir-lang/expert
+      -- The definition (cmd, filetypes, umbrella-aware root_dir) comes from
+      -- nvim-lspconfig in lsp/expert.lua, we only add capabilities here.
+      if vim.fn.executable 'expert' == 1 then
+        vim.lsp.config('expert', { capabilities = capabilities })
+        vim.lsp.enable 'expert'
+      end
+
+      -- ===================================================================
       -- Module Exports for Testing
       -- ===================================================================
       -- Export server configuration for testing purposes
