@@ -111,22 +111,29 @@ return {
       local servers = {
         -- Rust Language Server
         rust_analyzer = {
+          -- Use the rust-analyzer shipped with the active rustup toolchain so
+          -- the server and the compiler are always the same version. Mason's
+          -- copy is pinned to whenever it was last installed and drifts.
+          cmd = { vim.fn.expand '~/.cargo/bin/rust-analyzer' },
+
           settings = {
             ['rust-analyzer'] = {
-              -- Use cargo check on save (run clippy manually via make lint)
-              checkOnSave = {
-                command = 'check',
-              },
+              -- Use cargo check on save (run clippy manually via make lint).
+              -- `check` is the default command, the key is a boolean now.
+              checkOnSave = true,
 
               -- Enable procedural macros
               procMacro = {
                 enable = true,
               },
 
-              -- Import configuration
-              assist = {
-                importGranularity = 'module',
-                importPrefix = 'self',
+              -- Import configuration. These used to live under `assist`,
+              -- which rust-analyzer dropped.
+              imports = {
+                granularity = {
+                  group = 'module',
+                },
+                prefix = 'self',
               },
 
               -- Enhanced diagnostics
