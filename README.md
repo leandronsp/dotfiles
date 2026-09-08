@@ -259,6 +259,23 @@ Review tmux output without scroll fatigue. Each tmux window gets its own buffer 
 
 Written by the `tmux-status.ts` pi extension, read by tmux every second.
 
+### Codex tmux integration
+
+`tmux-codex-status` reads local session telemetry for the exact pane, using
+its own `/tmp/tmux-codex-<uid>/` registry. Context percentage is estimated
+from the latest token usage; only quota windows reported by the session
+are displayed. Transcript formats can change, so missing data stays blank.
+The Claude status command and notification hook remain independent.
+
+In `~/.codex/hooks.json`, add the command
+`python3 "$HOME/.local/bin/tmux-codex-status" register` to `SessionStart`
+and `UserPromptSubmit`. For `Stop`, use
+`bash "$HOME/.local/bin/tmux-codex-notify" >/dev/null; printf '{}\n'`.
+Enable hooks and trust these commands through the CLI hook setup.
+Restart the CLI after changing hooks. The notifier plays Funk and highlights
+the tmux window when the terminal is unfocused or another window is active.
+
+
 ### Agent dashboard, worktree TUI, sidebar
 
 Keyboard-driven multi-select popups (no fzf, hand-rolled bash TUIs). Full design in [CLAUDE.md](CLAUDE.md#tmux-agent--worktree-tools).

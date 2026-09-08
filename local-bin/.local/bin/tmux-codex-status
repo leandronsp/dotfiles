@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Read Codex's local usage snapshot for the exact tmux pane. No network calls."""
+import json
+import math
+import os
+from pathlib import Path
+import re
+import sys
+import time
+
+
+def state_file(pane):
+    if not re.fullmatch(r"%\d+", pane):
+        raise ValueError("invalid pane")
+    root = Path("/tmp") / f"tmux-codex-{os.getuid()}"
+    root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    return root / (pane + ".json")
+
+
+def eta(epoch):
+    if epoch is None:
+        return ""
+    seconds = max(0, epoch - time.time())
+    return f"~{int(seconds // 86400)}d" if seconds >= 86400 else f"~{math.ceil(seconds / 3600)}h"
+
+
+def render(model, info, limits):
+    parts = [model or "Codex"]
+    if info and info.get("model_context_window"):
+        tokens = (info.get("last_token_usage") or {}).get("total_tokens")
+        if tokens is not None:
+            parts.append(f"ctx:{min(100, int(100 * tokens / info['model_context_window']))}%")
+    for key in ("primary", "secondary"):
+        window = (limits or {}).get(key)
+        if not window or window.get("used_percent") is None:
+            continue
+        minutes = window.get("window_minutes")
+        label = {300: "5h", 10080: "7d"}.get(minutes, f"{minutes}m" if minutes else key)
+        parts.append(f"{label}:{int(window['used_percent'])}%{eta(window.get('resets_at'))}")
+    # Prevent model labels from injecting tmux formatting or control characters.
+    return re.sub(r"[\x00-\x1f\x7f]", "", " · ".join(parts)).replace("#", "##")
+
+
+def main():
+    if sys.argv[1] == "register":
+        data = json.load(sys.stdin)
+        pane = os.environ.get("TMUX_PANE", "")
+        if not pane or not data.get("transcript_path"):
+            return
+        path = state_file(pane)
+        snapshot = {key: data.get(key) for key in ("session_id", "transcript_path", "model")}
+        temp = path.with_suffix(f".{os.getpid()}.tmp")
+        temp.write_text(json.dumps(snapshot))
+        temp.replace(path)
+        return
+    pane = sys.argv[1]
+    command = sys.argv[2] if len(sys.argv) > 2 else "codex"
+    if "codex" not in command.lower():
+        return
+    data = json.loads(state_file(pane).read_text())
+    transcript = Path(data["transcript_path"])
+    with transcript.open("rb") as stream:
+        start = max(0, transcript.stat().st_size - 2 * 1024 * 1024)
+        stream.seek(start)
+        if start:
+            stream.readline()
+        lines = stream.read().splitlines()
+    info = limits = None
+    model = None
+    for line in reversed(lines):
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        payload = event.get("payload") or {}
+        if event.get("type") == "turn_context" and model is None:
+            model = payload.get("model")
+        if event.get("type") == "event_msg" and payload.get("type") == "token_count":
+            if info is None:
+                info = payload.get("info")
+            if limits is None:
+                limits = payload.get("rate_limits")
+        if info is not None and limits is not None and model is not None:
+            break
+    print(render(model or data.get("model"), info, limits))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, ValueError, KeyError, TypeError, IndexError):
+        pass  # Missing, incomplete or changed telemetry must not break the status bar.
