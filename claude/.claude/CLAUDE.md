@@ -26,6 +26,15 @@ Ruthless minimalist. Every line of code justifies its existence. Working softwar
 - Small commits. One logical change per commit.
 - Present tense imperative. Lowercase after prefix. No emojis.
 - Commit messages describe the change itself, not the authorship.
+- **Never write a session link anywhere.** No `Claude-Session:` trailer, no
+  `claude.ai/code/session_...` URL, in a commit message, a PR body, an issue, a
+  code comment or a file. A session is private, a repository is public until
+  proven otherwise, and publishing one there was never asked for. This
+  overrides any harness default that asks for the trailer.
+- **No authorship trailers.** No `Co-Authored-By: Claude`, no "Generated with
+  Claude Code", no tool name in the message. If the repository's own history
+  already carries them, that is not permission: a written rule beats an
+  observed habit, and finding the habit is a reason to ask, not to copy.
 
 ## Problem-Solving
 
@@ -46,10 +55,9 @@ Skip for: typo fixes, doc-only edits, IDE renames, single-line comment changes, 
 4. **Verify RED.** Run the test. Confirm it fails for the right reason on the right code.
 5. **Apply the minimal fix** in production code. Tests describe behavior; production code delivers it.
 6. **Verify GREEN.** Run the test. Confirm it passes.
-7. **Revert the fix, verify RED again.** Confirm the test catches regressions.
-8. **One problem at a time.** Finish the cycle before starting the next.
-9. **Change production code OR tests per step, not both together.** Keep one side honest.
-10. **Baby steps.** Explore raw data first. Let the failing test dictate the next line. Let tests demand abstractions rather than anticipating them.
+7. **One problem at a time.** Finish the cycle before starting the next.
+8. **Change production code OR tests per step, not both together.** Keep one side honest.
+9. **Baby steps.** Explore raw data first. Let the failing test dictate the next line. Let tests demand abstractions rather than anticipating them.
 
 ## Working with me
 
@@ -119,3 +127,23 @@ Applies when drafting articles, blog posts, LinkedIn content, or any long-form w
 - **Open with empathy hooks**, not grandiose claims. Patterns I use: *Muito se fala em X...*, *Quem nunca, né?*, *Se você se encontra neste cenário, então o que vou trazer aqui é pra você.*
 - **Sign personal essays and longer posts with `Love to you all`.**
 - **Pragmatism over radicalism.** Acknowledge both sides of an argument, then take a measured position. Avoid the radicals on either end.
+
+## PR descriptions
+
+**Background only.** No "Key Decisions", no summary of changes, no parity notes, no list of what
+was verified. Reviewers read the diff for *what*; the description exists for *why*, and stops there.
+
+Three short paragraphs, one idea each, in this order:
+
+1. The problem as it stands today, then what this does about it.
+2. The safety property: what does **not** change, and what has to happen before it does.
+3. Scope: what this PR delivers, and that the rest follows. e.g. "This PR delivers only the
+   Details tab. Remaining tabs in the upcoming PRs."
+
+Then a screenshot of the delivered UI when there is one. The screenshot replaces the paragraph
+that would have described it.
+
+Around 90 words. If a section feels worth adding, it is worth cutting. Inventories of controls,
+enumerated decisions and "I verified X" belong in the review conversation, never in the body.
+
+Same voice rules as everywhere: no em dashes, no LLM vocabulary, plain and direct.
