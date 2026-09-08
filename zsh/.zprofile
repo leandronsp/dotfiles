@@ -13,11 +13,11 @@ eval "$(mise activate zsh 2>/dev/null)"
 # Lean theorem prover
 export PATH="$HOME/.elan/bin:$PATH"
 
-# pipx
-export PATH="$PATH:$HOME/.local/bin"
-
 # Personal scripts
 export PATH="$HOME/bin:$PATH"
 
 # OrbStack
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+
+# Local tools and pipx
+export PATH="$HOME/.local/bin:$PATH"
