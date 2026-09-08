@@ -9,3 +9,7 @@
 **/.claude/settings.local.json
 **/CLAUDE.local.md
 .handoff
+**/.claude/skills/merge-dance/
+
+# Local smoke-test notes and captures
+.smoke/
