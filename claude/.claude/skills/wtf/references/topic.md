@@ -1,8 +1,13 @@
 # Topic anatomy
 
-One markdown file per topic: `~/vault/learning/wtf/<slug>/NN-<topic>.md`. The reply that
-delivers the topic is the file content, nothing more. Section headings are in the class
-language; the builder does not depend on their names.
+One markdown file per topic: `~/vault/learning/wtf/<slug>/NN-<topic>.md`. Section headings are
+in the class language; the builder does not depend on their names.
+
+In `topic` and `class` this file is the RECORD, written after the dialogue reached the
+solution, never before it and never pasted as the reply. It says what the questions actually
+established: a rung the user never climbed does not appear here. Conduction lives in
+`references/socratic.md`. In `quick` there is no file and no dialogue, the answer is direct
+and follows the same anatomy inline.
 
 ````markdown
 # NN. Title
@@ -39,6 +44,9 @@ One or two sentences stating the next problem. Not the next solution's name.
 ````
 
 ## Caps
+
+For the written record and for `quick`. The cap on a spoken turn is six lines and one
+question, in `references/socratic.md`.
 
 | | topic | quick |
 |---|---|---|

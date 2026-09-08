@@ -1,5 +1,9 @@
 # Quiz
 
+Off by default. The socratic dialogue already shows what the user understands, so a quiz after
+it is redundant. Run this only when the user asks (`quiz`), or when a `class` is closing and
+the user wants a score.
+
 Goal: an honest measure of what stuck, then a path. The agent writes the questions and the
 rubrics; the script does the arithmetic and the suggestion.
 

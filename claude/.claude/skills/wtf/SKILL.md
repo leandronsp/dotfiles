@@ -1,25 +1,26 @@
 ---
 name: wtf
-description: Learn a subject on demand, problem first. Takes a prompt, link, snippet, screenshot or a previous masterclass and teaches it as a quick one-shot, a single topic, or a multi-topic class with quizzes and a deterministic score. Runs in the terminal, ships an HTML page in the vault at the end. Use when the user says "wtf", "wtf quick", "wtf topic", "wtf class", "me explica", "quero aprender", "what is", "how does X work", "masterclass", "teach me".
+description: Learn a subject on demand, problem first. Takes a prompt, link, snippet, screenshot or a previous masterclass and teaches it by socratic questioning, one question per turn, until the user reaches the solution themselves. Ships as a quick one-shot, a single topic, or a multi-topic class. Runs in the terminal, ships an HTML page in the vault at the end. Use when the user says "wtf", "wtf quick", "wtf topic", "wtf class", "me explica", "quero aprender", "what is", "how does X work", "masterclass", "teach me".
 argument-hint: '[quick|topic|class] <prompt, link, snippet, screenshot or masterclass folder>'
 ---
 
 # wtf
 
 Problem first, then the name of the solution. Always. The user thinks about the problem before
-seeing what solves it. Voice, topic anatomy and quiz rules live in `references/`; read each one
-at the step that needs it, not all up front.
+seeing what solves it, and in `topic` and `class` they reach the solution themselves: the skill
+asks, the user answers, one question per turn. Conduction, voice, topic anatomy and quiz rules
+live in `references/`; read each one at the step that needs it, not all up front.
 
 **Language.** The class runs in the language of the user's prompt. pt-BR prompt, pt-BR class
 (English jargon stays English). English prompt, English class. Never mix within a class.
 
 ## Modes
 
-| Mode | Shape | Quiz |
-|---|---|---|
-| `quick` | one shot, no plan, no state on disk unless asked to save | no |
-| `topic` | one topic, full anatomy | yes |
-| `class` | plan of 2-6 topics, each a `topic` | per topic |
+| Mode | Shape | Conduction | Quiz |
+|---|---|---|---|
+| `quick` | one shot, no plan, no state on disk unless asked to save | direct answer | no |
+| `topic` | one topic, full anatomy | socratic | on request |
+| `class` | plan of 2-6 topics, each a `topic` | socratic | on request |
 
 `/wtf quick|topic|class <input>` sets the mode. Without it, infer: a term or "what is X" leans
 quick; "how does X work" leans topic; a broad area, a long link, or a previous masterclass leans
@@ -45,20 +46,25 @@ class. When two readings are plausible, ask in Intake.
 3. **Plan** (topic and class). Always shown, always short: one line per topic,
    `NN. title: the problem it solves`, plus the prerequisites assumed. Under 12 lines. The user
    edits or approves. Then create the state (see State) and fill `plan`, `map`, `sources`.
-4. **Topic.** Read `references/voice.md` and `references/topic.md`. Write
-   `<folder>/NN-<topic>.md`, run every snippet before pasting its output, and reply with the
-   file content. Nothing else in that reply.
-5. **Pause.** One line: deepen a term, start the quiz, or say anything. Wait. Any free input is
-   one of three things; say which in one line, then act:
+4. **Topic.** Read `references/socratic.md` and `references/voice.md`. Build the ladder of
+   questions from the problem-solution pair, keep it to yourself, and ask the first one. One
+   question per turn, six lines of prose at most, the question last. Run every snippet before
+   pasting its output. `quick` skips the ladder: read `references/topic.md` and answer directly.
+5. **Record.** When the user reaches the solution, read `references/topic.md` and write
+   `<folder>/NN-<topic>.md` from what the dialogue actually produced. Say in one line that it
+   was written and where. Then offer what the subject asks for next: practice, the next
+   problem, an abstraction. Any free input is one of three things; say which in one line, then
+   act:
    - margin note: record it (`wtf.py note`) or answer inline, plan unchanged
    - question: answer short, plan unchanged
    - change of course: replan the remaining topics (research again when needed), show the plan
      as before → then, wait for approval
-6. **Quiz.** Read `references/quiz.md`. Write `NN-<topic>.quiz.json` with rubrics BEFORE asking
-   anything. One question per turn. Record each answer with `wtf.py answer`. Show the score only
-   at the end, via `wtf.py score <slug> <topic>`.
-7. **Path.** Report the score line and the suggestion the script printed. The user picks: next
-   topic, stop, or a note for a spin-off. Never advance on your own.
+6. **Quiz**, only when the user asks for it. Read `references/quiz.md`. Write
+   `NN-<topic>.quiz.json` with rubrics BEFORE asking anything. One question per turn. Record
+   each answer with `wtf.py answer`. Show the score only at the end, via
+   `wtf.py score <slug> <topic>`.
+7. **Path.** The user picks: next topic, stop, or a note for a spin-off. Never advance on your
+   own. When a quiz ran, report the score line and the suggestion the script printed.
 8. **End.** Books for the class as a whole. Offer in one line: `wtf.py build` for the HTML, and
    `qmd update -c vault` so the folder is indexed.
 
@@ -94,6 +100,10 @@ A word is a command only when it is the whole message.
 
 - Problem before solution, in every topic and in `quick`. Name the solution only after the
   problem has an example.
+- In `topic` and `class` the user produces the solution. Never deliver a finished topic and
+  call it teaching. One question per turn, and the question is the last line.
+- A wrong answer is material, not a verdict. Separate the right instinct from the wrong object,
+  correct the fact with a run snippet, and hand back a narrower question.
 - No prose, no slogans, no marketing, no "it's not X, it's Y", no analogies. When a thing is
   abstract enough to need one, one sentence, computing-only.
 - A reference is a URL a WebFetch returned content from in this session, or the book or
@@ -105,6 +115,8 @@ A word is a command only when it is the whole message.
   appears.
 - The hook to the next topic states the next problem, never the next solution's name.
 - Score is arithmetic in `wtf.py`. Rubrics are written before the answer. Skips count as zero.
-- A topic is not an article. Caps live in `references/topic.md`.
+- A topic is not an article. Caps for the written record live in `references/topic.md`; the
+  cap for a spoken turn lives in `references/socratic.md`.
+- The user's own code is the ground truth. Read what they wrote before commenting on it.
 - The method is the user's, the register is neutral: no catchphrases, no reader-in-blockquote,
   no interjections.
