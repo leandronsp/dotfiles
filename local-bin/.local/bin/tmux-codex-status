@@ -24,12 +24,27 @@ def eta(epoch):
     return f"~{int(seconds // 86400)}d" if seconds >= 86400 else f"~{math.ceil(seconds / 3600)}h"
 
 
-def render(model, info, limits):
+def max_context_window(model):
+    catalog_path = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "models_cache.json"
+    try:
+        catalog = json.loads(catalog_path.read_text())
+        for entry in catalog.get("models", []):
+            if entry.get("slug") == model:
+                value = entry.get("max_context_window")
+                return value if isinstance(value, (int, float)) and value > 0 else None
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+    return None
+
+
+def render(model, info, limits, maximum=None):
     parts = [model or "Codex"]
     if info and info.get("model_context_window"):
         tokens = (info.get("last_token_usage") or {}).get("total_tokens")
         if tokens is not None:
             parts.append(f"ctx:{min(100, int(100 * tokens / info['model_context_window']))}%")
+            if maximum:
+                parts[-1] += f"/{min(100, int(100 * tokens / maximum))}%max"
     for key in ("primary", "secondary"):
         window = (limits or {}).get(key)
         if not window or window.get("used_percent") is None:
@@ -82,7 +97,8 @@ def main():
                 limits = payload.get("rate_limits")
         if info is not None and limits is not None and model is not None:
             break
-    print(render(model or data.get("model"), info, limits))
+    model = model or data.get("model")
+    print(render(model, info, limits, max_context_window(model)))
 
 
 if __name__ == "__main__":

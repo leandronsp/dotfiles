@@ -263,13 +263,16 @@ Written by the `tmux-status.ts` pi extension, read by tmux every second.
 
 `tmux-codex-status` reads local session telemetry for the exact pane, using
 its own `/tmp/tmux-codex-<uid>/` registry. Context percentage is estimated
-from the latest token usage; only quota windows reported by the session
-are displayed. Transcript formats can change, so missing data stays blank.
+from the latest token usage: `ctx` uses the effective session window,
+while `max` uses `max_context_window` for that model in the local model
+catalog. If the catalog has no maximum, `max` is omitted. Only quota
+windows reported by the session are displayed. Transcript formats can change, so missing data stays blank.
 The Claude status command and notification hook remain independent.
 
 In `~/.codex/hooks.json`, add the command
-`python3 "$HOME/.local/bin/tmux-codex-status" register` to `SessionStart`
-and `UserPromptSubmit`. For `Stop`, use
+`python3 "$HOME/.local/bin/tmux-codex-status" register` to
+`UserPromptSubmit`. Registration starts with the first prompt; no
+`SessionStart` hook is needed. For `Stop`, use
 `bash "$HOME/.local/bin/tmux-codex-notify" >/dev/null; printf '{}\n'`.
 Enable hooks and trust these commands through the CLI hook setup.
 Restart the CLI after changing hooks. The notifier plays Funk and highlights
