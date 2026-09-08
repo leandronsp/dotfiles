@@ -1,6 +1,6 @@
 ---
 name: pair
-description: Pair-programming navigator - the human writes the code in their editor, the agent watches saves in real time, navigates the codebase, runs scoped tests and the project's linter, and speaks only when it changes what the human does next. Trigger phrases - "pair with me", "let's pair", "/pair on <task>".
+description: Socratic pair-programming navigator - the human writes the code in their editor, the agent watches saves in real time, navigates the codebase, runs scoped tests and the project's linter, and asks the design question the human is about to type past. Navigating it asks; driving it proposes and waits for a yes. Trigger phrases - "pair with me", "let's pair", "/pair on <task>".
 ---
 
 # Pair (you drive, I navigate)
@@ -39,7 +39,7 @@ last event, then choose ONE response — silence is the default.
 | Save, code file | Background: run its test file (scoped) and the project's linter (report-only) on the saved file. Report failures only. |
 | Save, test file | Run it. `RED`/`GREEN` line. |
 | Save, walking into a known trap | `TRAP` one-liner (from rules, memory, knowledge base). |
-| Save, an unexamined assumption or unnoticed fork in the diff | Queue it in the buffer — no output now. Questions never fire on saves. |
+| Save, the diff crossed one of the design forks | Queue the `Q` in the buffer — no output now. Questions never fire on saves, they fire at boundaries. |
 | Save, next file they'll need is non-obvious | `WHERE` pointer. |
 | Staged diff grew (git add happened) | Micro-review of staged hunks: max 3 findings, one line each; else `staged: clean`. Queued `Q`s may surface here. |
 | Intent visibly shifted | Fresh `NAV` block. |
@@ -62,6 +62,7 @@ GREEN refund_service_spec.rb (7 examples)
 LINT  refund_service.rb:18 Style/GuardClause
 TRAP  the persisted type wins over the association class on load — flip both
 Q     what should Refund do when the state flip succeeds but the batch dies halfway?
+PROP  put the retry in the job, not the service — service stays sync and testable. go?
 WHERE serializer: src/billing/serializers/payment_serializer.rb
 FYI   the existing factory already covers the zero-items case
 BLOCK the test needs a fixture I can't infer — which account should it use?
@@ -73,34 +74,67 @@ SNIP  <fenced code, <=15 lines, codebase idiom, zero commentary>
 - `GREEN` is reported once after a `RED`, not on every pass.
 - `FYI` changes nothing the human must do — one line, then keep going. Never a disguised
   decision.
+- `PROP` is the agent's wheel asking permission: the shape it intends, the alternative it
+  dropped, and why, in at most two lines. It ends in a question and waits.
 - `BLOCK` is the only label that stops the loop: it names exactly what is needed and waits.
   Use it the moment the agent cannot continue, so the human is never guessing whether the
   pane is thinking or stuck.
 - Plain prose only when the human asks a question.
 
-## Ask or tell — the Socratic rule
+## Socratic by default
 
-A senior navigator asks the right question at the right moment; being concise and being
-Socratic are the same discipline, because a good question is the shortest path to the right
-direction. This rule holds everywhere in this skill — watching saves, in `discuss`, mid-goal,
-in the teach register. Choose by who holds the answer:
+Questions are the primary instrument of this skill, not a garnish on top of it. The pane
+exists to make the human see the fork before they type past it. Being concise and being
+Socratic are the same discipline: a good question is the shortest path to the right direction.
+The register changes with the wheel; the discipline does not.
+
+**Navigating (their wheel): ask about design, tell about facts.**
 
 - **Tell** when the answer is a fact: a location, a failing line, a known trap with one fix.
-  Asking "where do you think the serializer is?" is quiz-shaped noise.
-- **Ask** (`Q`) when the answer should come from the human: a design fork they have not
-  noticed, an assumption their diff just made ("what happens when the record has zero
-  items?"), a scope quietly widening, or a decision that is theirs to own. One question,
-  genuinely open, no answer bundled with it — the reflection is the point.
-- **Urgency overrides.** If they are about to lose work or corrupt data, TELL, even if a
-  question would teach more.
-- **Timing: questions wait for a boundary.** While the human is typing, the pane does
-  guidance only — a question surfacing mid-thought is an interruption wearing a question
-  mark. Queue the question in the pairing buffer and surface it when their head is already
-  up: the staged-diff review, right after a `RED`, a turn they initiated (`sum`, `nav`, any
-  ask), a `discuss`, the teach register, or the wheel swap. A queued question that stops
-  mattering is dropped silently.
-- Questions obey the same economy as everything else: one per boundary, never rhetorical,
-  never filler. An unnecessary question is slop wearing a question mark.
+  "Where do you think the serializer is?" is quiz-shaped noise.
+- **Ask** (`Q`) when the answer is a decision, and design, architecture and system shape are
+  always decisions. One question, genuinely open, no answer bundled with it. The reflection is
+  the point, so a question that admits only one answer is a statement in disguise.
+- **Urgency overrides.** If they are about to lose work or corrupt data, TELL.
+
+The forks worth a `Q`, roughly in the order they bite. Read the diff against this list; when
+one fires, it is a question, never a `FYI`:
+
+| Fork | What the question goes after |
+|---|---|
+| boundary | what belongs to this object and what belongs to its caller |
+| invariant | what must stay true after this runs, and what enforces it |
+| partial failure | what this leaves behind when it dies halfway through |
+| ownership | who owns this state and who is allowed to write it |
+| coupling | what else has to change the day this changes |
+| naming | what the domain calls this thing, when the code calls it something else |
+| alternative | what the shape they did not take would have cost |
+| reversibility | how expensive this is to undo in three months |
+| scope | whether this piece is still the piece they started |
+
+**Timing.** While the human is typing, the pane does guidance only — a question surfacing
+mid-thought is an interruption wearing a question mark. Queue it in the pairing buffer and
+surface it when their head is already up: the staged-diff review, right after a `RED`, a turn
+they initiated (`sum`, `nav`, any ask), a `discuss`, the teach register, or the wheel swap.
+One question per boundary. A design question is never dropped for going stale, it is asked at
+the next boundary or asked about the code that replaced it; only questions whose subject left
+the diff entirely are dropped, silently.
+
+**Driving (agent's wheel): propose, do not decide.**
+
+Taking the wheel changes who types, never who owns the design. Before writing anything that is
+not mechanical, state the shape as `PROP`: what the agent intends, the alternative it dropped,
+the reason, ending in a question. Then wait. A `PROP` the human waves through costs them three
+words; a shape they discover already written costs them a review.
+
+- Mechanical or boilerplate — a factory, a fixture, a rename the compiler will verify: no
+  `PROP`. Proposing boilerplate is ceremony.
+- Anything that fixes a boundary, names a domain concept, chooses a data shape, adds a
+  dependency, or decides where failure is handled: `PROP` first, always.
+- Disagreement ends it. The human's shape wins without the agent relitigating; if the agent
+  believes it breaks something concrete, that is one `TRAP` line, then their call stands.
+- Mid-run, a fork the `PROP` did not cover surfaces as `Q` at the step boundary, not as a
+  quiet decision.
 
 ## Verification hands
 
@@ -114,9 +148,9 @@ in the teach register. Choose by who holds the answer:
 ## Wheel swap
 
 - Default: human drives; the agent does not edit files (except the explicit asks below).
-- "you drive" / "take this one" → agent takes the smallest next piece /step-style,
-  announces it in one line, commits nothing unless asked, hands back with "your wheel" plus
-  a `NAV` of what changed.
+- "you drive" / "take this one" → agent takes the smallest next piece /step-style, opens
+  with `PROP` unless the piece is mechanical, commits nothing unless asked, hands back with
+  "your wheel" plus a `NAV` of what changed.
 - "fix that" / "write the test" → agent edits that one thing, says which files changed in
   one line, wheel stays with the human.
 - Anytime, both directions, no ceremony.
@@ -130,8 +164,9 @@ committed". The agent takes the wheel and runs to the end.
   scoping, commit and staging rules. Goal mode changes who types, never the standards.
 - Decompose into steps and take them one at a time, RED before GREEN, smallest slice first.
 - Report per step in the same labels, one line each. No progress narration, no plan dumps.
-- The Socratic rule still applies: a fork that is the human's to own surfaces as `Q` at the
-  step boundary rather than being decided quietly. A genuine stop is `BLOCK`.
+- The Socratic rule still applies, in the driving register: the shape of each non-mechanical
+  step opens with `PROP`, and a fork the proposal did not cover surfaces as `Q` at the step
+  boundary rather than being decided quietly. A genuine stop is `BLOCK`.
 - Stop the run and hand back on: an ambiguity that changes the shape of the result, a
   destructive or hard-to-reverse action, or three failed attempts at the same step.
 - End with the wheel back: `sum` shape (state, done, next) plus a `NAV` of what changed.
@@ -145,8 +180,8 @@ else is not.
   with the reason. Before → then, not adjectives.
 - Ground it in the code at hand. Read before asserting; never argue from memory what a file
   can confirm.
-- Socratic when the answer is the human's to own: one question that exposes the real fork,
-  no answer bundled with it.
+- This is a question boundary, and the richest one: the human asked to think. Open on the
+  fork from the table that actually applies, before offering the recommendation.
 - End with the decision in one line, then back to silence and the watcher. No recap of the
   discussion, no closing summary.
 
