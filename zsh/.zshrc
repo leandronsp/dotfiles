@@ -42,6 +42,12 @@ export LD_LIBRARY_PATH="$(brew --prefix gd)/lib"
 eval "$(direnv hook zsh 2>/dev/null)"
 export DIRENV_LOG_FORMAT=""
 
+# `ff claude` runs work sessions under this config dir, which keys its own
+# credential, so they sit on the FullFabric account while `yolo` and a bare
+# `claude` stay on the personal one. The dir symlinks skills, agents, rules,
+# settings, memory and projects back to ~/.claude, so only the login differs.
+export FF_CLAUDE_CONFIG_DIR="$HOME/.claude-ff"
+
 # yolo mode for Claude
 yolo() {
   claude --allow-dangerously-skip-permissions "$@"
