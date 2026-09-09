@@ -30,13 +30,24 @@ usage_7d=$(echo "$input" | jq -r 'if .rate_limits.seven_day.used_percentage then
 # Undocumented endpoint, can change without notice (also degrades to no extras).
 # `touch` claims the slot up front so rapid refreshes don't fire duplicate
 # requests while one is in flight; the fetch is detached so it never blocks.
-cache_file="/tmp/claude-fable-usage"
+# Both the keychain service and the cache are per profile. With
+# CLAUDE_CONFIG_DIR set, Claude Code stores the login under
+# "Claude Code-credentials-<first 8 hex of sha256 of the config dir>", so an
+# unqualified lookup here returns the DEFAULT profile's token and reports the
+# wrong account's usage. The cache is keyed the same way, or two profiles
+# overwrite each other's reading.
+profile_key=""
+if [ -n "${CLAUDE_CONFIG_DIR:-}" ]; then
+  profile_key=$(printf '%s' "${CLAUDE_CONFIG_DIR%/}" | shasum -a 256 | cut -c1-8)
+fi
+cred_service="Claude Code-credentials${profile_key:+-$profile_key}"
+cache_file="/tmp/claude-fable-usage${profile_key:+-$profile_key}"
 mtime=$(stat -f %m "$cache_file" 2>/dev/null || echo 0)
 if [ $(( $(date +%s) - mtime )) -ge 60 ]; then
   touch "$cache_file"
   version=$(echo "$input" | jq -r '.version // "2.1.0"')
   ( out=""
-    token=$(security find-generic-password -s "Claude Code-credentials" -w 2>/dev/null | jq -r '.claudeAiOauth.accessToken // empty')
+    token=$(security find-generic-password -s "$cred_service" -w 2>/dev/null | jq -r '.claudeAiOauth.accessToken // empty')
     if [ -n "$token" ]; then
       out=$(curl -s --max-time 5 https://api.anthropic.com/api/oauth/usage \
         -H "Authorization: Bearer $token" \
