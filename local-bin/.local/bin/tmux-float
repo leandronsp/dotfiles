@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Floating pane (tmux >= 3.7): a fixed square at the bottom-right, tagged @is_float,
+# drawn over the layout without reflowing it. Enter and leave it like any pane.
+#   tmux-float toggle        create it, or move focus in/out of it
+#   tmux-float kill          close it
+#   tmux-float run <cmd...>  type <cmd> into it (creates it if needed, keeps focus)
+# tmux 3.7 floats are an early feature: resize-pane/move-pane do not work on them and
+# break-pane on one kills the server. So it is created once at its final size, never touched.
+
+W=64; H=16
+
+float() { tmux list-panes -F '#{pane_id} #{@is_float}' | awk '$2=="1"{print $1; exit}'; }
+
+ensure() {
+  local id; id=$(float)
+  if [ -z "$id" ]; then
+    read -r ww wh < <(tmux display -p '#{window_width} #{window_height}')
+    id=$(tmux new-pane -d -P -F '#{pane_id}' -x $W -y $H -X $((ww - W - 1)) -Y $((wh - H - 1)) -c "$PWD")
+    tmux set -p -t "$id" @is_float 1
+  fi
+  echo "$id"
+}
+
+case "$1" in
+  toggle)
+    id=$(ensure)
+    if [ "$(tmux display -p '#{pane_id}')" = "$id" ]; then tmux select-pane -l; else tmux select-pane -t "$id"; fi ;;
+  kill) id=$(float); [ -z "$id" ] || tmux kill-pane -t "$id" ;;
+  run)  shift; tmux send-keys -t "$(ensure)" "$*" Enter ;;
+  *)    echo "usage: tmux-float toggle|kill|run <cmd...>" >&2; exit 1 ;;
+esac
