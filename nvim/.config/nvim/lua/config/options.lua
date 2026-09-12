@@ -91,3 +91,6 @@ vim.opt.splitbelow = true
 vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
+
+-- Project-local config: load a trusted .nvim.lua from the working directory (:h exrc, :trust)
+vim.o.exrc = true
