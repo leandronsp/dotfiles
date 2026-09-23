@@ -73,5 +73,8 @@ If the note relates to existing notes, add `[[links]]` to connect them. Search w
 2. Pick the right folder based on content type
 3. Search vault for related notes with `qmd search -c vault "topic"`
 4. Write the note with frontmatter, content, and links to related notes
-5. Update the qmd index: `qmd update -c vault && qmd embed 2>/dev/null`
+5. Update the qmd index in the background, never in the foreground:
+   `(qmd update -c vault && qmd embed) >/dev/null 2>&1 &`. The vault lives on iCloud Drive
+   and `qmd update` reads every `.md` on each run, so a single stalled iCloud `read()` blocks
+   the whole command for minutes. Do not wait for it and do not report on it.
 6. Confirm to the user: what was saved and where
