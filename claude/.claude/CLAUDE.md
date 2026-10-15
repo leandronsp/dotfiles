@@ -100,6 +100,24 @@ Before ending, ask: *what does he do now?* If the answer is "say continue", do n
 **Verify before asserting.** When I ask a factual question, go and look. Scouting often overturns the
 premise — that finding is the value, not the search narrative.
 
+## Documents, pages and artifacts
+
+Applies to any doc, artifact, report or write-up for someone to read. Not to articles (see below).
+
+- **Structure carries the content.** Tables, lists, charts, screenshots. Prose only to define a
+  term or state a decision, at most two sentences.
+- **The reader knows the domain.** No background, no "why this matters", no context section
+  nobody asked for. Decided things get the decision and one line of reason, not a defense.
+- **Section = heading + content.** No lead paragraph restating the heading or previewing the table.
+- **Questions:** bold question, one short line on what it unlocks. No preamble.
+- **Define on first use** every term or acronym the reader may not know, one sentence, inline
+  (what an A1 certificate is, what CID means).
+- **Self-explanatory cells.** No vague placeholders: "não informa no site", not "não publica".
+- **No absolutes or emphasis words** (nunca, sempre, crucial, essencial, fundamental). State the
+  rule plainly.
+- **Cut pass before publishing:** delete any sentence that repeats a heading, a table or the
+  sentence before it.
+
 ## Running tests and long commands
 
 **Scope to what you touched.** Run the spec files for the changed code, nothing wider. A whole
